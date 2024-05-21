@@ -1,0 +1,26 @@
+#!/usr/bin/tclsh
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
+# commande route modifiée pour cacher eth99
+####################################################################
+# Version 20231021
+
+# nom de l'interface à supprimer
+set interf_supp eth99
+
+set a [catch {set res [eval exec /sbin/route $argv]} err]
+if {$a == {1}} {
+  puts $err
+  exit
+}
+set res [split $res \n]
+set long [llength $res]
+
+for {set i 0} {$i < $long} {incr i} {
+  set ligne [lindex $res $i]
+  if {[string first $interf_supp $ligne] == {-1}} {
+    puts $ligne
+  }
+}

@@ -1,0 +1,14 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Exec=/usr/bin/network-in
+Name=Network-In Graphical Network Simulator
+Name[fr]=Simulateur de réseaux Network-In 
+Comment=program to simulate networks
+Comment[fr]=logiciel de simulation de réseaux
+GenericName=Simulation Tool
+GenericName[fr]=Outil de simulation
+Icon=/usr/lib/network-in/images/network-in-64.png
+MimeType=application/x-network-in
+Categories=Utility;Education;Network;

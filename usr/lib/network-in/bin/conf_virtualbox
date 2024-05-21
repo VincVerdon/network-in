@@ -1,0 +1,49 @@
+#!/bin/sh
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
+#version 20240321
+####################################################################
+
+TMP=/tmp/network-in
+ID=$1
+VM=$2
+ACTION=$3
+NIC=$4
+REP_PROJ=/home/vincent/network-in-proj/
+LOG_FILE=$REP_PROJ/network-in.log
+
+case "$ACTION" in
+	start)
+		
+		#Configuration interface sur un switch VDE
+		vde_switch -d -nostdin -s $TMP/vde/$ID
+		vboxmanage modifyvm $VM --nic${NIC} generic
+		vboxmanage modifyvm $VM --nicgenericdrv${NIC} VDE
+		vboxmanage modifyvm $VM --nicproperty${NIC} network=$TMP/vde/$ID
+		#Démarrage VM
+		vboxmanage startvm $VM
+		;;
+	    
+	stop) 
+		
+		#Arrêt VM
+		vboxmanage controlvm $VM acpipowerbutton
+		#On supprime le switch utilisé
+	    PID=$(lsof -Fp $TMP/vde/$ID/ctl)
+	    PID=${PID##p}
+	    /bin/kill $PID
+	    ;;
+	
+	force)
+	
+		#Arrêt VM
+		vboxmanage controlvm $VM poweroff
+		#On supprime le switch utilisé
+	    PID=$(lsof -Fp $TMP/vde/$ID/ctl)
+	    PID=${PID##p}
+	    /bin/kill $PID
+	    ;;
+		
+esac

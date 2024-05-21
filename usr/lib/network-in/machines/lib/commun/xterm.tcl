@@ -1,0 +1,11 @@
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
+####################################################################
+# Version 20231220
+
+proc xterm {} {
+    set exe {xterm  +ai -T [wm title .] -geometry 60x20+[winfo x .]+[winfo y .] -bg $::coul(fond) -fg $::coul(texte) -fn 10x20 -fa "DejaVu Sans Mono" -fs 12}
+    lancer $exe
+}

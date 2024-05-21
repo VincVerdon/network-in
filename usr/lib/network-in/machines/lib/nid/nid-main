@@ -1,0 +1,105 @@
+#!/bin/bash
+#Daemon pour communiquer avec le simulateur network-in!
+#+ gestion de l'interface graphique
+#V. Verdon
+#Version 20231029
+###################
+
+REP_NETW=/var/networkin
+PID=/var/run/nid
+PID_INTERFACE=/var/run/nid_interface
+
+#on fixe quelques variables d'environnement
+export USER=root
+export HOME=/root
+cd $HOME
+. /etc/profile
+
+#on indique au simulateur que le demarrage est fini
+echo "en marche" > $REP_NETW/com/on
+if [ -e $REP_NETW/com/reboot ]
+then
+    rm $REP_NETW/com/reboot
+fi
+
+###################
+#ecriture du pid
+echo $$ > $PID
+
+#parametrage de l'interface de com avec le simulateur
+DON_IP_COM=$(cat $REP_NETW/com/ip_com)
+/sbin/ip a add ${DON_IP_COM}/255.255.255.0 dev eth99
+/sbin/ip link set eth99 up
+
+#on definit la variable display pour affichage graphique sur hote
+DON_IP_HOTE=$(cat $REP_NETW/com/ip_hote)
+export DISPLAY=$DON_IP_HOTE:0.0
+
+# On liste toutes les interfaces reseau
+LISTE_IF=''
+while read L
+do
+    TYPE_IF=$(echo $L | cut -d ' ' -f 1)
+    N_IF=$(echo $L | cut -d ' ' -f 2)
+for ((I=0;$I<$N_IF;I=$I+1))
+do
+    LISTE_IF="$LISTE_IF $TYPE_IF$I"
+done
+done < $REP_NETW/com/interfaces
+
+#Initialisation et demarrage de l'interface graphique
+$REP_NETW/init &
+
+##################
+#demarrage de la boucle de surveillance
+#Cette boucle permet la communication avec le simulateur par echange de fichiers d'infos
+while [ 1 ]
+do
+
+  #Synchronisation du nom de machine
+  ACTU=$(hostname)
+  if [ "$ACTU" != "$DON_HOSTNAME" ]
+  then
+    echo -n $ACTU > $REP_NETW/com/hostname
+    DON_HOSTNAME=$ACTU
+  fi
+
+  #Synchronisation des ip des interfaces reseau
+  I=0
+  for IF in $LISTE_IF
+  do
+    R=$(/sbin/ip a show $IF | grep 'UP')
+    if [ "$R"  == "" ]
+    then
+       #interface down
+       ACTU=''
+    else
+       #interface up
+       ACTU=$(/sbin/ip a show $IF | grep 'inet[^6]')
+    fi
+
+    if [ "$ACTU" != "${INTERF[$I]}" ]
+    then
+      VAL=$(echo $ACTU | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}')
+      if  [ "$VAL" != "" ]
+      then
+        echo "$VAL" > $REP_NETW/com/interface_$IF
+      else
+        echo "" > $REP_NETW/com/interface_$IF
+      fi
+      INTERF[$I]=$ACTU
+    fi
+    I=$I+1
+  done
+  
+	#Application de la demande d'arret provenant du simulateur
+  if [ -e $REP_NETW/com/halt ]
+  then
+    halt &
+    exit 0
+  fi
+  
+  #un peu d'attente avant rebouclage
+  sleep 5
+
+done

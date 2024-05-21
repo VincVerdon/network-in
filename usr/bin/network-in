@@ -1,0 +1,61 @@
+#!/bin/bash
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
+#version 20231016
+####################################################################
+
+#Rep d'installation
+REP=/usr/lib/network-in
+SIM_FIC=''
+
+# Option de la ligne de commande
+
+if [[ "$1" =~ \.net$ ]]
+then
+	SIM_FIC=$1
+elif [ "$1" != "" ]
+then
+	MES1='Network-In! is a network simulation software from V. Verdon Corp.!'
+	MES2='-h or --help : display help
+-v : display version number only
+--version : display version in long format
+Look at /usr/share/doc/network-in for help'
+	MES3='Possible options are : --help or -h, -v, --version'
+    MES4=$(sed -nre 's/.*version\(network-in\)\ (.*[0-9]{1,2}\.[0-9]{1,2}.*)/\1/p' $REP/network-in.tcl)
+	case $1 in
+		'--help') echo $MES1 ; echo $MES2 ;;
+		'-h') echo $MES1 ; echo $MES2 ;;
+		'--version') echo $MES1 ; echo Version $MES4 ;;
+        '-v') echo $MES4 ;;
+		*) echo $MES3 ;;
+	esac
+	exit
+fi
+
+#On refuse le démarrage si le simulateur est déjà démarré. Avec le pipe, le compte est bien 3 !
+if [ $(ps -C network-in -o pid= | wc -l) = 3 ]
+then
+	wish $REP/error.tcl err1
+	exit
+fi
+
+# On interroge la config pour connaître l'emplacement du rep de projet
+REP_PROJ=$(tclsh /usr/lib/network-in/working_dir.tcl)
+LOG_FILE=$REP_PROJ/network-in.log
+if [ ! -e $REP_PROJ ]
+then
+  mkdir $REP_PROJ
+fi
+
+echo Start at $(date) >$LOG_FILE 2>&1
+
+#démarrage des interfaces et paramétrages du parefeu
+sudo $REP/bin/network-in-start >>$LOG_FILE 2>&1
+
+#démarrage de Network-in
+wish $REP/network-in.tcl $SIM_FIC >>$LOG_FILE 2>&1
+
+#Arrêt des interfaces et déparamétrage du parefeu
+sudo $REP/bin/network-in-stop >>$LOG_FILE 2>&1

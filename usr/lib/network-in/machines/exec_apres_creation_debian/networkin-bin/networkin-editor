@@ -1,0 +1,31 @@
+#!/bin/sh
+#This is a part of Network-In! project.
+#V. Verdon Corp.! 
+#Version 20231021
+
+# the next line restarts using wish \
+exec wish "$0" "$@"
+set rep_netw /var/networkin
+set rep $rep_netw/interface
+
+#Encodage des caractères
+encoding system utf-8
+
+# on force la langue à utiliser (appelée "en" dans tous les cas !)
+::msgcat::mclocale en
+if {[file exists $rep/dict.actu]} {
+  set f [open $rep/dict.actu r]
+  set l [read $f]
+  ::msgcat::::mcmset en $l
+  close $f
+}
+
+#On source le code de l'éditeur
+source $rep/lib/editeur.tcl
+wm withdraw .
+editeur
+
+#On sort quand la fenêtre est détruite
+tkwait window .t_texte
+exit 0
+

@@ -1,0 +1,12 @@
+#!/bin/bash
+#Network-in!
+#Demarrage de l'interface graphique d'un PC
+#V. Verdon
+#Version 20231227
+###################
+REP_NETW=$(dirname $0)
+PID_INTERFACE=/var/run/nid_interface
+
+wish $REP_NETW/interface/init.tcl &
+echo $(jobs -p %%) > $PID_INTERFACE
+echo $WINDOWID > $REP_NETW/com/window_id

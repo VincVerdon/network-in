@@ -1,0 +1,38 @@
+#!/bin/sh
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
+#version 20240330
+####################################################################
+
+TMP=/tmp/network-in
+ID=$1
+NAME=$2
+ACTION=$3
+IP=$4
+MASK=$5
+REP_PROJ=/home/vincent/network-in-proj/
+LOG_FILE=$REP_PROJ/network-in.log
+
+if [ "$ACTION" = "start" ]
+then
+
+	/usr/bin/vde_switch -d -nostdin -tap $NAME -s $TMP/vde/$ID -m 666
+	#paramétrage éventuel de l'interface
+	if [ -n "$IP" ] && [ -n "$MASK" ]
+	then
+		/sbin/ip a add $IP/$MASK dev $NAME
+    fi
+	/sbin/ip link set $NAME up
+	
+else
+
+    PID=$(lsof -Fp $TMP/vde/$ID/ctl)
+    PID=${PID##p}
+    /bin/kill $PID
+    /sbin/ip link set $NAME down
+	/sbin/ip a flush dev $NAME
+	/sbin/ip link delete $NAME
+	
+fi

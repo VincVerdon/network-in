@@ -1,0 +1,10 @@
+[Unit]
+Description=Network-in Simulator communication when halt
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/networkin-bin/nid/nid-halt.sh
+
+[Install]
+WantedBy=halt.target poweroff.target

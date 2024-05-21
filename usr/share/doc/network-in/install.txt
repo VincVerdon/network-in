@@ -1,0 +1,26 @@
+Network-In! installation notes
+-------------------------------
+
+English :
+---------
+It's easy to install Network-In! software on GNU/Linux Debian.
+Root account has to do :
+-Install somme packets with the following command :
+ 	apt-get install sudo tcl tk uml-utilities vde2
+
+-Install the software :
+	dpkg -i network-in.deb
+
+-Restart gdm (or reboot if you don't know how to do)
+
+Français :
+----------
+Il est facile d'installer le logiciel Network-In! sur une GNU/Linux Debian.
+Le compte root doit faire les choses suivantes :
+-Installer quelques paquets grâce à la commande suivante :
+        apt-get install sudo tcl tk uml-utilities vde2
+
+-Installer le logiciel :
+        dpkg -i network-in.deb
+
+-Redémarrer gdm (ou rebooter si vous ne savez pas comment faire)

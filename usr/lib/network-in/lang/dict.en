@@ -1,0 +1,211 @@
+A  A
+"Admin terminal" "Admin terminal"
+Abort  Abort
+About  About
+"Access to the HTTP server"  "Access to the HTTP server"
+"Accounts addition"  "Accounts addition"
+"Accounts suppression"  "Accounts suppression"
+"Active interface" "Active interface"
+"Actual VM ID"  "Actual VM ID"
+Add  Add
+"Add network card"  "Add network card"
+"Add or change comment"  "Add or change a comment"
+"Add records"  "Add records"
+"Add routes"  "Add routes"
+"Address of server" "Address of server"
+"After duplication, MAC address should be changed !"  "After duplication, MAC address should be changed !"
+"A simple editor for Network-In! V. Verdon Corp.!"  "A simple editor for Network-In! V. Verdon Corp.!"
+Beginner  Beginner
+Bridge "Bridge with the host"
+bridge "Bridge with the host"
+Cable  Cable
+"Cannot connect on itself !"  "Cannot connect on itself !"
+"Change network card"  "Change network card"
+"Choose a random Mac address"  "Choose a random Mac address"
+"Choose file"  "Choose file"
+"Choose interface to capture"  "Choose interface to capture"
+Close Close
+CNAME  CNAME
+Complete  Complete
+Composants Components
+Computer  Computer
+"Computer name" "Computer name"
+Configuration  Configuration
+"Configuration method"  "Configuration method"
+Confirm  Confirm
+"Connected to simulator" "Connected to simulator"
+Console  Console
+Copy  Copy
+"Crossed cable"  "Crossed cable"
+"Current records"  "Current records"
+Cut  cut
+dce  DCE
+dte  DTE
+"Delete infos" "Delete infos"
+"Delete network card"  "Delete network card"
+"Desk computer"  "Desk computer" 
+"DHCP : automatic DNS configuration"  "DHCP : automatic DNS configuration"
+"DHCP server" "DHCP server"
+"DHCP server configuration"  "DHCP server configuration"
+DNS  DNS
+"DNS address"  "DNS address"
+"DNS Configuration" "DNS configuration"
+"DNS server configuration"  "DNS server configuration"
+"DNS server"  "DNS server"
+Domain  Domain
+"Do you really want to open another project ? If you don't  save the actual project, it will be lost"  "Do you really want to open another project ? If you don't  save the actual project, it will be lost"
+"Do you really want to start a new project ? If you don't  save the actual project, it will be lost"  "Do you really want to start a new project ? If you don't  save the actual project, it will be lost"
+"Do you really want to suppress this equipment ? \nIt will suppress all its configuration too"  "Do you really want to suppress this equipment ? \nIt will suppress all its configuration too"
+Duplicate  Duplicate
+Dynamic  Dynamic
+Edit  Edit
+"Equipment Category"  "Equipment Category"
+err1  "Impossible. Network-In! is already started !"
+Error  Error
+"Ethernet interfaces"  "Interfaces ethernet"
+"Existing routes" "Existing routes"
+Exit  Quitter
+Family  Family
+File  File
+"File not saved"  "File not saved"
+"File not saved. Continue anymore ?"  "File not saved. Continue anymore ?"
+"First IP address"  "First IP address"
+"Force stop" "Force stop"
+"Frame analysis"  "Frame analysis"
+"FTP client"  "FTP client"
+"FTP server"  "FTP server"
+"FTP server configuration"  "FTP server configuration"
+Gateway  Gateway
+"Gateway address"  "Gateway address"
+Generalities  Generalities
+Help Help
+"Here you can add or modify the comment for the component"  "Here you can add or modify \nthe comment for the component"
+"Here you can choose a new mac address"  "Here you can choose a new mac address"
+"Host network" "Host network"
+"HTTP server"  "HTTP server"
+"HTTP server configuration"  "HTTP server configuration"
+"HTTP server directory (/var/www)"  "HTTP server directory (/var/www)"
+Hub  Hub
+ID  ID
+Impossible Impossible
+"index.html file content"  "index.html file content"
+Informations Informations
+"Informations about" "Informations about"
+"Interface configuration" "Interface configuration"
+"Interfaces configuration" "Interfaces configuration"
+IP  IP
+"IP address"  "IP address"
+"IP address slot"  "IP address slot"
+"IP configuration"  "IP configuration"
+Laptop  Laptop
+"Last IP address"  "Last IP address"
+License  License
+"Login terminal" "Login terminal"
+"Logs print" "Log print"
+Name  Name
+"Name configuration"  "Name configuration"
+Network  Network
+"Network card suppressed"  "Network card suppressed"
+"Network configuration"  "Network configuration"
+"Network mask"  "Network mask"
+"Network-In! is a network simulator"  "Network-In! is a network simulator"
+"Network-In! simulator"  "Network-In! simulator"
+"Network address"  "Network address"
+New  New
+"New capture" "New capture"
+"New network card added"  "New network card added"
+"New project"  "New project"
+"No file selected !"  "No file selected !"
+"Not connected" "Not connected"
+"Off"  "Off"
+"On"  "On"
+"Open an existing project"  "Open an existing project"
+"Open a project"  "Open a project"
+Open  Open
+"Open file"  "Open file"
+Options  Options
+Parameters  Parameters
+passerelle  Gateway
+"Password"  "Password"
+Paste  Paste
+pc  "Generic computer"
+pctexte  "Linux text computer
+"Please, be patient"  "Please, be patient"
+portable  Laptop
+"Quit" "Quit"
+"Quit Network-In!" "Quit Network-In!"
+"Real network gateway"  "Real network gateway"
+Reboot  Reboot
+"Reachable directories"  "Reachable directories"
+"Records suppression"  "Records suppression"
+Refresh Refresh
+Refuse Refuse
+"Refuse direct admin (root) connexion :" "Refuse direct admin (root) connexion :"
+Router  Router
+routeur2 "2 ethernet interfaces router"
+routeur4 "4 ethernet interfaces router"
+"Router name" "Router name"
+"Routes list" "Routes list"
+"Routes suppression"  "Routes suppression"
+"Routing decides how to join other networks" "Routing decides how to join other networks"
+"Routing table" "Routing table"
+Save  Save
+"Save as"  "Save as"
+"Save the actual project"  "Save the actual project"
+"Selected account suppression"  "Selected account suppression"
+"Selected route suppression"  "Selected route suppression"
+Security Security
+Server  Server
+serveur "Server computer"
+"Server state"  "Server state"
+"Services configuration"  "Services configuration"
+Shutdown  Shutdown
+"SSH server"  "SSH server"
+"SSH server configuration"  "SSH server configuration"
+Start  Start
+Static Static
+"Static routing" "Static routing"
+"Static routing configuration" "Static routing configuration"
+Stop  Stop
+Suppress  Suppress
+Suppression  Suppression
+"Suppression of a selected record"  "Suppression of a selected record"
+Switch  Switch
+switch4 "Basic 4 ports switch"
+switch8 "Basic 8 ports switch"
+Terminal Terminal
+"Text editor"  "Text editor"
+"Text interface computer" "Text interface computer"
+"The DHCP server provides IP address for the other computers of the LAN"  "The DHCP server provides IP address for the other computers of the LAN"
+"The DNS server translates computers names into IP address"  "The DNS server translates computers names into IP address"
+"The FTP server allows to put and to access files"  "The FTP server allows to put and to access files"
+"The HTTP server hosts Websites"  "The HTTP server hosts Websites"
+"The SSH server offers ability to control the computer at distance "  "The SSH server offers ability to control the computer at distance "
+"This file doesn't exist"  "This file doesn't exist"
+Tools Tools
+Type  Type
+"Type of interface"  "Type of interface"
+"Type : ethernet"  "Type : ethernet"
+"Uncrossed cable"  "Uncrossed cable" 
+unnamed  unnamed
+"Use VM name" "Utiliser le nom de la VM VirtualBox"
+"Users accounts"  "Users accounts"
+version   version
+virtualbox "Virtualbox external VM"
+"Virtualbox VMs list"  "Virtualbox VMs list"
+"Vbox ID"  "VirtualBox ID"
+"Vbox name"  "VirtualBox name"
+"Web browser"  "Web browser"
+"Wifi interfaces"  "Wifi interfaces"
+"Write file denied"  "Write file denied"
+"You can't create more than one gateway"  "You can't create more than one gateway"
+"You must first stop this equipment"  "You must first stop this equipment"
+"You must stop every equipment before doing this"  "You must stop every equipment before doing this"
+"You must choose a name"  "You must choose a name"
+"You must choose  an IP address and a mask"  "You must choose  an IP address and a mask"
+"2 interfaces router"  "2 interfaces router"
+"4 interfaces router"  "4 interfaces router"
+"4 ports hub"  "4 ports hub"
+"4 ports switch"  "4 ports switch"
+"8 ports hub"  "8 ports hub"
+"8 ports switch"  "8 ports switch"

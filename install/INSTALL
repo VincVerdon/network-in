@@ -1,0 +1,22 @@
+Bonjour !
+Il est facile d'installer Network-In!
+Ouvrez un terminal sous le login root puis exécutez ./install.sh
+L'installation est automatique.
+S'il manque des paquets logiciels, l'intallateur vous le dira.
+
+Si vous voulez désintaller Network-In! Exécutez la commande /usr/lib/network-in/bin/uninstall.sh
+
+Amusez-vous bien !
+
+
+----------------------------------
+
+Hello !
+It's easy to install Network-In!
+Open a terminal (xterm) as root login and execute ./install.sh
+Installation is automatic.
+If some software is missing, so the installation program will tell it.
+
+If you want to uninstall Network-In!, execute  /usr/lib/network-in/bin/uninstall.sh
+
+Enjoy !

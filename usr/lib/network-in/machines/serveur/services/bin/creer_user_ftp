@@ -1,0 +1,9 @@
+#!/bin/bash
+#création d'un utilisateur pour le serveur ftp
+
+NOM=$1
+PASS=$2
+
+useradd -d /home/ftp  -g users  $NOM -s /bin/bash
+echo $NOM:$PASS | chpasswd
+
