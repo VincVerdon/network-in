@@ -32,6 +32,7 @@ Computer  Computer
 "Computer name" "Computer name"
 Configuration  Configuration
 "Configuration method"  "Configuration method"
+"Configuration options"  "Configuration options"
 Confirm  Confirm
 "Connected to simulator" "Connected to simulator"
 Console  Console
@@ -48,11 +49,12 @@ dte  DTE
 "DHCP server" "DHCP server"
 "DHCP server configuration"  "DHCP server configuration"
 DNS  DNS
-"DNS address"  "DNS address"
+"DNS address"  "DNS server address"
 "DNS Configuration" "DNS configuration"
 "DNS server configuration"  "DNS server configuration"
 "DNS server"  "DNS server"
 Domain  Domain
+"Domain name"  "Domain name"
 "Do you really want to open another project ? If you don't  save the actual project, it will be lost"  "Do you really want to open another project ? If you don't  save the actual project, it will be lost"
 "Do you really want to start a new project ? If you don't  save the actual project, it will be lost"  "Do you really want to start a new project ? If you don't  save the actual project, it will be lost"
 "Do you really want to suppress this equipment ? \nIt will suppress all its configuration too"  "Do you really want to suppress this equipment ? \nIt will suppress all its configuration too"

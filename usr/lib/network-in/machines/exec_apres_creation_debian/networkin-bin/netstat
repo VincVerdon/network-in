@@ -5,10 +5,10 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # commande netstat modifiée pour cacher eth99
 ####################################################################
-# Version 20231021
+# Version 20240528
 
 # nom de l'interface à supprimer
-set add_supp 192.0.3.
+set add_supp [exec cat /var/networkin/com/ip_com]
 set interf_supp eth99
 
 set a [catch {set res [eval exec /bin/netstat $argv]} err]

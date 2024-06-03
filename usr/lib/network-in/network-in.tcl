@@ -5,7 +5,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
 #version 20240216
-set version(network-in) 202400402-pre2.0
+set version(network-in) 202400521-pre2.0
 
 # Démarrage de Network-in!
 ################################################################################
@@ -77,7 +77,7 @@ unset f l
 # définition du message boite A propos
 set ::apropos "[::msgcat::mc "Network-In! is a network simulator"]
 V. Verdon Corp! - $::version(network-in)
-http://network-in.vverdon.fr
+https://network-in.vverdon.fr
 "
 
 # on source les differents modules

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20240402
+# Version 20240521
 
 
 ################################################################################
@@ -306,7 +306,6 @@ proc dupliquer_ordinateur {id} {
 	# a la creation l'objet n'est pas démarré
 	set ::tmp($id,etat) 0
 	set ::tmp($id,win_id) {}
-	set ::tmp($id,raise) 0
 	
 	# Copie des fichiers
 	file copy $::rep_proj/datas/$parent $::rep_proj/datas/$id
@@ -585,7 +584,6 @@ proc creation_objet {famille type x y} {
   # a la creation l'objet n'est pas démarré
   set ::tmp($id,etat) 0
 	set ::tmp($id,win_id) {}
-	set ::tmp($id,raise) 0
   
   # initialisation
   initialisation_$type $id
@@ -726,7 +724,6 @@ proc restaurer_projet {} {
 					}
 				}
 				set ::tmp($id,win_id) {}
-				set ::tmp($id,raise) 0
         dessine_objet $id
       }
     }

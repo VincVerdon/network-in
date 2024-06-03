@@ -1,9 +1,10 @@
 #!/bin/bash
-#création d'un utilisateur pour le serveur ftp
+#Création d'un utilisateur pour le serveur ftp
+#Version 20240528
 
 NOM=$1
 PASS=$2
 
-useradd -d /home/ftp  -g users  $NOM -s /bin/bash
-echo $NOM:$PASS | chpasswd
+useradd -d /home/ftp -g users $NOM -s /sbin/nologin
+chpasswd <<< "$NOM:$PASS"
 

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20240125
+# Version 20240524
 # Ce module a besoin du module général réseau
 source $::rep/config_reseau.tcl
 
@@ -64,6 +64,7 @@ proc fenetre_config_dns {} {
   if {$res == {}} {
     set ::conf(dns) 0
     set ::conf(dns_records) {}
+    set ::conf(domain) {}
   } else  {
     array set ::conf $res
   }
@@ -87,6 +88,14 @@ proc fenetre_config_dns {} {
   pack .cfg2.f0.1 -side left
   radiobutton .cfg2.f0.2 -text [::msgcat::mc "Off"] -variable ::conf(dns) -value 0
   pack .cfg2.f0.2 -side left
+
+  # Choix du domaine
+  labelframe .cfg2.f4 -text [::msgcat::mc "Domain name"]
+  pack .cfg2.f4 -fill both -expand 1
+  label .cfg2.f4.l1 -text "[::msgcat::mc "Domain"] :"
+  grid .cfg2.f4.l1 -row 1 -column 0 -sticky e
+  entry .cfg2.f4.e1 -background white -width 16 -textvariable ::conf(domain)
+  grid .cfg2.f4.e1 -row 1 -column 1 -sticky w
   
   # zone d'affichage des enregistrements
   labelframe .cfg2.f1 -text [::msgcat::mc "Current records"]
@@ -308,7 +317,7 @@ proc fenetre_config_ftp {} {
 
 ################################################################################
 proc creer_user_ftp {nom pass} {
-  exec $::rep/bin/creer_user_ftp $nom $pass &
+  exec $::rep/../services/bin/creer_user_ftp $nom $pass &
 }
 
 ################################################################################
@@ -321,17 +330,21 @@ proc supprimer_user {nom} {
 proc fenetre_config_dhcp {} {
   
   # réinitialisation/récupération de la config
+  # lecture de toutes les interfaces
+  lire_interfaces
+  
   array unset ::conf
   set res [lire_param dhcp]
   if {$res == {}} {
     set ::conf(ip1) {}
     set ::conf(ip2) {}
-    set ::conf(netmask) {}
+    #set ::conf(netmask) {}
     set ::conf(gateway) {}
     set ::conf(dns) {}
     set ::conf(domain) {}
     set ::conf(network) {}
     set ::conf(dhcp) 0
+    set ::conf(eth) eth0
   } else  {
     array set ::conf $res
   }
@@ -351,9 +364,39 @@ proc fenetre_config_dhcp {} {
   # Choix du type de config
   labelframe .cfg2.f0 -text [::msgcat::mc "Server state"]
   pack .cfg2.f0 -fill both -expand 1
-  
+  radiobutton .cfg2.f0.1 -text [::msgcat::mc "On"]  -variable ::conf(dhcp) -value 1
+  pack .cfg2.f0.1 -side left
+  radiobutton .cfg2.f0.2 -text [::msgcat::mc "Off"] -variable ::conf(dhcp) -value 0
+  pack .cfg2.f0.2 -side left
+
   # zone de saisie
+  labelframe .cfg2.f3 -text [::msgcat::mc "Network interface choice"]
+  pack .cfg2.f3 -fill both -expand 1
   
+  for  {set i 0} {$i < $::tmp(nb_eth)} {incr i} {
+    radiobutton .cfg2.f3.$i -text eth$i  -variable ::conf(eth) -value eth$i
+    pack .cfg2.f3.$i -side left
+  }
+  
+  labelframe .cfg2.f2 -text [::msgcat::mc "Configuration options"]
+  pack .cfg2.f2 -fill both -expand 1
+  #label .cfg2.f2.l2 -text "[::msgcat::mc "Network mask"] :"
+  #grid .cfg2.f2.l2 -row 1 -column 0 -sticky e
+  #entry .cfg2.f2.e2 -background white -width 16 -textvariable ::conf(netmask)
+  #grid .cfg2.f2.e2 -row 1 -column 1 -sticky w
+  label .cfg2.f2.l3 -text "[::msgcat::mc "Gateway address"] :"
+  grid .cfg2.f2.l3 -row 2 -column 0 -sticky e
+  entry .cfg2.f2.e3 -background white -width 16 -textvariable ::conf(gateway)
+  grid .cfg2.f2.e3 -row 2 -column 1 -sticky w
+  label .cfg2.f2.l5 -text "[::msgcat::mc "DNS address"] :"
+  grid .cfg2.f2.l5 -row 3 -column 0 -sticky e
+  entry .cfg2.f2.e5 -background white -width 16 -textvariable ::conf(dns)
+  grid .cfg2.f2.e5 -row 3 -column 1 -sticky w
+  label .cfg2.f2.l6 -text "[::msgcat::mc "Domain name"] :"
+  grid .cfg2.f2.l6 -row 4 -column 0 -sticky e
+  entry .cfg2.f2.e6 -background white -width 16 -textvariable ::conf(domain)
+  grid .cfg2.f2.e6 -row 4 -column 1 -sticky w
+
   labelframe .cfg2.f1 -text [::msgcat::mc "IP address slot"]
   pack .cfg2.f1 -fill both -expand 1
   label .cfg2.f1.l1 -text "[::msgcat::mc "First IP address"] :"
@@ -364,31 +407,6 @@ proc fenetre_config_dhcp {} {
   grid .cfg2.f1.l4 -row 1 -column 2 -sticky e
   entry .cfg2.f1.e4 -background white -width 16 -textvariable ::conf(ip2)
   grid .cfg2.f1.e4 -row 1 -column 3 -sticky e
-
-  labelframe .cfg2.f2 -text [::msgcat::mc "Network configuration"]
-  pack .cfg2.f2 -fill both -expand 1
-  label .cfg2.f2.l2 -text "[::msgcat::mc "Network mask"] :"
-  grid .cfg2.f2.l2 -row 1 -column 0 -sticky e
-  entry .cfg2.f2.e2 -background white -width 16 -textvariable ::conf(netmask)
-  grid .cfg2.f2.e2 -row 1 -column 1 -sticky w
-  label .cfg2.f2.l3 -text "[::msgcat::mc "Gateway address"] :"
-  grid .cfg2.f2.l3 -row 2 -column 0 -sticky e
-  entry .cfg2.f2.e3 -background white -width 16 -textvariable ::conf(gateway)
-  grid .cfg2.f2.e3 -row 2 -column 1 -sticky w
-  label .cfg2.f2.l5 -text "[::msgcat::mc "DNS address"] :"
-  grid .cfg2.f2.l5 -row 3 -column 0 -sticky e
-  entry .cfg2.f2.e5 -background white -width 16 -textvariable ::conf(dns)
-  grid .cfg2.f2.e5 -row 3 -column 1 -sticky w
-  label .cfg2.f2.l6 -text "[::msgcat::mc "Domain"] :"
-  grid .cfg2.f2.l6 -row 4 -column 0 -sticky e
-  entry .cfg2.f2.e6 -background white -width 16 -textvariable ::conf(domain)
-  grid .cfg2.f2.e6 -row 4 -column 1 -sticky w
-
-  # Choix du type de config... Suite
-  radiobutton .cfg2.f0.1 -text [::msgcat::mc "On"]  -variable ::conf(dhcp) -value 1
-  pack .cfg2.f0.1 -side left
-  radiobutton .cfg2.f0.2 -text [::msgcat::mc "Off"] -variable ::conf(dhcp) -value 0
-  pack .cfg2.f0.2 -side left
   
   # boutons
   frame .cfg2.fb
@@ -508,9 +526,14 @@ proc applique_config_dhcp {} {
     puts $f "option domain-name \"$::conf(domain)\";"
   }
   puts $f "subnet $::conf(network) netmask $::conf(netmask) \{"
-  puts $f "range $::conf(ip1) $::conf(ip2);"
+  if {$::conf(ip1)!={} && $::conf(ip2)!={}} {
+      puts $f "range $::conf(ip1) $::conf(ip2);"
+  }
   puts $f "\}" 
   close $f
+
+  # Modification du fichier de config /etc/default/isc-dhcp-server
+  exec sed -i s/^INTERFACESv4=.*/INTERFACESv4=\"$::conf(eth)\"/ /etc/default/isc-dhcp-server
   
   # redémarrage du service
   maj_service isc-dhcp-server $::conf(dhcp)
@@ -666,11 +689,6 @@ proc applique_config_dns {} {
   # sauvegarde des données
   ecrire_param dns [array get ::conf]
   
-  # récupération de la config DNS
-  set dns [lire_dns_machine]
-  set domaine [lindex $dns 0]
-  unset dns
-  
   # ecriture du fichier de config named.local
   set f [open /etc/bind/named.conf.local w]
   puts $f "// Automatic configuration by Network-In interface"
@@ -691,7 +709,7 @@ proc applique_config_dns {} {
   # ecriture du fichier de zone directe
   set fd [open /etc/bind/db.direct w]
   puts $fd "; Automatic configuration by Network-In interface"
-  puts $fd ""
+  puts $fd ";"
   puts $fd "\$TTL 86400"
   puts $fd "@    IN    SOA    localhost.    root.localhost. ("
   puts $fd "    1               ; numero de version"
@@ -699,13 +717,13 @@ proc applique_config_dns {} {
   puts $fd "    86400      ; re-essai"
   puts $fd "    2419200  ; expiration"
   puts $fd "    86400 )    ; cache TTL negatif"
-  puts $fd ""
+  puts $fd ";"
   puts $fd "@    IN    NS    localhost."
   
   # ecriture du fichier de zone inverse
   set fi [open /etc/bind/db.inverse w]
   puts $fi "; Automatic configuration by Network-In interface"
-  puts $fi ""
+  puts $fi ";"
   puts $fi "\$TTL 86400"
   puts $fi "@    IN    SOA    localhost.    root.localhost. ("
   puts $fi "    1               ; numero de version"
@@ -713,7 +731,7 @@ proc applique_config_dns {} {
   puts $fi "    86400      ; re-essai"
   puts $fi "    2419200  ; expiration"
   puts $fi "    86400 )    ; cache TTL negatif"
-  puts $fi ""
+  puts $fi ";"
   puts $fi "@    IN    NS    localhost."
   
   # ajout des entrées dand fd et fi

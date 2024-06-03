@@ -2,7 +2,7 @@
 #Network-in!
 #Script de preparation d'une image de machine
 #V. Verdon
-#Version 20231220
+#Version 20240528
 ###################
 REP=$(dirname $0)
 
@@ -33,8 +33,7 @@ sed -i 's/^SELINUX=permissive/SELINUX=disabled/' /etc/selinux/config
 
 #Paquets nécessaires à Network-in
 #xwininfo nécessaire mais on n'installe pas le paquet car trop gros (on installe libxcb-shape0 par contre car il en a besoin) !
-apt install -y 
-tclsh wish ipcalc libxcb-shape0 wmctrl
+apt install -y tclsh wish ipcalc libxcb-shape0 wmctrl
 
 #Installation paquets pour services et utilisateur
 apt install -y net-tools dnsutils iptables tcpdump termshark nmap traceroute bind9 isc-dhcp-server proftpd-basic openssh-server apache2  ftp
@@ -42,6 +41,15 @@ systemctl disable bind9.service
 systemctl disable isc-dhcp-server.service
 systemctl disable proftpd.service
 systemctl disable ssh.service
+systemctl disable apache2.service
+
+#Remplacement du fichier index.html par une version personnalisée
+cp $REP/index.html /var/www/html
+
+#Répertoire des comptes FTP
+mkdir /home/ftp
+chgrp users /home/ftp
+chmod 770 /home/ftp
 
 #Ajout des exe spécifiques à network-in
 cp -r $REP/networkin-bin /sbin

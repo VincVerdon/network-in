@@ -32,6 +32,7 @@ Computer  Ordinateur
 "Computer name" "Nom de la machine"
 Configuration  Configuration
 "Configuration method" "Méthode de configuration"
+"Configuration options"  "Options de configuration"
 Confirm  Valider
 "Connected to simulator" "Connecté au simulateur"
 Console  Console
@@ -48,11 +49,12 @@ dte  DTE
 "DHCP server" "Serveur DHCP"
 "DHCP server configuration"  "Configuration serveur DHCP"
 DNS  DNS
-"DNS address"  "Adresse de DNS"
+"DNS address"  "Adresse du serveur DNS"
 "DNS Configuration" "Configuration DNS"
 "DNS server" "Serveur DNS"
 "DNS server configuration"  "Configuration serveur DNS"
 Domain  Domaine
+"Domain name"  "Nom de domaine"
 "Do you really want to open another project ? If you don't  save the actual project, it will be lost"  "Voulez-vous vraiment ré-ouvrir un autre projet ? Si le projet actuel n'a pas été sauvegardé, il sera perdu"
 "Do you really want to start a new project ? If you don't  save the actual project, it will be lost" "Voulez-vous vraiment démarrer un nouveau projet ? Si le projet actuel n'a pas été sauvegardé, il sera perdu"
 "Do you really want to suppress this equipment ? \nIt will suppress all its configuration too"  "Voulez-vous vraiment supprimer ce matériel ?\nCela supprimera également toute sa configuration."

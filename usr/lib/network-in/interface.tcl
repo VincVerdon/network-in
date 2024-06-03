@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20240504
+# Version 20240521
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -290,11 +290,7 @@ proc clic_gauche_canvas {x y} {
 			creation_liaison $id
 		} else {
 			#on a cliqué sur un objet on veut mettre en avant ses fenêtres s'il est démarré ou le masquer
-			if {$::tmp($id,raise) == 0} {
-				raise_objet $id
-			} else {
-				masque_objet $id
-			}
+			raise_objet $id
 		}
 		
 	} else {
@@ -314,7 +310,6 @@ proc clic_gauche_canvas {x y} {
 # met en avant les fenêtres de l'objet
 ################################################################################
 proc raise_objet {id} {
-	#if {$::tmp($id,etat) == 1 && $::tmp($id,raise) == 0} {
 		switch $::obj($id,type) {
 			"passerelle" {
 				raise_passerelle
@@ -332,15 +327,12 @@ proc raise_objet {id} {
   			}
 			}
 		}
-		set ::tmp($id,raise) 1
-	#}
 }
 
 
 # réduit les fenêtres de l'objet
 ################################################################################
 proc masque_objet {id} {
-	#if {$::tmp($id,etat) == 1 && $::tmp($id,raise) == 1} {
 		switch $::obj($id,type) {
 			"passerelle" {
 				hide_passerelle
@@ -357,8 +349,6 @@ proc masque_objet {id} {
 				}
 			}
 		}
-		set ::tmp($id,raise) 0
-	#}
 }
 
 # proc de gestion des clics de création d'une liaison entre 2 éléments
