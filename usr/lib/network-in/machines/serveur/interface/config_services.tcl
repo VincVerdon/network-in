@@ -219,6 +219,8 @@ proc fenetre_config_ftp {} {
     array set ::conf $res
     set ::tmp(ftp_users_init) $::conf(ftp_users)
   }
+  set ::tmp(nom) {}
+  set ::tmp(passe) {}
   
   destroy .cfg2
   toplevel .cfg2
@@ -549,42 +551,18 @@ proc applique_config_ftp {} {
   ecrire_param ftp [array get ::conf]
   
   # ecriture du fichier de config proftpd.conf
-  set f [open /etc/proftpd/proftpd.conf w]
+  set f [open /etc/proftpd/conf.d/networkin.conf w]
   puts $f "#Automatic configuration by Network-In interface
-
-Include /etc/proftpd/modules.conf
-UseIPv6 on
-IdentLookups off
-ServerName Debian
-ServerType standalone
-DeferWelcome off
-MultilineRFC2228 on
-MultilineRFC2228 on
-DefaultServer on
-ShowSymlinks on
-TimeoutNoTransfer 600
-TimeoutStalled 600
-TimeoutIdle 1200
-DisplayLogin serveur FTP sur [lire_nom_machine]
-DisplayChdir .message true
-ListOptions \"-l\"
-DenyFilter                     \\*.*/
-DefaultRoot                   ~
-Port                            21
-MaxInstances                    5
-Umask                           022  022
-AllowOverwrite                  on
-TransferLog /var/log/proftpd/xferlog
-SystemLog   /var/log/proftpd/proftpd.log
-
-<IfModule mod_quotatab.c>
-QuotaEngine off
-</IfModule>
-
-<IfModule mod_ratio.c>
-Ratios off
-</IfModule>
-  "
+UseIPv6 off
+RequireValidShell off
+TimeoutNoTransfer 3600
+TimeoutStalled 3600
+TimeoutIdle 7200
+DefaultRoot ~
+Umask 022 022
+ServerName [lire_nom_machine]
+AccessGrantMsg \"[::msgcat::mc {Welcome to %u in Network-in FTP Server}]\"
+"
 
   close $f
   
@@ -623,7 +601,7 @@ Ratios off
 	if {![file exists /home/ftp/www]} {
 	  file mkdir /home/ftp/www
 	  # on fixe des droits très permissifs... mais ici ce n'est pas un pb !
-	  file attributes /var/www -permissions 0777
+	  file attributes /var/www/html -permissions 0777
 	}
 	set res [exec mount | grep /home/ftp/www &]
 	if {$res != {}} {
