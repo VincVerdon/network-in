@@ -639,9 +639,9 @@ proc applique_config_ssh {} {
 	
 	#Cas où on refuse la connexion directe de root
 	if {$::conf(ssh_refuse_root)} {
-		exec sed -i "s/^#PermitRootLogin/PermitRootLogin/" /etc/ssh/sshd_config
+		exec sed -E -i "s/^#?PermitRootLogin.*/PermitRootLogin prohibit-password/" /etc/ssh/sshd_config
 	} else {
-		exec sed -i "s/^PermitRootLogin/#PermitRootLogin/" /etc/ssh/sshd_config
+		exec sed -E -i "s/^#?PermitRootLogin.*/PermitRootLogin yes/" /etc/ssh/sshd_config
 	}
   
   # redémarrage du service
@@ -746,6 +746,7 @@ proc fenetre_config_ssh {} {
   set res [lire_param ssh]
   if {$res == {}} {
 	set ::conf(ssh) 0
+    set ::conf(ssh_refuse_root) 1
   } else  {
 	array set ::conf $res
   }
@@ -778,7 +779,7 @@ proc fenetre_config_ssh {} {
 	
 	frame .cfg2.f4.f
 	pack .cfg2.f4.f -fill x
-	label .cfg2.f4.f.l -text "[::msgcat::mc "Refuse direct admin (root) connexion"] :"
+	label .cfg2.f4.f.l -text "[::msgcat::mc "Direct admin (root) connexion"] :"
 	grid .cfg2.f4.f.l  -row 0 -column 0 -sticky w
 	checkbutton .cfg2.f4.f.2 -text [::msgcat::mc "Refuse"] -variable ::conf(ssh_refuse_root)
 	grid .cfg2.f4.f.2  -row 2 -column 0 -sticky w

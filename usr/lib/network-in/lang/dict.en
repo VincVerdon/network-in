@@ -46,13 +46,14 @@ dte  DTE
 "Delete network card"  "Delete network card"
 "Desk computer"  "Desk computer" 
 "DHCP : automatic DNS configuration"  "DHCP : automatic DNS configuration"
-"DHCP server" "DHCP server"
-"DHCP server configuration"  "DHCP server configuration"
+"DHCP server" "DHCP service"
+"DHCP server configuration"  "DHCP service configuration"
+"Direct admin (root) connexion"  "Direct admin (root) connexion"
 DNS  DNS
 "DNS address"  "DNS server address"
 "DNS Configuration" "DNS configuration"
-"DNS server configuration"  "DNS server configuration"
-"DNS server"  "DNS server"
+"DNS server"  "DNS service"
+"DNS server configuration"  "DNS service configuration"
 Domain  Domain
 "Domain name"  "Domain name"
 "Do you really want to open another project ? If you don't  save the actual project, it will be lost"  "Do you really want to open another project ? If you don't  save the actual project, it will be lost"
@@ -76,7 +77,7 @@ File  File
 "Frame analysis"  "Frame analysis"
 "FTP client"  "FTP client"
 "FTP server"  "FTP server"
-"FTP server configuration"  "FTP server configuration"
+"FTP server configuration"  "FTP service configuration"
 Gateway  Gateway
 "Gateway address"  "Gateway address"
 Generalities  Generalities
@@ -85,7 +86,7 @@ Help Help
 "Here you can choose a new mac address"  "Here you can choose a new mac address"
 "Host network" "Host network"
 "HTTP server"  "HTTP server"
-"HTTP server configuration"  "HTTP server configuration"
+"HTTP server configuration"  "HTTP service configuration"
 "HTTP server directory (/var/www)"  "HTTP server directory (/var/www)"
 Hub  Hub
 ID  ID
@@ -142,7 +143,6 @@ Reboot  Reboot
 "Records suppression"  "Records suppression"
 Refresh Refresh
 Refuse Refuse
-"Refuse direct admin (root) connexion :" "Refuse direct admin (root) connexion :"
 Router  Router
 routeur2 "2 ethernet interfaces router"
 routeur4 "4 ethernet interfaces router"
@@ -163,7 +163,7 @@ serveur "Server computer"
 "Services configuration"  "Services configuration"
 Shutdown  Shutdown
 "SSH server"  "SSH server"
-"SSH server configuration"  "SSH server configuration"
+"SSH server configuration"  "SSH service configuration"
 Start  Start
 Static Static
 "Static routing" "Static routing"

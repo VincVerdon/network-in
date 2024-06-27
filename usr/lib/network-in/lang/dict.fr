@@ -47,12 +47,13 @@ dte  DTE
 "Desk computer"  "Ordinateur de bureau"
 "DHCP : automatic DNS configuration"  "Configuration DHCP : DNS obtenu automatiquement"
 "DHCP server" "Serveur DHCP"
-"DHCP server configuration"  "Configuration serveur DHCP"
+"DHCP server configuration"  "Configuration service DHCP"
+"Direct admin (root) connexion"  "Connexion directe de l'admin (root)"
 DNS  DNS
 "DNS address"  "Adresse du serveur DNS"
 "DNS Configuration" "Configuration DNS"
 "DNS server" "Serveur DNS"
-"DNS server configuration"  "Configuration serveur DNS"
+"DNS server configuration"  "Configuration service DNS"
 Domain  Domaine
 "Domain name"  "Nom de domaine"
 "Do you really want to open another project ? If you don't  save the actual project, it will be lost"  "Voulez-vous vraiment ré-ouvrir un autre projet ? Si le projet actuel n'a pas été sauvegardé, il sera perdu"
@@ -75,7 +76,7 @@ File  Fichier
 "Force stop" "Forcer l'arrêt"
 "FTP client"  "Client FTP"
 "FTP server"  "Serveur FTP"
-"FTP server configuration"  "Configuration serveur FTP"
+"FTP server configuration"  "Configuration service FTP"
 "Frame analysis"  "Analyse de trames"
 Gateway Passerelle
 "Gateway address"  "Adresse de passerelle"
@@ -85,7 +86,7 @@ Help Aide
 "Here you can choose a new mac address"  "Ici vous pouvez choisir une nouvelle adresse Mac"
 "Host network"  "Réseau de l'hôte"
 "HTTP server" "Serveur HTTP"
-"HTTP server configuration"  "Configuration serveur HTTP"
+"HTTP server configuration"  "Configuration service HTTP"
 "HTTP server directory (/var/www)"  "Répertoire serveur HTTP (/var/www)"
 Hub  "Concentrateur (hub)"
 hub4 "Concentrateur à 4 ports"
@@ -144,7 +145,6 @@ Reboot  Redémarrer
 "Records suppression"  "Suppression d'enregistrements"
 Refresh Rafraichir
 Refuse Refuser
-"Refuse direct admin (root) connexion :" "Refuser la connexion directe de l'admin (root) :"
 Router  Routeur
 routeur2 "Routeur à 2 interfaces ethernet"
 routeur4 "Routeur à 4 interfaces ethernet"
@@ -165,7 +165,7 @@ serveur  "Ordinateur serveur"
 "Services configuration"  "Configuration des services"
 Shutdown  Arrêter
 "SSH server"  "Serveur SSH"
-"SSH server configuration"  "Configuration du serveur SSH"
+"SSH server configuration"  "Configuration du service SSH"
 Start  Démarrer
 Static Statique
 "Static routing" "Routage statique"
