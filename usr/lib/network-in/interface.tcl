@@ -774,14 +774,14 @@ proc fenetre_infos_sortie {id} {
 	}
 	
 	if {$::obj($id,type) == "virtualbox"} {
-		label .inf.f.l5 -text "[::msgcat::mc "Vbox name"] : "
-		grid .inf.f.l5 -row 2 -column 0 -sticky e
-		label .inf.f.l6 -text [get_vbox_name $id]
-		grid .inf.f.l6 -row 2 -column 1 -sticky w
-		label .inf.f.l7 -text "[::msgcat::mc "Vbox ID"] : "
-		grid .inf.f.l7 -row 3 -column 0 -sticky e
-		label .inf.f.l8 -text $::obj($id,vbox_id)
-		grid .inf.f.l8 -row 3 -column 1 -sticky w
+		label .inf.f.l15 -text "[::msgcat::mc "Vbox name"] : "
+		grid .inf.f.l15 -row 2 -column 0 -sticky e
+		label .inf.f.l16 -text [get_vbox_name $id]
+		grid .inf.f.l16 -row 2 -column 1 -sticky w
+		label .inf.f.l17 -text "[::msgcat::mc "Vbox ID"] : "
+		grid .inf.f.l17 -row 3 -column 0 -sticky e
+		label .inf.f.l18 -text $::obj($id,vbox_id)
+		grid .inf.f.l18 -row 3 -column 1 -sticky w
 		if {$::tmp(vbox_found) && $::tmp($id,is_present)} {
   		foreach {nb mac etat} [get_vbox_interfaces $id] {
 				set n [expr $nb - 1]

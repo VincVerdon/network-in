@@ -22,9 +22,9 @@ proc fenetre_config_vbox {id} {
 	pack .vbox.f -fill both -expand 1
 	button .vbox.f.1 -text [::msgcat::mc "Name"]  -command "fenetre_config_nom_vbox $id" -width 20
 	pack .vbox.f.1 -fill x
-	button .vbox.f.2 -text [::msgcat::mc "VM selection"]  -command "fenetre_select_vbox $id" -width 20
+	button .vbox.f.2 -text [::msgcat::mc "Vbox selection"]  -command "fenetre_select_vbox $id" -width 20
 	pack .vbox.f.2 -fill x
-	button .vbox.f.3 -text [::msgcat::mc "Interface selection"] -command "fenetre_select_interf_vbox $id"
+	button .vbox.f.3 -text [::msgcat::mc "Connected interface"] -command "fenetre_select_interf_vbox $id"
 	pack .vbox.f.3 -fill x
 	if {! $::tmp($id,is_present)} {
 		.vbox.f.3 configure -state disabled
@@ -227,6 +227,14 @@ proc fenetre_config_nom_vbox {id} {
 	
 	ttk::checkbutton .vbox2.f.ck -text [::msgcat::mc "Use VM name"] -variable ::obj($id,name_from_vbox) -command "bind_name_to_vbox_name $id"	
 	grid .vbox2.f.ck  -row 0 -column 0 -sticky w
+	
+	label .vbox2.f.l -text "[::msgcat::mc "Name"] : "
+	grid .vbox2.f.l -row 1 -column 0 -sticky w
+	entry .vbox2.f.e -background white -textvariable ::tmp(nom)
+	set ::tmp(nom) $::obj($id,nom)
+	grid .vbox2.f.e -row 1 -column 1 -sticky w
+	bind_name_to_vbox_name $id
+	
 	#Si aucune VM Virtualbox n'est attachée à cet équipement on désactive ce bouton
 	if {! $::tmp($id,is_present)} {
 		if {$::obj($id,name_from_vbox)} {
@@ -235,13 +243,6 @@ proc fenetre_config_nom_vbox {id} {
 		}
 		.vbox2.f.ck configure -state disabled
 	}
-	
-	label .vbox2.f.l -text "[::msgcat::mc "Name"] : "
-	grid .vbox2.f.l -row 1 -column 0 -sticky w
-	entry .vbox2.f.e -background white -textvariable ::tmp(nom)
-	set ::tmp(nom) $::obj($id,nom)
-	grid .vbox2.f.e -row 1 -column 1 -sticky w
-	bind_name_to_vbox_name $id
 	
 	# boutons
 	frame .vbox2.fb
@@ -263,14 +264,17 @@ proc fenetre_select_interf_vbox {id} {
 	
 	destroy .vbox2
 	toplevel .vbox2
-	wm title .vbox2 [::msgcat::mc "Network interface choice"]
+	wm title .vbox2 [::msgcat::mc "Connected interface"]
 	wm transient .vbox2 .vbox
 	
 	label .vbox2.ico -image im_config
 	pack .vbox2.ico
 	
+	label .vbox2.l -text [::msgcat::mc "Choose the interface of VirtualBox VM to bind to Network-In simulator"]
+	pack .vbox2.l
+	
 	# zone de saisie
-	labelframe .vbox2.f -text [::msgcat::mc "Network interfaces list"]
+	labelframe .vbox2.f -text [::msgcat::mc "Interfaces list"]
 	pack .vbox2.f -fill both -expand 1
 	
 	set liste [get_vbox_interfaces $id]

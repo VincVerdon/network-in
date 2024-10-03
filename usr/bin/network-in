@@ -23,12 +23,12 @@ then
 --version : display version in long format
 Look at /usr/share/doc/network-in for help'
 	MES3='Possible options are : --help or -h, -v, --version'
-    MES4=$(sed -nre 's/.*version\(network-in\)\ (.*[0-9]{1,2}\.[0-9]{1,2}.*)/\1/p' $REP/network-in.tcl)
+    	MES4=$(sed -nre 's/.*version\(network-in\)\ (.*[0-9]{1,2}\.[0-9]{1,2}.*)/\1/p' $REP/network-in.tcl)
 	case $1 in
 		'--help') echo $MES1 ; echo $MES2 ;;
 		'-h') echo $MES1 ; echo $MES2 ;;
 		'--version') echo $MES1 ; echo Version $MES4 ;;
-        '-v') echo $MES4 ;;
+        	'-v') echo $MES4 ;;
 		*) echo $MES3 ;;
 	esac
 	exit
@@ -49,13 +49,13 @@ then
   mkdir $REP_PROJ
 fi
 
-echo Start at $(date) >$LOG_FILE 2>&1
+echo Start at $(date) &>$LOG_FILE
 
 #démarrage des interfaces et paramétrages du parefeu
-sudo $REP/bin/network-in-start >>$LOG_FILE 2>&1
+sudo  $REP/bin/network-in-start &>>$LOG_FILE
 
 #démarrage de Network-in
-wish $REP/network-in.tcl $SIM_FIC >>$LOG_FILE 2>&1
+wish $REP/network-in.tcl $SIM_FIC &>>$LOG_FILE
 
 #Arrêt des interfaces et déparamétrage du parefeu
-sudo $REP/bin/network-in-stop >>$LOG_FILE 2>&1
+sudo $REP/bin/network-in-stop &>>$LOG_FILE

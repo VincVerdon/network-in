@@ -24,6 +24,7 @@ Cable  Cable
 "Choose a random Mac address"  "Choose a random Mac address"
 "Choose file"  "Choose file"
 "Choose interface to capture"  "Choose interface to capture"
+"Choose the interface of VirtualBox VM to bind to Network-In simulator"  "Choose the interface of VirtualBox VM to bind to Network-In simulator"
 Close Close
 CNAME  CNAME
 Complete  Complete
@@ -34,6 +35,7 @@ Configuration  Configuration
 "Configuration method"  "Configuration method"
 "Configuration options"  "Configuration options"
 Confirm  Confirm
+"Connected interface"  "Interface connectée"
 "Connected to simulator" "Connected to simulator"
 Console  Console
 Copy  Copy
@@ -96,6 +98,7 @@ Informations Informations
 "Informations about" "Informations about"
 "Interface configuration" "Interface configuration"
 "Interfaces configuration" "Interfaces configuration"
+"Interfaces list"  "Available interfaces"
 IP  IP
 "IP address"  "IP address"
 "IP address slot"  "IP address slot"
@@ -103,6 +106,7 @@ IP  IP
 Laptop  Laptop
 "Last IP address"  "Last IP address"
 License  License
+"Listening interface"  "Listening interface"
 "Login terminal" "Login terminal"
 "Logs print" "Log print"
 Name  Name
@@ -197,6 +201,7 @@ virtualbox "Virtualbox external VM"
 "Virtualbox VMs list"  "Virtualbox VMs list"
 "Vbox ID"  "VirtualBox ID"
 "Vbox name"  "VirtualBox name"
+"Vbox selection" "VM choice"
 "Web browser"  "Web browser"
 "Welcome to %u in Network-in FTP Server"  "Welcome to %u in Network-in FTP Server"
 "Wifi interfaces"  "Wifi interfaces"

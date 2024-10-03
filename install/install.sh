@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20240222
+#Version 20240921
 #############################
 REP_INS=$(dirname $0)
 #Repertoire de l'application
@@ -117,7 +117,7 @@ fi
 #avec gdm3 sous Ubuntu
 if [ -e /etc/gdm3/custom.conf ]
 then
-    sed -i 's/^DisallowTCP=false/DisallowTCP=true/' /etc/gdm3/custom.conf
+    sed -i 's/^DisallowTCP=true/DisallowTCP=false/' /etc/gdm3/custom.conf
     sed -i '/\[security\]/a DisallowTCP=false' /etc/gdm3/custom.conf
 fi
 
@@ -125,6 +125,7 @@ fi
 chown -R root:root $REP
 chown root:root /etc/network-in.cfg
 chown root:root /usr/bin/network-in
+ln -s /usr/bin/network-in /usr/bin/networkin
 
 echo 'You must leave your X session and restart X server (or reboot) before using Network-In!'
 exit 0

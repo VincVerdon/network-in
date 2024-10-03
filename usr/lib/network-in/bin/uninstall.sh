@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20240222
+#Version 20240922
 #############################
 REP_INS=$(dirname $0)
 #Repertoire de l'application
@@ -15,7 +15,8 @@ then
 fi
 
 #Suppression of entries in sudoers
-sed -i s/.*network-in.*// /etc/sudoers
+sed -i 's/.*Network-In!.*//' /etc/sudoers
+sed -i 's/.*network-in.*//' /etc/sudoers
 chmod 0440 /etc/sudoers
 sudo -v
 #rm -f /etc/sudoers.d/network-in
@@ -24,7 +25,7 @@ sudo -v
 #With lightdm
 if [ -e /etc/lightdm/lightdm.conf ]
 then
-	sed -i s/^xserver-allow-tcp=true$/#xserver-allow-tcp=false/ /etc/lightdm/lightdm.conf
+	sed -i 's/^xserver-allow-tcp=true$/#xserver-allow-tcp=false/' /etc/lightdm/lightdm.conf
 fi
 
 #files suppression

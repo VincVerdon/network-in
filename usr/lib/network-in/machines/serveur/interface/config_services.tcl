@@ -372,7 +372,7 @@ proc fenetre_config_dhcp {} {
   pack .cfg2.f0.2 -side left
 
   # zone de saisie
-  labelframe .cfg2.f3 -text [::msgcat::mc "Network interface choice"]
+  labelframe .cfg2.f3 -text [::msgcat::mc "Listening interface"]
   pack .cfg2.f3 -fill both -expand 1
   
   for  {set i 0} {$i < $::tmp(nb_eth)} {incr i} {
