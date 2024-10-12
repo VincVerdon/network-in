@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20240521
+# Version 20241004
 
 
 ################################################################################
@@ -138,7 +138,7 @@ proc demarre_ordinateur {id} {
     for  {set i 0} {$i < $::obj($id,nb_eth)} {incr i} {
       # démarrage du socket VDE pour l'interface
 			eval exec vde_switch -d -nostdin -hub -s $::rep_tmp/vde/$id-eth$i
-			set pid [string range [lindex [eval exec lsof -Fp $::rep_tmp/vde/$id-eth$i/ctl] end] 1 end]
+			set pid [string range [lindex [eval exec lsof -Fp $::rep_tmp/vde/$id-eth$i/ctl 2>/dev/null] end] 1 end]
 			lappend ::tmp($id,pid_vde) $pid
       # ajout de la carte eth à la ligne de commande de l'uml
 			set exe [concat $exe eth$i=vde,$::rep_tmp/vde/$id-eth$i,$::obj($id,mac_eth$i)]
@@ -177,7 +177,7 @@ proc demarre_switch {id} {
   } else  {
 		eval exec vde_switch -d -nostdin -n $::obj($id,nb_eth) -M $::rep_tmp/terminal/$id -s $::rep_tmp/vde/$id
   }
-	set ::tmp($id,pid_vde) [string range [eval exec lsof -Fp $::rep_tmp/vde/$id/ctl] 1 end]
+	set ::tmp($id,pid_vde) [string range [eval exec lsof -Fp $::rep_tmp/vde/$id/ctl 2>/dev/null] 1 end]
   # l'objet est déclaré actif désormais
   set ::tmp($id,etat) 1
   affiche_objet_on $id

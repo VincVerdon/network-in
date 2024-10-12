@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20240921
+#Version 20241011
 #############################
 REP_INS=$(dirname $0)
 #Repertoire de l'application
@@ -25,7 +25,7 @@ uml_mconsole;uml-utilities
 sudo;sudo
 lsof;lsof
 wmctrl;wmctrl
-xwinfo;x11-utils
+xwininfo;x11-utils
 "
 
 ARRET=false
@@ -75,6 +75,11 @@ ALL  ALL=NOPASSWD:$REP/bin/conf_bridge
 EOF
 chmod 0440 /etc/sudoers
 sudo -v
+
+#Création lien vers libvde
+LIBVDE=$(find /usr/lib -name 'libvdeplug.so.*' -type d 2>/dev/null | sort | tail -n 1)
+ln -s $LIBVDE $(dirname $LIBVDE)/libvdeplug.so 2>/dev/null
+
 
 #Modification de la config serveur X pour accepter les connexion TCP
 #avec gdm3
@@ -126,6 +131,7 @@ chown -R root:root $REP
 chown root:root /etc/network-in.cfg
 chown root:root /usr/bin/network-in
 ln -s /usr/bin/network-in /usr/bin/networkin
+chmod +x $REP/bin/*
 
 echo 'You must leave your X session and restart X server (or reboot) before using Network-In!'
 exit 0

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20240417
+# Version 202401012
 
 #Lecture de ::obj et ::tmp et enregistrement de la structure en XML
 ####################################
@@ -17,7 +17,7 @@ proc xml_structure_write {file} {
 	puts $f "<structure version=\"1.0\">"
 	puts $f "<!-- Definition of the network structure and components for Network-In! Simulator -->"
 	puts $f "<global>"
-	puts $f "    <version></version>"
+	puts $f "    <version>$::version(network-in)</version>"
 	puts $f "    <file>$::tmp(file)</file>"
 	puts $f "    <date>$date_time</date>"
 	puts $f "    <author></author>"

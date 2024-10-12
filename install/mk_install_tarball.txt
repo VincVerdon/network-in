@@ -1,0 +1,5 @@
+aller dans rep src puis exécuter :
+tar -cf install/network-in.tar etc usr
+
+aller dans install puis exécuter :
+tar -czf network-in-2.0-alpha0.tgz network-in.tar install.sh INSTALL
