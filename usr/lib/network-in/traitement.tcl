@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20241004
+# Version 20241012
 
 
 ################################################################################
@@ -104,6 +104,8 @@ proc demarre_ordinateur {id} {
   ecrire_fichier_echange $id ip_hote $::ip_hote
   # on écrit un fichier qui indique l'ip de communication de l'uml
   ecrire_fichier_echange $id ip_com $::tmp($id,ip_com)
+  # on écrit un fichier qui indique le display de l'hôte
+  ecrire_fichier_echange $id display $::env(DISPLAY)
   
   # On initialise les interfaces réseau et on écrit un fichier de com
 	set interf ""

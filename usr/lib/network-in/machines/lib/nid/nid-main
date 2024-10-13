@@ -2,7 +2,7 @@
 #Daemon pour communiquer avec le simulateur network-in!
 #+ gestion de l'interface graphique
 #V. Verdon
-#Version 20231029
+#Version 20241012
 ###################
 
 REP_NETW=/var/networkin
@@ -33,7 +33,8 @@ DON_IP_COM=$(cat $REP_NETW/com/ip_com)
 
 #on definit la variable display pour affichage graphique sur hote
 DON_IP_HOTE=$(cat $REP_NETW/com/ip_hote)
-export DISPLAY=$DON_IP_HOTE:0.0
+DIS_HOTE=$(cat $REP_NETW/com/display)
+export DISPLAY=${DON_IP_HOTE}${DIS_HOTE}
 
 # On liste toutes les interfaces reseau
 LISTE_IF=''
