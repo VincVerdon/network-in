@@ -68,6 +68,7 @@ Edit  Edition
 err1  "Impossible. Network-In! est déjà démarré !"
 Error  Erreur
 "Ethernet interfaces"  "Interfaces ethernet"
+"Ethernet ports" "Ports ethernet"
 "Existing routes" "Routes existantes"
 Exit  Quitter
 Family  Famille

@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20241013
+#version 20241202
 ####################################################################
 
 IP=$1
@@ -15,7 +15,7 @@ if [ "$ACTION" = "start" ]
 then
 
     #/usr/sbin/vde_tunctl -t networkin_out
-    /usr/bin/vde_switch -d -nostdin -s $TMP/vde/switch_gateway -M /tmp/pass -m 666
+    /usr/bin/vde_switch -d -nostdin -s $TMP/vde/switch_gateway -m 666
     /usr/bin/slirpvde -d -nostdin --host $IP/$MASK -s $TMP/vde/switch_gateway 
 
     #Ancienne méthode

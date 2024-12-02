@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20240524
+# Version 20241130
 # Ce module a besoin du module général réseau
 source $::rep/config_reseau.tcl
 
@@ -340,7 +340,7 @@ proc fenetre_config_dhcp {} {
   if {$res == {}} {
     set ::conf(ip1) {}
     set ::conf(ip2) {}
-    #set ::conf(netmask) {}
+    set ::conf(netmask) {}
     set ::conf(gateway) {}
     set ::conf(dns) {}
     set ::conf(domain) {}
@@ -374,7 +374,6 @@ proc fenetre_config_dhcp {} {
   # zone de saisie
   labelframe .cfg2.f3 -text [::msgcat::mc "Listening interface"]
   pack .cfg2.f3 -fill both -expand 1
-  
   for  {set i 0} {$i < $::tmp(nb_eth)} {incr i} {
     radiobutton .cfg2.f3.$i -text eth$i  -variable ::conf(eth) -value eth$i
     pack .cfg2.f3.$i -side left
@@ -415,6 +414,11 @@ proc fenetre_config_dhcp {} {
   pack .cfg2.fb
   button .cfg2.fb.v -compound left -text [::msgcat::mc "Confirm"] -image img_valider -relief flat -command {
     # calcul du réseau
+    # On doit d'abord récupérer le masque et le mettre au format décimal s'il est au format CIDR
+    set ::conf(netmask) [lindex [lire_interface $::conf(eth)] 2]
+    if {[regexp -expanded {^[0-9]+$} $::conf(netmask)]} {
+        set ::conf(netmask) [calcul_masque $::conf(netmask)]
+    }
     set ::conf(network) [calcul_reseau $::conf(ip1) $::conf(netmask)]
     applique_config_dhcp
     destroy .cfg2
@@ -672,7 +676,7 @@ proc applique_config_dns {} {
   puts $f "// Automatic configuration by Network-In interface"
   puts $f ""
   # définition de la zone directe
-  puts $f "zone \"$domaine\" \{"
+  puts $f "zone \"$::conf(domain)\" \{"
   puts $f "type master;"
   puts $f "file \"/etc/bind/db.direct\";"
   puts $f "\};"
@@ -712,7 +716,7 @@ proc applique_config_dns {} {
   puts $fi ";"
   puts $fi "@    IN    NS    localhost."
   
-  # ajout des entrées dand fd et fi
+  # ajout des entrées dans fd et fi
   foreach r $::conf(dns_records) {
     set nom [lindex $r 0]
     set type [lindex $r 1]

@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions gestion réseau ordinateur et routeur
 ####################################################################
-# Version 20231230
+# Version 20241130
 
 # Ecriture du nom dans /etc/hostname
 ################################################################################
@@ -93,45 +93,6 @@ proc lire_interfaces {} {
 	}
 }
 
-# Fenetre de config du nom
-################################################################################
-proc fenetre_config_nom {} {
-	
-	destroy .cfg2
-	toplevel .cfg2
-	wm title .cfg2  [::msgcat::mc "Name configuration"]
-	wm transient .cfg2 .
-	positionne_fenetre .cfg2
-	
-	label .cfg2.ico -image img_config
-	pack .cfg2.ico
-	
-	# zone de saisie
-	labelframe .cfg2.f
-	pack .cfg2.f -fill both -expand 1
-	label .cfg2.f.l -text "[::msgcat::mc "Name"] :"
-	pack .cfg2.f.l -side left
-	entry .cfg2.f.e -background white
-	pack .cfg2.f.e -fill x -side left -expand 1
-	.cfg2.f.e insert end [lire_nom_machine]
-	
-	# boutons
-	frame .cfg2.fb
-	pack .cfg2.fb
-	button .cfg2.fb.v -compound left -text [::msgcat::mc "Confirm"] -image img_valider -relief flat -command {
-		set ::tmp(nom) [.cfg2.f.e get]
-		if {$::tmp(nom) == {}} {
-			tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "You must choose a name"]
-		} else  {
-			changer_nom_machine $::tmp(nom)
-			destroy .cfg2
-		}
-	}
-	pack .cfg2.fb.v -side left
-	button .cfg2.fb.a -compound left -text [::msgcat::mc "Abort"] -image img_annuler -command {destroy .cfg2} -relief flat
-	pack .cfg2.fb.a -side left
-}
-
 # lecture du fichier hostname
 ################################################################################
 proc lire_nom_machine {} {
@@ -189,3 +150,24 @@ proc lire_interface {interface} {
 	return [list $mode $address $netmask $gateway $etat]
 }
 
+#Fonction qui calcule le masque décimal pointé à partir du CIDR
+################################################################################
+proc calcul_masque {cidr} {
+    set dec(1) 0
+    set dec(2) 0
+    set dec(3) 0
+    set dec(4) 0
+    
+    set n [expr $cidr / 8]
+    for {set i 1} {$i <= $n} {incr i} {
+        set dec($i) 255
+    }
+    set val [expr $cidr % 8]
+    set exp 7
+    for {set j 1} {$j <= $val} {incr j} {
+        set dec($i) [expr $dec($i) + 2**$exp]
+        set exp [expr $exp - 1]
+    }
+
+    return "$dec(1).$dec(2).$dec(3).$dec(4)"
+}

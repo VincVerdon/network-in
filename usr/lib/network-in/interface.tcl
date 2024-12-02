@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20240521
+# Version 20241202
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -176,90 +176,6 @@ proc maj_titre {} {
 
 # Gestion du clic simple gauche sur le canvas
 ################################################################################
-proc clic_gauche_canvas_anc {x y} {
-	
-	#set X [lindex [.hscroll get ] 0]
-	#set tx [$::c cget -width]
-	#set tx [winfo width $::c]
-	
-  #destruction de certains éléments s'ils existent
-	destroy .note
-	destroy $::c.mc
-	
-  set tags [$::c find closest $x $y 0]
-  set tags [$::c gettags $tags]
-	
-  
-  if {[lindex $tags end] == {current}} {
-		
-		# cas où on a cliqué sur un objet
-    set id [lindex $tags 0]
-		
-		#affichage d'une note si clic sur l'icone de note
-		if {[lindex $tags 1] == "note"} {
-			affiche_note $id
-			return
-		}
-    
-    if {$::obj($id,famille) == {liaison}} {
-			#on a cliqué sur une connexion, on affiche les infos sur cette connexion
-			set ::tmp($id,infos_connexion) 1
-			maj_infos_connexion $id
-      return
-    }
-    
-    if {$::tmp(sel,type) != {0} && $::tmp(sel,famille) == {liaison}} {
-      # cas où on veut créer une connexion
-      if {$::tmp(id1) == {}} {
-        # on vient de sélectionner le 1er objet
-        set ::tmp(sel,interface) {}
-        menu_choix_connexion $id
-        if {$::tmp(sel,interface) != {}} {
-          set ::tmp(id1) $id
-          set ::tmp(id1,eth) $::tmp(sel,interface)
-        } else  {
-          set ::tmp(id1) {}
-          set ::tmp(id1,eth) {}
-          set ::tmp(id2) {}
-          set ::tmp(id2,eth) {}
-        }
-      } else  {
-        # on vient de sélectionner le 2ème objet
-        set ::tmp(sel,interface) {}
-        menu_choix_connexion $id
-        if {$::tmp(sel,interface) != {}} {
-          set ::tmp(id2) $id
-          set ::tmp(id2,eth) $::tmp(sel,interface)
-          # on crée la connexion
-					if {$::tmp(id1)==$::tmp(id2)} {
-						tk_messageBox -icon warning -title [::msgcat::mc "Impossible"] -message [::msgcat::mc "Cannot connect on itself !"]
-					} else {
-						creation_connexion $::tmp(id1) $::tmp(id2) $::tmp(id1,eth) $::tmp(id2,eth) $::tmp(sel,type)
-					}
-					# on repasse en mode sélection
-					set ::tmp(sel,type) 0
-					$::c configure -cursor hand2
-        }
-        set ::tmp(id1) {}
-        set ::tmp(id1,eth) {}
-        set ::tmp(id2) {}
-        set ::tmp(id2,eth) {}
-      }
-    }
-  } else  {
-    # cas où on a cliqué dans le vide
-    if {$::tmp(sel,type) != {0} && $::tmp(sel,famille) != {liaison}} {
-      # on veut donc créer un objet
-      creation_objet $::tmp(sel,famille) $::tmp(sel,type) $x $y
-			# on repasse en mode sélection
-      set ::tmp(sel,type) 0
-			$::c configure -cursor hand2
-    }
-  }
-}
-
-# Gestion du clic simple gauche sur le canvas
-################################################################################
 proc clic_gauche_canvas {x y} {
 	
 	#set X [lindex [.hscroll get ] 0]
@@ -322,9 +238,18 @@ proc raise_objet {id} {
 			}
 			
 			default {
+				
+				set cpt 1
 				foreach wid $::tmp($id,win_id) {
-  				catch {exec wmctrl -i -a $wid &}
+					if {$cpt != 1} {
+						catch {exec wmctrl -i -a $wid}
+					} else {
+						set desk_wid $wid
+					}
+					incr cpt
   			}
+				#On met le bureau au premier plan
+				catch {exec wmctrl -i -a $desk_wid}
 			}
 		}
 }
@@ -679,7 +604,12 @@ proc fenetre_infos_objet {id} {
 	grid .inf.f.l4 -row 0 -column 1 -sticky w
 	label .inf.f.l5 -text "[::msgcat::mc "Equipment Category"] : "
 	grid .inf.f.l5 -row 1 -column 0 -sticky e
-	label .inf.f.l6 -text "[::msgcat::mc $::obj($id,categorie)]"
+    if {$::obj($id,famille) == {liaison}} {
+        label .inf.f.l6 -text "[::msgcat::mc {cable}]"
+    } else {
+        label .inf.f.l6 -text "[::msgcat::mc $::obj($id,categorie)]"
+    }
+	
 	grid .inf.f.l6 -row 1 -column 1 -sticky w
 	
 	switch $::obj($id,famille) {
@@ -747,14 +677,14 @@ proc fenetre_infos_sortie {id} {
 	pack .inf.if -fill x
 	
 	if {$::obj($id,type) == "passerelle"} {
-		label .inf.if.l1 -text "eth0 (networkin_out) :"
+		label .inf.if.l1 -text "eth0 :"
 		grid .inf.if.l1 -row 0 -column 0 -sticky e
   	if {$::tmp($id,etat)} {
-  		label .inf.if.l2 -text [get_interface_mac networkin_out]
-    	grid .inf.if.l2 -row 0 -column 1 -sticky w
+  		#label .inf.if.l2 -text "mac adress"
+    	#grid .inf.if.l2 -row 0 -column 1 -sticky w
 			if {$::tmp($id,etat_eth0) != ""} {
-      	label .inf.if.l3 -text $::tmp($id,etat_eth0)
-      	grid .inf.if.l3 -row 1 -column 1 -sticky w
+                label .inf.if.l3 -text "$::obj($id,ip_eth0)/$::obj($id,netmask_eth0)"
+                grid .inf.if.l3 -row 1 -column 1 -sticky w
 			}
   	}
 	}
@@ -807,13 +737,23 @@ proc fenetre_infos_sortie {id} {
 #####################################
 proc fenetre_infos_switch {id} {
 	
-	labelframe .inf.if -text [::msgcat::mc "Ethernet interfaces"]
+	labelframe .inf.if -text [::msgcat::mc "Ethernet ports"]
 	pack .inf.if -fill x
 	for  {set i 0} {$i<$::obj($id,nb_eth)} {incr i} {
 		#frame contenant les infos d'une interface
 		frame .inf.if.f$i
 		pack .inf.if.f$i -fill x
-		label .inf.if.f$i.l1 -text "port[expr $i+1] :"
+        if {$::obj($id,eth$i) != {}} {
+            set m $::obj($::obj($id,eth$i),id1)
+            if {$m == $id} {
+                set m $::obj($::obj($id,eth$i),id2)
+            }
+            
+        } else {
+            set m "-"
+        }
+        
+		label .inf.if.f$i.l1 -text "port$i : $m"
 		grid .inf.if.f$i.l1 -row 0 -column 0
 	}
 }
@@ -822,10 +762,7 @@ proc fenetre_infos_switch {id} {
 ################################
 proc fenetre_infos_cable {id} {
 	
-	label .inf.f.l5 -text "[::msgcat::mc "Techno"] : "
-	grid .inf.f.l5 -row 1 -column 0 -sticky e
-	label .inf.f.l6 -text $::obj($id,techno)
-	grid .inf.f.l6 -row 1 -column 1 -sticky w
+	#rien
 }
 
 # Récupération de l'IP/masque de l'interface de la passerelle
@@ -1010,17 +947,18 @@ proc dessine_objet {id} {
   set x $::obj($id,x)
   set y $::obj($id,y)
 	
-	if {$::obj($id,type) == "virtualbox"} {
-		set nom [get_vbox_current_name $id]
-		if {$::tmp($id,is_present)} {
-			#Dans le cas où un équipement vbox n'est pas installé sur l'hôte, on change l'icône
-			$::c create image $x $y -tag "$id $famille $type"  -image im_$type -anchor c
-		} else {
-			$::c create image $x $y -tag "$id $famille $type"  -image im_${type}_no -anchor c
-		}
-	} else {
-		$::c create image $x $y -tag "$id $famille $type"  -image im_$type -anchor c
-	}
+  if {$::obj($id,type) == "virtualbox"} {
+      set nom [get_vbox_current_name $id]
+      if {$::tmp($id,is_present)} {
+            #Dans le cas où un équipement vbox n'est pas installé sur l'hôte, on change l'icône
+            $::c create image $x $y -tag "$id $famille $type"  -image im_$type -anchor c
+      } else {
+            $::c create image $x $y -tag "$id $famille $type"  -image im_${type}_no -anchor c
+      }
+  } else {
+    $::c create image $x $y -tag "$id $famille $type"  -image im_$type -anchor c
+  }
+  
   $::c create text $x [expr $y + [image height im_$type] / 2 + 10] -tag "$id $famille $type" -text $::def($::obj($id,type),label) -anchor c -fill $::coul(texte)
   if {$::obj($id,nom)  == "unnamed"} {
     $::c create text $x [expr $y + [image height im_$type] / 2 + 30] -tag "$id $famille $type" -text [::msgcat::mc "unnamed"] -anchor c -fill $::coul(texte)
@@ -1084,8 +1022,10 @@ proc maj_infos_connexion {id} {
 	#Infos des 2 objets connectés par cette connexion
   set id1 $::obj($id,id1)
   set id2 $::obj($id,id2)
-	set interf1 $::obj($id,interf1)
-	set interf2 $::obj($id,interf2)
+  set interf1 $::obj($id,interf1)
+  set interf2 $::obj($id,interf2)
+  set famille1 $::obj($id1,famille)
+  set famille2 $::obj($id2,famille)
   set x1 $::obj($id1,x)
   set y1 $::obj($id1,y)
   set x2 $::obj($id2,x)
@@ -1098,12 +1038,25 @@ proc maj_infos_connexion {id} {
   set Y1 [expr $y1 + $dy + ($y2 - $y1) / 3.0]
   set X2 [expr $x2 - $dx - ($x2 - $x1) / 3.0]
   set Y2 [expr $y2 - $dy - ($y2 - $y1) / 3.0]
+
+  if {$famille1 == "hub" || $famille1 == "switch"} {
+      regexp -expanded {[0-9]+} $interf1 n
+      set nom_interf1 "port$n"
+  } else {
+      set nom_interf1 $interf1
+  }
+  if {$famille2 == "hub" || $famille2 == "switch"} {
+      regexp -expanded {[0-9]+} $interf2 n
+      set nom_interf2 "port$n"
+  } else {
+      set nom_interf2 $interf2
+  }
   
 	#dessin des infos dans le canvas
 	$::c create rectangle [expr $X1-50] [expr $Y1-10] [expr $X1+50] [expr $Y1+30] -fill white -tag "$id info inf$id"
 	$::c create rectangle [expr $X2-50] [expr $Y2+10] [expr $X2+50] [expr $Y2-30] -fill white -tag "$id info inf$id"
-  $::c create text [expr $X1-45] $Y1 -tag "$id info inf$id" -anchor w -text $::obj($id,interf1) -fill $::def($type,coul) -font infos
-  $::c create text [expr $X2-45] [expr $Y2-20] -tag "$id info inf$id" -anchor w -text $::obj($id,interf2) -fill $::def($type,coul) -font infos
+  $::c create text [expr $X1-45] $Y1 -tag "$id info inf$id" -anchor w -text $nom_interf1 -fill $::def($type,coul) -font infos
+  $::c create text [expr $X2-45] [expr $Y2-20] -tag "$id info inf$id" -anchor w -text $nom_interf2 -fill $::def($type,coul) -font infos
   
 	# Affichage éventuel des ip et masques
   if {$::tmp($id1,etat) != {0} && $::tmp($id1,etat_$interf1) != {}} {

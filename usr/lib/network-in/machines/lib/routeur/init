@@ -2,7 +2,7 @@
 #Network-in!
 #Demarrage de l'interface graphique d'un routeur
 #V. Verdon
-#Version 202231227
+#Version 20231227
 ###################
 REP_NETW=$(dirname $0)
 PID_INTERFACE=/var/run/nid_interface

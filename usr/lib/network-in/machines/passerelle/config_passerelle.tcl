@@ -10,7 +10,7 @@
 ################################################################################
 proc fenetre_config_passerelle {id} {
   
-	destroy .passe
+  destroy .passe
   toplevel .passe
   maj_nom_passerelle $id
   wm protocol .passe WM_DELETE_WINDOW {supprime_fenetre_config_passerelle}

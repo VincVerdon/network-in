@@ -68,6 +68,7 @@ Edit  Edit
 err1  "Impossible. Network-In! is already started !"
 Error  Error
 "Ethernet interfaces"  "Interfaces ethernet"
+"Ethernet ports" "Ethernet ports" 
 "Existing routes" "Existing routes"
 Exit  Quitter
 Family  Family

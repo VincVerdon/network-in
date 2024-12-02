@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de configuration réseau
 ####################################################################
-# Version 20240103
+# Version 20241130
 source [file join $::rep lib_reseau.tcl]
 
 # Interface de configuration de base de la machine
@@ -35,6 +35,45 @@ proc config_reseau {} {
 	
   update
   winid_maj [winid_parent [winfo id .cfg]]
+}
+
+# Fenetre de config du nom
+################################################################################
+proc fenetre_config_nom {} {
+	
+	destroy .cfg2
+	toplevel .cfg2
+	wm title .cfg2  [::msgcat::mc "Name configuration"]
+	wm transient .cfg2 .
+	positionne_fenetre .cfg2
+	
+	label .cfg2.ico -image img_config
+	pack .cfg2.ico
+	
+	# zone de saisie
+	labelframe .cfg2.f
+	pack .cfg2.f -fill both -expand 1
+	label .cfg2.f.l -text "[::msgcat::mc "Name"] :"
+	pack .cfg2.f.l -side left
+	entry .cfg2.f.e -background white
+	pack .cfg2.f.e -fill x -side left -expand 1
+	.cfg2.f.e insert end [lire_nom_machine]
+	
+	# boutons
+	frame .cfg2.fb
+	pack .cfg2.fb
+	button .cfg2.fb.v -compound left -text [::msgcat::mc "Confirm"] -image img_valider -relief flat -command {
+		set ::tmp(nom) [.cfg2.f.e get]
+		if {$::tmp(nom) == {}} {
+			tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "You must choose a name"]
+		} else  {
+			changer_nom_machine $::tmp(nom)
+			destroy .cfg2
+		}
+	}
+	pack .cfg2.fb.v -side left
+	button .cfg2.fb.a -compound left -text [::msgcat::mc "Abort"] -image img_annuler -command {destroy .cfg2} -relief flat
+	pack .cfg2.fb.a -side left
 }
 
 # fenetre de config du DNS
