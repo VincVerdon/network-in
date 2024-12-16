@@ -18,12 +18,12 @@ Add  Add
 Beginner  Beginner
 Bridge "Bridge with the host"
 bridge "Bridge with the host"
+"Bridge interface name"  "Bridge interface name"
 Cable  Cable
 "Cannot connect on itself !"  "Cannot connect on itself !"
 "Change network card"  "Change network card"
 "Choose a random Mac address"  "Choose a random Mac address"
 "Choose file"  "Choose file"
-"Choose interface to capture"  "Choose interface to capture"
 "Choose the interface of VirtualBox VM to bind to Network-In simulator"  "Choose the interface of VirtualBox VM to bind to Network-In simulator"
 Close Close
 CNAME  CNAME
@@ -43,7 +43,7 @@ Copy  Copy
 "Current records"  "Current records"
 Cut  cut
 dce  DCE
-dte  DTE
+"Delete capture"  "Delete capture"
 "Delete infos" "Delete infos"
 "Delete network card"  "Delete network card"
 "Desk computer"  "Desk computer" 
@@ -61,6 +61,7 @@ Domain  Domain
 "Do you really want to open another project ? If you don't  save the actual project, it will be lost"  "Do you really want to open another project ? If you don't  save the actual project, it will be lost"
 "Do you really want to start a new project ? If you don't  save the actual project, it will be lost"  "Do you really want to start a new project ? If you don't  save the actual project, it will be lost"
 "Do you really want to suppress this equipment ? \nIt will suppress all its configuration too"  "Do you really want to suppress this equipment ? \nIt will suppress all its configuration too"
+dte  DTE
 Duplicate  Duplicate
 Dynamic  Dynamic
 Edit  Edit
@@ -100,6 +101,7 @@ Informations Informations
 "Interface configuration" "Interface configuration"
 "Interfaces configuration" "Interfaces configuration"
 "Interfaces list"  "Available interfaces"
+"Interface to capture"  "Interface to capture"
 IP  IP
 "IP address"  "IP address"
 "IP address slot"  "IP address slot"
@@ -108,6 +110,8 @@ Laptop  Laptop
 "Last IP address"  "Last IP address"
 License  License
 "Listening interface"  "Listening interface"
+"Linux text"  "Linux text computer"
+List  List
 "Login terminal" "Login terminal"
 "Logs print" "Log print"
 Name  Name
@@ -130,6 +134,7 @@ New  New
 "Open an existing project"  "Open an existing project"
 "Open a project"  "Open a project"
 Open  Open
+"Open capture"  "Open capture"
 "Open file"  "Open file"
 Options  Options
 Parameters  Parameters
@@ -137,12 +142,12 @@ passerelle  Gateway
 "Password"  "Password"
 Paste  Paste
 pc  "Generic computer"
-pctexte  "Linux text computer
+pctexte  "Linux text computer"
 "Please, be patient"  "Please, be patient"
-portable  Laptop
+portable  "Laptop computer"
 "Quit" "Quit"
 "Quit Network-In!" "Quit Network-In!"
-"Real network gateway"  "Real network gateway"
+"Real network NAT router"  "Real network NAT router"
 Reboot  Reboot
 "Reachable directories"  "Reachable directories"
 "Records suppression"  "Records suppression"
@@ -159,6 +164,7 @@ routeur4 "4 ethernet interfaces router"
 Save  Save
 "Save as"  "Save as"
 "Save the actual project"  "Save the actual project"
+"Saved captures"  "Saved captures"
 "Selected account suppression"  "Selected account suppression"
 "Selected route suppression"  "Selected route suppression"
 Security Security
@@ -198,13 +204,14 @@ unnamed  unnamed
 "Use VM name" "Utiliser le nom de la VM VirtualBox"
 "Users accounts"  "Users accounts"
 version   version
-virtualbox "Virtualbox external VM"
+virtualbox "Virtualbox VM"
+"Virtualbox VM" "Virtualbox VM"
 "Virtualbox VMs list"  "Virtualbox VMs list"
 "Vbox ID"  "VirtualBox ID"
 "Vbox name"  "VirtualBox name"
 "Vbox selection" "VM choice"
 "Web browser"  "Web browser"
-"Welcome to %u in Network-in FTP Server"  "Welcome to %u in Network-in FTP Server"
+"Welcome to %u in Network-In FTP Server"  "Welcome to %u in Network-in FTP Server"
 "Wifi interfaces"  "Wifi interfaces"
 "Write file denied"  "Write file denied"
 "You can't create more than one gateway"  "You can't create more than one gateway"

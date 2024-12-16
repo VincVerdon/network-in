@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la bridge nat
 ####################################################################
-# Version 20240504
+# Version 20241212
 
 # Interface de configuration de base de la machine
 ################################################################################
@@ -21,9 +21,9 @@ proc fenetre_config_bridge {id} {
   
   labelframe .bridge.f -text [::msgcat::mc "Configuration"]
   pack .bridge.f -fill both -expand 1
-  button .bridge.f.1 -text [::msgcat::mc "Bridge interface name"]  -command "fenetre_config_nom_tap_bridge $id" -width 20
-  pack .bridge.f.1 -fill x
-	button .bridge.f.2 -text [::msgcat::mc "Bridge IP configuration"]  -command "fenetre_config_ip_bridge $id" -width 20
+  #button .bridge.f.1 -text [::msgcat::mc "Bridge interface name"]  -command "fenetre_config_nom_tap_bridge $id" -width 20
+  #pack .bridge.f.1 -fill x
+	button .bridge.f.2 -text [::msgcat::mc "IP configuration"]  -command "fenetre_config_ip_bridge $id" -width 20
 	pack .bridge.f.2 -fill x
   button .bridge.f.3 -text [::msgcat::mc "Name"] -command "fenetre_config_nom_bridge $id"
   pack .bridge.f.3 -fill x
@@ -213,18 +213,11 @@ proc applique_config_bridge {id} {
   
   set ::obj($id,ip_eth0) $::tmp(ip)
   set ::obj($id,netmask_eth0) $::tmp(netmask)
-	#set ::tmp($id,etat_eth0) "$::obj($id,ip_eth0)/[calcul_cidr $::obj($id,netmask_eth0)]"
 	
-  # on applique les changements : redémarrage des règles du parefeu
-	exec_config_bridge $id $::tmp(ip_anc) $::tmp(netmask_anc) stop
+  # on applique les changements : arrêt et redémarrage de l'interface TAP
+  exec_config_bridge $id $::tmp(ip_anc) $::tmp(netmask_anc) stop
   exec_config_bridge $id $::obj($id,ip_eth0) $::obj($id,netmask_eth0) start
-	
-	#on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
-	set id_liaison $::obj($id,eth0)
-	if {$id_liaison != "" && $::tmp($id_liaison,infos_connexion)} {
-		maj_infos_connexion $id_liaison
-	}
-	
+
 	unset ::tmp(ip)
 	unset ::tmp(ip_anc)
 	unset ::tmp(netmask)
@@ -234,8 +227,7 @@ proc applique_config_bridge {id} {
 ################################################################################
 proc exec_config_bridge {id ip masque action} {
   
-  catch {exec sudo $::rep/bin/conf_bridge $ip $masque $action}
-	
+	catch {exec sudo $::rep/bin/conf_bridge $id $::obj($id,tap) $action $ip $masque}
 	#Mise à jour étiquettes infos
 	set id_liaison $::obj($id,eth0)
 	maj_infos_connexion $id_liaison
@@ -254,13 +246,13 @@ proc demarre_bridge {id} {
 	
 	# Conf actuelle de l'interface pour affichage
 	if {$::obj($id,ip_eth0) != "" && $::obj($id,netmask_eth0) != ""} {
-		set ::tmp($id,etat_eth0) "$::obj($id,ip_eth0)/[calcul_cidr $::obj($id,netmask_eth0)]"
+		set ::tmp($id,etat_eth0) "$::obj($id,ip_eth0)/[calcul_mask_dec2cidr $::obj($id,netmask_eth0)]"
 	} else {
 		set ::tmp($id,etat_eth0) ""
 	}
 	
 	# Configuration de l'interface réseau
-	catch {exec sudo $::rep/bin/conf_bridge $id $::obj($id,tap) start $::obj($id,ip_eth0) $::obj($id,netmask_eth0)}
+    exec_config_bridge $id $::obj($id,ip_eth0) $::obj($id,netmask_eth0) start
 	
 	# l'objet est déclaré actif désormais
 	set ::tmp($id,etat) 1
@@ -277,31 +269,21 @@ proc demarre_bridge {id} {
 
 # Arrêt du bridge
 ################################################################################
-proc arrete_bridge_0 {id} {
-	
-	# on débranche le câble
+proc arrete_bridge {id} {
+
+    # on débranche le câble
 	set id_liaison $::obj($id,eth0)
 	set ::tmp($id,etat_eth0) {}
 	arrete_connexion $id_liaison
-	
-	# l'objet est déclaré inactif désormais
-	set ::tmp($id,etat) 0
-	affiche_objet_off $id
-	
-	# Déconfiguration de l'interface réseau
-	exec_config_bridge $id $::obj($id,ip_eth0) $::obj($id,netmask_eth0) stop
-	
-	puts ">>>>BRIDGE $id arrêté"
-	
-}
 
-################################################################################
-proc arrete_bridge {id} {
-	
-	catch {exec sudo $::rep/bin/conf_bridge $id $::obj($id,tap) stop} 
-	# l'objet est déclaré inactif désormais
+    # l'objet est déclaré inactif désormais
 	set ::tmp($id,etat) 0
 	affiche_objet_off $id
+
+    #Déconfiguration de l'interface TAP
+	#catch {exec sudo $::rep/bin/conf_bridge $id $::obj($id,tap) stop}
+    exec_config_bridge $id $::obj($id,ip_eth0) $::obj($id,netmask_eth0) stop
+	
 	puts ">>>>BRIDGE $id arrêté"
 	
 }

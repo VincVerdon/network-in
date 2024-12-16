@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20241130
+# Version 20241203
 # Ce module a besoin du module général réseau
 source $::rep/config_reseau.tcl
 
@@ -416,9 +416,6 @@ proc fenetre_config_dhcp {} {
     # calcul du réseau
     # On doit d'abord récupérer le masque et le mettre au format décimal s'il est au format CIDR
     set ::conf(netmask) [lindex [lire_interface $::conf(eth)] 2]
-    if {[regexp -expanded {^[0-9]+$} $::conf(netmask)]} {
-        set ::conf(netmask) [calcul_masque $::conf(netmask)]
-    }
     set ::conf(network) [calcul_reseau $::conf(ip1) $::conf(netmask)]
     applique_config_dhcp
     destroy .cfg2
@@ -500,18 +497,13 @@ proc lire_fichier {fichier} {
   return $don
 }
 
-################################################################################
-proc calcul_reseau {ip netmask} {
-  set res [exec ipcalc -b $ip/$netmask]
-  set n [lsearch $res {Network:}]
-  set res [lindex $res [expr $n+1]]
-  set res [split $res {/}]
-  return [lindex $res 0]
-}
 
 ################################################################################
 proc applique_config_dhcp {} {
   
+  
+  # Le réseau doit être au format décimal pas en CIDR
+  set ::conf(netmask) [calcul_mask_cidr2dec $::conf(netmask)]
   # sauvegarde des données
   ecrire_param dhcp [array get ::conf]
   
@@ -565,7 +557,7 @@ TimeoutIdle 7200
 DefaultRoot ~
 Umask 022 022
 ServerName [lire_nom_machine]
-AccessGrantMsg \"[::msgcat::mc {Welcome to %u in Network-in FTP Server}]\"
+AccessGrantMsg \"[::msgcat::mc {Welcome to %u in Network-In FTP Server}]\"
 "
 
   close $f

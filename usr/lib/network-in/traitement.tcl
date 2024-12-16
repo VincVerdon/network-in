@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20241202
+# Version 20241213
 
 
 ################################################################################
@@ -95,9 +95,11 @@ proc demarre_ordinateur {id} {
     incr ::tmp(n_ip_com)
     set ::tmp($id,ip_com) "$::tmp(reseau).$::tmp(n_ip_com)"
   }
-	
-	# on écrit un fichier qui indique le message a propos
-	ecrire_fichier_echange $id apropos "$::apropos"
+
+  # on écrit un fichier d'échange contenant le numéro de machine
+  ecrire_fichier_echange $id id $id
+  # on écrit un fichier qui indique le message a propos
+  ecrire_fichier_echange $id apropos "$::apropos"
   # on écrit un fichier qui indique quel est le type de matériel
   ecrire_fichier_echange $id type "$famille $type"
   # on écrit un fichier qui indique l'ip de l'hôte
@@ -793,7 +795,6 @@ proc archiver_projet {f} {
   # Sauvegarde de chaque machine UML
 	cd $::rep_proj
   set l_rep_c [glob -nocomplain "datas/m\[0-9\]*"]
-	puts $l_rep_c
   foreach rep_c $l_rep_c {
     set rep [file tail $rep_c]
     # on vérifie si l'archive existe déjà ou non
@@ -899,10 +900,12 @@ proc file_copy_motif {motif dest} {
 	}
 }
 
-
 # Traduit le masque en notation CIDR
+# Si déjà en notation CIDR la valeur est renvoyée
 ################################################################################
-proc calcul_cidr {masque} {
+proc calcul_mask_dec2cidr {masque} {
+    set res $masque
+    if [regexp  -line {^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$} $masque res] {
 		set masque [split $masque "."]
 		set res 0
 		foreach n $masque {
@@ -913,7 +916,34 @@ proc calcul_cidr {masque} {
 						set reste [expr $reste % 2**$i]
 				}
 		}
+    }
 	return $res
+}
+
+#Fonction qui calcule le masque décimal pointé à partir du CIDR
+#Si le masque est déjà dans le format décimal pointé, il est renvoyé
+################################################################################
+proc calcul_mask_cidr2dec {cidr} {
+    set ret $cidr
+    if [regexp -line {^[0-9]{1,2}$} $cidr res] {
+        set dec(1) 0
+        set dec(2) 0
+        set dec(3) 0
+        set dec(4) 0
+        
+        set n [expr $cidr / 8]
+        for {set i 1} {$i <= $n} {incr i} {
+            set dec($i) 255
+        }
+        set val [expr $cidr % 8]
+        set exp 7
+        for {set j 1} {$j <= $val} {incr j} {
+            set dec($i) [expr $dec($i) + 2**$exp]
+            set exp [expr $exp - 1]
+        }
+        set ret "$dec(1).$dec(2).$dec(3).$dec(4)"
+    }
+    return $ret
 }
 
 # Renvoie l'adresse mac d'une interface sur machine hôte

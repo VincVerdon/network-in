@@ -3,18 +3,19 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version du 20240320
+# Version du 20241203
 #ce fichier définit la façon dont sont présentés les différents composants dans l'interface
 
-# Définition des différentes familles et de leurs composants dans l'ordre d'apparition dans l'interface
+# Définition de l'ordre d'apparition des familles de composants dans l'interface
 set def(liste_familles) {ordinateur hub switch routeur sortie liaison}
+
+# Définition des composants et famille d'appartenance
 set def(ordinateur,liste) {pc portable serveur pctexte virtualbox}
 set def(hub,liste) {hub4 hub8}
 set def(switch,liste) {switch4 switch8}
 set def(routeur,liste) {routeur2 routeur4}
-set def(liaison,liste) {droit croise}
 set def(sortie,liste) {passerelle bridge}
-
+set def(liaison,liste) {droit croise}
 
 # Définition des noms affichés pour les différents matériels
 set def(ordinateur,label) [::msgcat::mc "Computer"]
@@ -25,7 +26,7 @@ set def(liaison,label)  [::msgcat::mc "Cable"]
 set def(pc,label)  [::msgcat::mc "Desk computer"]
 set def(portable,label)  [::msgcat::mc "Laptop"]
 set def(serveur,label)  [::msgcat::mc "Server"]
-set def(pctexte,label)  [::msgcat::mc "Text interface computer"]
+set def(pctexte,label)  [::msgcat::mc "Linux text"]
 set def(switch4,label)  [::msgcat::mc "4 ports switch"]
 set def(switch8,label)  [::msgcat::mc "8 ports switch"]
 set def(hub4,label)  [::msgcat::mc "4 ports hub"]
@@ -35,9 +36,9 @@ set def(routeur4,label)  [::msgcat::mc "4 interfaces router"]
 set def(droit,label) [::msgcat::mc "Uncrossed cable"]
 set def(croise,label) [::msgcat::mc "Crossed cable"]
 set def(sortie,label)  [::msgcat::mc "Host network"]
-set def(passerelle,label)  [::msgcat::mc "Real network gateway"]
+set def(passerelle,label)  [::msgcat::mc "Real network NAT router"]
 set def(bridge,label)  [::msgcat::mc "Bridge"]
-set def(virtualbox,label)  [::msgcat::mc "Virtualbox"]
+set def(virtualbox,label)  [::msgcat::mc "Virtualbox VM"]
 
 # Définition des éléments vus en fonction du niveau d'interface
 #familles

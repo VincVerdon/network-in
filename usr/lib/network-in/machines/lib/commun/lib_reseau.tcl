@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions gestion réseau ordinateur et routeur
 ####################################################################
-# Version 20241130
+# Version 20241212
 
 # Ecriture du nom dans /etc/hostname
 ################################################################################
@@ -23,13 +23,17 @@ proc changer_nom_machine {nom} {
 	wm title . "$nom"
 }
 
-# Changement de la configuration IP
+# Changement de la configuration IP des interfaces
+# Enregistrement de la nouvelle config dans /etc/network/interfaces
 ################################################################################
 proc changer_ip_machine {} {
 	
 	# arret des interfaces
-	catch {exec systemctl stop networking.service &}
-	
+	catch {exec systemctl stop networking.service}
+	for {set i 0} {$i < $::tmp(nb_eth)} {incr i} {
+        catch {exec ip a flush eth$i}
+    }
+    
 	# mise à jour du fichier interfaces
 	set f [open /etc/network/interfaces w]
 	puts $f "#Automatic configuration by Network-In interface"
@@ -152,22 +156,35 @@ proc lire_interface {interface} {
 
 #Fonction qui calcule le masque décimal pointé à partir du CIDR
 ################################################################################
-proc calcul_masque {cidr} {
-    set dec(1) 0
-    set dec(2) 0
-    set dec(3) 0
-    set dec(4) 0
-    
-    set n [expr $cidr / 8]
-    for {set i 1} {$i <= $n} {incr i} {
-        set dec($i) 255
+proc calcul_mask_cidr2dec {cidr} {
+    set ret $cidr
+    if [regexp -line {^[0-9]{1,2}$} $cidr res] {
+        set dec(1) 0
+        set dec(2) 0
+        set dec(3) 0
+        set dec(4) 0
+        
+        set n [expr $cidr / 8]
+        for {set i 1} {$i <= $n} {incr i} {
+            set dec($i) 255
+        }
+        set val [expr $cidr % 8]
+        set exp 7
+        for {set j 1} {$j <= $val} {incr j} {
+            set dec($i) [expr $dec($i) + 2**$exp]
+            set exp [expr $exp - 1]
+        }
+        set ret "$dec(1).$dec(2).$dec(3).$dec(4)"
     }
-    set val [expr $cidr % 8]
-    set exp 7
-    for {set j 1} {$j <= $val} {incr j} {
-        set dec($i) [expr $dec($i) + 2**$exp]
-        set exp [expr $exp - 1]
-    }
+    return $ret
+}
 
-    return "$dec(1).$dec(2).$dec(3).$dec(4)"
+#Fonction qui calcule l'ip de réseau à partir de l'IP+masque
+################################################################################
+proc calcul_reseau {ip netmask} {
+  set res [exec ipcalc -b $ip/$netmask]
+  set n [lsearch $res {Network:}]
+  set res [lindex $res [expr $n+1]]
+  set res [split $res {/}]
+  return [lindex $res 0]
 }

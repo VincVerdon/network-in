@@ -2,10 +2,18 @@
 #Network-in!
 #Demarrage de l'interface graphique d'un PC
 #V. Verdon
-#Version 20231227
+#Version 20241202
 ###################
 REP_NETW=$(dirname $0)
 PID_INTERFACE=/var/run/nid_interface
+
+# Si PC serveur, copie modèle fichier index pour serveur Web
+if [ -e $REP_NETW/services/index.html ]
+then
+    mv $REP_NETW/services/index.html /var/www/html
+    ID=$(cat $REP_NETW/com/id)
+    sed -i "s/unnamed/$ID/" /var/www/html/index.html
+fi
 
 wish $REP_NETW/interface/init.tcl &
 echo $(jobs -p %%) > $PID_INTERFACE

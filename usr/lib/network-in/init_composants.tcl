@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20240417
+# Version 20241202
 # Ce fichier permet d'initialiser chaque type de composant
 
 
@@ -16,7 +16,7 @@ proc initialisation_pc {id} {
   set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
 	init_eth_mac $id
-  set ::obj($id,nom) [::msgcat::mc "unnamed"]
+  set ::obj($id,nom) $id
   set ::obj($id,mem) 512M
 	set ::obj($id,dd) $::img_dd
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
@@ -40,7 +40,7 @@ proc initialisation_portable {id} {
   set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
   init_eth_mac $id
-  set ::obj($id,nom) [::msgcat::mc "unnamed"]
+  set ::obj($id,nom) $id
   set ::obj($id,mem) 512M
 	set ::obj($id,dd) $::img_dd
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
@@ -64,7 +64,7 @@ proc initialisation_serveur {id} {
 	set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
   init_eth_mac $id
-  set ::obj($id,nom) [::msgcat::mc "unnamed"]
+  set ::obj($id,nom) $id
   set ::obj($id,mem) 512M
 	set ::obj($id,dd) $::img_dd
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
@@ -88,7 +88,7 @@ proc initialisation_pctexte {id} {
   set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
 	init_eth_mac $id
-  set ::obj($id,nom) [::msgcat::mc "unnamed"]
+  set ::obj($id,nom) $id
   set ::obj($id,mem) 512M
 	set ::obj($id,dd) $::img_dd
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
@@ -112,7 +112,7 @@ proc initialisation_switch4 {id} {
 	set ::obj($id,techno) ethernet
   set ::obj($id,nb_eth) 4
 	init_eth $id
-  set ::obj($id,nom) [::msgcat::mc "unnamed"]
+  set ::obj($id,nom) $id
 }
 
 
@@ -125,7 +125,7 @@ proc initialisation_switch8 {id} {
 	set ::obj($id,techno) ethernet
   set ::obj($id,nb_eth) 8
   init_eth $id
-  set ::obj($id,nom) [::msgcat::mc "unnamed"]
+  set ::obj($id,nom) $id
 }
 
 
@@ -138,7 +138,7 @@ proc initialisation_hub4 {id} {
   set ::obj($id,techno) ethernet
   set ::obj($id,nb_eth) 4
   init_eth $id
-	set ::obj($id,nom) [::msgcat::mc "unnamed"]
+	set ::obj($id,nom) $id
 }
 
 
@@ -151,7 +151,7 @@ proc initialisation_hub8 {id} {
   set ::obj($id,techno) ethernet
   set ::obj($id,nb_eth) 8
   init_eth $id
-	set ::obj($id,nom) [::msgcat::mc "unnamed"]
+	set ::obj($id,nom) $id
 }
 
 
@@ -164,7 +164,7 @@ proc initialisation_routeur2 {id} {
 	set ::obj($id,techno) ethernet
   set ::obj($id,nb_eth) 2
   init_eth_mac $id
-  set ::obj($id,nom) [::msgcat::mc "unnamed"]
+  set ::obj($id,nom) $id
   set ::obj($id,mem) 128M
 	set ::obj($id,dd) $::img_dd
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
@@ -188,7 +188,7 @@ proc initialisation_routeur4 {id} {
 	set ::obj($id,techno) ethernet
   set ::obj($id,nb_eth) 4
   init_eth_mac $id
-  set ::obj($id,nom) [::msgcat::mc "unnamed"]
+  set ::obj($id,nom) $id
   set ::obj($id,mem) 128M
 	set ::obj($id,dd) $::img_dd
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
@@ -246,9 +246,7 @@ proc initialisation_passerelle {id} {
   set ::obj($id,eth0) {}
 	set ::obj($id,ip_eth0) {}
 	set ::obj($id,netmask_eth0) {}
-	set ::obj($id,nom) [::msgcat::mc "unnamed"]
-	#On affiche la fenêtre de config
-	fenetre_config_passerelle $id
+	set ::obj($id,nom) $id
 }
 
 
@@ -263,10 +261,8 @@ proc initialisation_bridge {id} {
 	set ::obj($id,eth0) {}
 	set ::obj($id,ip_eth0) {}
 	set ::obj($id,netmask_eth0) {}
-	set ::obj($id,nom) [::msgcat::mc "unnamed"]
-	set ::obj($id,tap) "tap$id"
-	#On affiche la fenêtre de config
-	fenetre_config_bridge $id
+	set ::obj($id,nom) $id
+	set ::obj($id,tap) "tap_$id"
 }
 
 
@@ -279,14 +275,11 @@ proc initialisation_virtualbox {id} {
 	set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
 	set ::obj($id,eth0) {}
-	set ::obj($id,nom) [::msgcat::mc "unnamed"]
+	set ::obj($id,nom) $id
 	set ::obj($id,name_from_vbox) 0
 	set ::obj($id,vbox_id) {}
 	set ::obj($id,vbox_interf) {1}
 	#A la création aucune VM attachée à l'objet
 	set ::tmp($id,is_present) 0
-	#On affiche la fenêtre de config
-	fenetre_config_vbox $id
-	fenetre_select_vbox $id
 }
 

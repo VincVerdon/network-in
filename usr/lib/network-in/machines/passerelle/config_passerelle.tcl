@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20240504
+# Version 20241212
 
 # Interface de configuration de base de la machine
 ################################################################################
@@ -167,18 +167,17 @@ proc applique_config_ip_passerelle {id} {
   
   set ::obj($id,ip_eth0) $::tmp(ip)
   set ::obj($id,netmask_eth0) $::tmp(netmask)
-	set ::tmp($id,etat_eth0) "$::obj($id,ip_eth0)/[calcul_cidr $::obj($id,netmask_eth0)]"
+  set ::tmp($id,etat_eth0) "$::obj($id,ip_eth0)/[calcul_mask_dec2cidr $::obj($id,netmask_eth0)]"
 	
   # on applique les changements : redémarrage de l'interface réseau
 	if {$::tmp($id,etat)} {
-  	exec_config_passerelle $id $::tmp(ip_anc) $::tmp(netmask_anc) stop
-    exec_config_passerelle $id $::obj($id,ip_eth0) $::obj($id,netmask_eth0) start
-  	#on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
-  	set id_liaison $::obj($id,eth0)
-  	if {$id_liaison != "" && $::tmp($id_liaison,infos_connexion)} {
-  		puts $::tmp($id,etat_eth0)
-  		maj_infos_connexion $id_liaison
-  	}
+        exec_config_passerelle $id $::tmp(ip_anc) $::tmp(netmask_anc) stop
+        exec_config_passerelle $id $::obj($id,ip_eth0) $::obj($id,netmask_eth0) start
+        #on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
+        set id_liaison $::obj($id,eth0)
+        if {$id_liaison != "" && $::tmp($id_liaison,infos_connexion)} {
+            maj_infos_connexion $id_liaison
+        }
 	}
 	
 	unset ::tmp(ip)
@@ -189,12 +188,13 @@ proc applique_config_ip_passerelle {id} {
 
 ################################################################################
 proc exec_config_passerelle {id ip masque action} {
-  
+
+  set masque [calcul_mask_cidr2dec $masque]
   catch {exec sudo $::rep/bin/conf_gateway $ip $masque $action}
 	
-	#Mise à jour étiquettes infos
-	set id_liaison $::obj($id,eth0)
-	maj_infos_connexion $id_liaison
+  #Mise à jour étiquettes infos
+  set id_liaison $::obj($id,eth0)
+  maj_infos_connexion $id_liaison
 	
 }
 
@@ -210,7 +210,7 @@ proc demarre_passerelle {id} {
 	
 	# Conf actuelle de l'interface pour affichage
 	if {$::obj($id,ip_eth0) != "" && $::obj($id,netmask_eth0) != ""} {
-		set ::tmp($id,etat_eth0) "$::obj($id,ip_eth0)/[calcul_cidr $::obj($id,netmask_eth0)]"
+		set ::tmp($id,etat_eth0) "$::obj($id,ip_eth0)/[calcul_mask_dec2cidr $::obj($id,netmask_eth0)]"
 	} else {
 		set ::tmp($id,etat_eth0) ""
 	}
@@ -243,7 +243,7 @@ proc arrete_passerelle {id} {
 	set ::tmp($id,etat) 0
 	affiche_objet_off $id
 	
-	# Déconfiguration de l'interface réseau
+	# Déconfiguration de l'interface NAT
 	exec_config_passerelle $id $::obj($id,ip_eth0) $::obj($id,netmask_eth0) stop
 	
 	puts ">>>>PASSERELLE $id arrêtée"

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20241202
+# Version 20241214
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -76,8 +76,9 @@ proc fenetre_principale {} {
 	#pack .hscroll -fill x
 	
   # événements canvas
-  bind $::c <ButtonPress-1> {clic_gauche_canvas %x %y}
+  set ::tmp(event_move) 0
   bind $::c <B1-Motion> {clic_gauche_canvas_bouge %x %y}
+  bind $::c <ButtonPress-1> {clic_gauche_canvas %x %y}
   bind $::c <ButtonPress-3> {clic_droit_canvas %x %y}
 	
   # zone des outils de conception reseau
@@ -177,7 +178,12 @@ proc maj_titre {} {
 # Gestion du clic simple gauche sur le canvas
 ################################################################################
 proc clic_gauche_canvas {x y} {
-	
+
+    after 1
+    if {$::tmp(event_move) == 1} {
+        return
+    }
+	puts "$::tmp(event_move)"
 	#set X [lindex [.hscroll get ] 0]
 	#set tx [$::c cget -width]
 	#set tx [winfo width $::c]
@@ -401,11 +407,16 @@ proc menu_contextuel_objet {id x y} {
     }
     
     {sortie} {
+        
 			switch $type {
-				
 				{passerelle} {
-					$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_passerelle $id" -state $etat3
-					$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_passerelle $id" -state $etat2
+                    if {$::obj($id,ip_eth0) != {} && $::obj($id,netmask_eth0) != {}} {
+                        $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_passerelle $id" -state $etat3
+                        $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_passerelle $id" -state $etat2
+                    } else {
+                        $::c.mc add command -label [::msgcat::mc "Start"] -state disabled
+                        $::c.mc add command -label [::msgcat::mc "Stop"] -state disabled
+                    }
 					$::c.mc add separator
 					$::c.mc add command -label [::msgcat::mc "Configuration"] -command "fenetre_config_passerelle $id"
 				}
@@ -418,11 +429,15 @@ proc menu_contextuel_objet {id x y} {
 				{virtualbox} {
 					if {$::tmp(vbox_found)} {
 						if {$::tmp($id,is_present)} {
-    					$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_virtualbox $id" -state $etat3
-    					$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_virtualbox $id" -state $etat2
-    					$::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_virtualbox $id" -state $etat2
-    					$::c.mc add separator
-						}
+                            $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_virtualbox $id" -state $etat3
+                            $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_virtualbox $id" -state $etat2
+                            $::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_virtualbox $id" -state $etat2
+						} else {
+                            $::c.mc add command -label [::msgcat::mc "Start"] -state disabled
+                            $::c.mc add command -label [::msgcat::mc "Stop"] -state disabled
+                            $::c.mc add command -label [::msgcat::mc "Force stop"] -state disabled
+                        }
+                        $::c.mc add separator
 						$::c.mc add command -label [::msgcat::mc "Configuration"] -command "fenetre_config_vbox $id" -state $etat3
 					}
 				}
@@ -489,7 +504,7 @@ proc dialogue_dupliquer {id} {
 ###############################################################
 proc menu_contextuel_gestion_cartes {id} {
 	
-	# le menu n'est ajouté que si la configuration du composant le premet
+	# le menu n'est ajouté que si la configuration du composant le permet
 	if {!$::obj($id,reconf)} {
 			return
 	}
@@ -540,7 +555,8 @@ proc fenetre_modif_note {id} {
 	text .com.text -background white -width 30 -height 8 -wrap word
 	pack .com.text
 	if {[array names ::obj $id,note] != ""} {
-		.com.text insert end $::obj($id,note)
+		set texte [string map {\\n \n} $::obj($id,note)]
+		.com.text insert end $texte
 	}
 	
 	# boutons
@@ -559,6 +575,8 @@ proc maj_note {id} {
 	
 	set texte [.com.text get 1.0 end]
 	if {$texte != "\n"} {
+		set texte [string trim $texte]
+		set texte [string map {\n \\n} $texte]
 		set ::obj($id,note) $texte
 		affiche_note_on $id
 	} else {
@@ -581,7 +599,8 @@ proc affiche_note {id} {
 	wm geometry .note +$X+$Y
 	text .note.t -width 30 -height 8 -wrap word -background $::coul(note)
 	pack .note.t
-	.note.t insert end $::obj($id,note)
+	set texte [string map {\\n \n} $::obj($id,note)]
+	.note.t insert end $texte
 	.note.t configure -state disabled
 	
 	bind .note <Button> {destroy .note}
@@ -600,7 +619,7 @@ proc fenetre_infos_objet {id} {
 	pack .inf.f -fill x
 	label .inf.f.l3 -text "[::msgcat::mc "Type"] : "
 	grid .inf.f.l3 -row 0 -column 0 -sticky e
-	label .inf.f.l4 -text "[::msgcat::mc $::obj($id,type)]"
+    label .inf.f.l4 -text $::def($::obj($id,type),label)
 	grid .inf.f.l4 -row 0 -column 1 -sticky w
 	label .inf.f.l5 -text "[::msgcat::mc "Equipment Category"] : "
 	grid .inf.f.l5 -row 1 -column 0 -sticky e
@@ -679,18 +698,18 @@ proc fenetre_infos_sortie {id} {
 	if {$::obj($id,type) == "passerelle"} {
 		label .inf.if.l1 -text "eth0 :"
 		grid .inf.if.l1 -row 0 -column 0 -sticky e
-  	if {$::tmp($id,etat)} {
-  		#label .inf.if.l2 -text "mac adress"
-    	#grid .inf.if.l2 -row 0 -column 1 -sticky w
-			if {$::tmp($id,etat_eth0) != ""} {
+        if {$::tmp($id,etat)} {
+            #label .inf.if.l2 -text "mac adress"
+            #grid .inf.if.l2 -row 0 -column 1 -sticky w
+            if {$::tmp($id,etat_eth0) != ""} {
                 label .inf.if.l3 -text "$::obj($id,ip_eth0)/$::obj($id,netmask_eth0)"
                 grid .inf.if.l3 -row 1 -column 1 -sticky w
-			}
-  	}
+            }
+        }
 	}
 	
 	if {$::obj($id,type) == "bridge"} {
-		label .inf.if.l1 -text "eth0 ($::obj($id,tap)) :"
+		label .inf.if.l1 -text "$::obj($id,tap) :"
 		grid .inf.if.l1 -row 0 -column 0 -sticky e
 		if {$::tmp($id,etat)} {
   		label .inf.if.l2 -text [get_interface_mac $::obj($id,tap)]
@@ -765,19 +784,14 @@ proc fenetre_infos_cable {id} {
 	#rien
 }
 
-# Récupération de l'IP/masque de l'interface de la passerelle
-################################################################################
-proc recup_ip_passerelle {} {
-	set infos [exec ip a show dev networkin_out]
-	regexp -line {inet\ .*([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,3}).*} $infos res ip
-	return $ip
-}
 
 ################################################################################
 proc clic_gauche_canvas_bouge {x y} {
-  
+    set ::tmp(event_move) 1
+  puts $::tmp(event_move)
   if {$::tmp(sel,type) != {0}} {
     # cas où on est en mode ajout, on sort
+    set ::tmp(event_move) 0
     return
   }
   
@@ -785,12 +799,16 @@ proc clic_gauche_canvas_bouge {x y} {
   set tags [$::c gettags $tags]
   
   # si on n'a pas cliqué sur un objet, on sort
-  if {[lindex $tags end] != {current}} {return}
+  if {[lindex $tags end] != {current}} {
+      set ::tmp(event_move) 0
+      return
+  }
   
   set id [lindex $tags 0]
   
   if {$::obj($id,famille) == {liaison}} {
     # cas où on a cliqué sur une connexion : rien à faire alors
+    set ::tmp(event_move) 0
     return
   }
   
@@ -813,7 +831,7 @@ proc clic_gauche_canvas_bouge {x y} {
       }
     }
   }
-  
+  set ::tmp(event_move) 0
 }
 
 ################################################################################

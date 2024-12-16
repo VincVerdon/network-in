@@ -2,7 +2,7 @@
 #Daemon pour communiquer avec le simulateur network-in!
 #+ gestion de l'interface graphique
 #V. Verdon
-#Version 20241012
+#Version 20241203
 ###################
 
 REP_NETW=/var/networkin
@@ -35,6 +35,16 @@ DON_IP_COM=$(cat $REP_NETW/com/ip_com)
 DON_IP_HOTE=$(cat $REP_NETW/com/ip_hote)
 DIS_HOTE=$(cat $REP_NETW/com/display)
 export DISPLAY=${DON_IP_HOTE}${DIS_HOTE}
+
+# Configuration initiale du nom de machine
+NAME=$(hostname)
+if [ "$NAME" == "unnamed" ]
+then
+    ID=$(cat $REP_NETW/com/id)
+    echo $ID > /etc/hostname
+	hostname $ID
+	sed -i "s/unnamed/$ID/" /etc/hosts
+fi
 
 # On liste toutes les interfaces reseau
 LISTE_IF=''

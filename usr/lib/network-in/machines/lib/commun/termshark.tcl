@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20240103
+# Version 20241204
 
 proc termshark {} {
     catch {file link -symbolic /root/captures /root/.cache/termshark/pcaps/}
@@ -35,10 +35,8 @@ proc fenetre_termshark {} {
   pack .fen.newcap -fill both -expand 1
   # choix du type
   frame .fen.newcap.f
-  #pack .fen.newcap.f
-  #ttk::labelframe .fen.newcap.f -text [::msgcat::mc "Interface"]
   pack .fen.newcap.f -fill both -expand 1
-  label .fen.newcap.f.l -text "[::msgcat::mc "Choose interface"] :"
+  label .fen.newcap.f.l -text "[::msgcat::mc "Interface to capture"] :"
   pack .fen.newcap.f.l -side left
   ttk::radiobutton .fen.newcap.f.lo -text [::msgcat::mc "lo"] -variable ::tmp(choix_interf) -value "lo"
   pack .fen.newcap.f.lo -side left
@@ -63,41 +61,43 @@ proc fenetre_termshark {} {
   # zone d'affichage des captures enregistrées
   ttk::labelframe .fen.seecap -text [::msgcat::mc "Saved captures"]
   pack .fen.seecap -fill both -expand 1
-  label .fen.seecap.l -text "[::msgcat::mc "List of captures"] :"
-  pack .fen.seecap.l -side left
-  ttk::treeview .fen.seecap.t -columns {file} -yscroll {.fen.seecap.sv set} -height 5 -displaycolumns {file} -show headings
-  pack .fen.seecap.t -side left -fill x -expand 1
-  scrollbar .fen.seecap.sv -orient vertical -command {.fen.seecap.t yview}
-  pack .fen.seecap.sv -side right -fill y
+  label .fen.seecap.f2
+  pack .fen.seecap.f2 -fill both -expand 1
+  label .fen.seecap.f2.l -text "[::msgcat::mc "List"] :"
+  pack .fen.seecap.f2.l -side left
+  ttk::treeview .fen.seecap.f2.t -columns {file} -yscroll {.fen.seecap.f2.sv set} -height 5 -displaycolumns {file} -show headings
+  pack .fen.seecap.f2.t -side left -fill x -expand 1
+  scrollbar .fen.seecap.f2.sv -orient vertical -command {.fen.seecap.f2.t yview}
+  pack .fen.seecap.f2.sv -side right -fill y
   # insertion des données
   foreach fic [lecture_liste_captures] {
-    .fen.seecap.t insert {} end -values $fic
+    .fen.seecap.f2.t insert {} end -values $fic
   }
   # boutons gestion des captures
-  label .fen.f3
+  label .fen.seecap.f3
   
-  ttk::button .fen.f3.b1 -compound left -text [::msgcat::mc "Suppress selection"]  -image img_supprimer -command {
-    set liste_sel [.fen.seecap.t selection]
+  ttk::button .fen.seecap.f3.b1 -compound left -text [::msgcat::mc "Delete capture"]  -image img_supprimer -command {
+    set liste_sel [.fen.seecap.f2.t selection]
     if {$liste_sel != {}} {
         foreach n $liste_sel {
-            set fic [file join "/root/captures" [.fen.seecap.t item $n -values]]
+            set fic [file join "/root/captures" [.fen.seecap.f2.t item $n -values]]
             file delete $fic
-            .fen.seecap.t delete $n
+            .fen.seecap.f2.t delete $n
         }
     }
   }
   
-  ttk::button .fen.f3.b2 -compound left -text [::msgcat::mc "Open capture"]  -image img_lire -command {
-    set liste_sel [.fen.seecap.t selection]
+  ttk::button .fen.seecap.f3.b2 -compound left -text [::msgcat::mc "Open capture"]  -image img_lire -command {
+    set liste_sel [.fen.seecap.f2.t selection]
     if {$liste_sel != {}} {
-        set fic [file join "/root/captures"  [.fen.seecap.t item [lindex $liste_sel 0] -values]]
+        set fic [file join "/root/captures"  [.fen.seecap.f2.t item [lindex $liste_sel 0] -values]]
         destroy .fen
         exec_termshark_pcap $fic
     }
   }
-  pack .fen.f3 -side right
-  pack .fen.f3.b2 -side right
-  pack .fen.f3.b1 -side right
+  pack .fen.seecap.f3 -side right
+  pack .fen.seecap.f3.b2 -side right
+  pack .fen.seecap.f3.b1 -side right
 	
   update
   winid_maj [winid_parent [winfo id .fen]]

@@ -18,12 +18,12 @@ Add  Ajouter
 Beginner  Débutant
 bridge "Pont avec l'hôte"
 Bridge "Pont avec l'hôte"
+"Bridge interface name"  "Nom de l'interface pont"
 Cable  Câble
 "Cannot connect on itself !" "Connexion impossible sur soi-même !"
 "Change network card"  "Changer de carte réseau"
 "Choose a random Mac address"  "Choisir une adresse Mac aléatoire"
 "Choose file"  "Choix du fichier"
-"Choose interface to capture"  "Choisir l'interface à capturer"
 "Choose the interface of VirtualBox VM to bind to Network-In simulator"  "Choisir l'interface de la VM VirtualBox à relier au simulateur Network-In"
 Close  Fermer
 CNAME  CNAME
@@ -43,7 +43,7 @@ Copy  Copier
 "Current records"  "Enregistrements actuels"
 Cut  Couper
 dce  DCE
-dte  DTE
+"Delete capture"  "Supprimer la capture"
 "Delete infos"  "Effacer infos"
 "Delete network card" "Supprimer une carte réseau"
 "Desk computer"  "Ordinateur de bureau"
@@ -61,6 +61,7 @@ Domain  Domaine
 "Do you really want to open another project ? If you don't  save the actual project, it will be lost"  "Voulez-vous vraiment ré-ouvrir un autre projet ? Si le projet actuel n'a pas été sauvegardé, il sera perdu"
 "Do you really want to start a new project ? If you don't  save the actual project, it will be lost" "Voulez-vous vraiment démarrer un nouveau projet ? Si le projet actuel n'a pas été sauvegardé, il sera perdu"
 "Do you really want to suppress this equipment ? \nIt will suppress all its configuration too"  "Voulez-vous vraiment supprimer ce matériel ?\nCela supprimera également toute sa configuration."
+dte  DTE
 Duplicate  Dupliquer
 Dynamic  Dynamique
 Edit  Edition
@@ -102,6 +103,7 @@ Informations Informations
 "Interface configuration" "Configuration de l'interface"
 "Interfaces configuration" "Configuration des interfaces"
 "Interfaces list"  "Interfaces disponibles"
+"Interface to capture"  "Interface à capturer"
 IP  IP
 "IP address"  "Adresse IP"
 "IP address slot"  "Plage d'adresses IP"
@@ -110,6 +112,8 @@ Laptop  "Ordinateur portable"
 "Last IP address"  "Dernière adresse IP"
 License  Licence
 "Listening interface"  "Interface en écoute"
+"Linux text"  "Ordinateur Linux texte"
+List  Liste
 "Login terminal" "Terminal login"
 "Logs print" "Affichage des logs"
 Name  Nom
@@ -132,6 +136,7 @@ New  Nouveau
 Open Ouvrir
 "Open an existing project"  "Ouvrir un projet existant"
 "Open a project"  "Ouvrir un projet"
+"Open capture"  "Ouvrir la capture"
 "Open file"  "Ouvrir fichier"
 Options  Options
 Parameters  Paramètres
@@ -139,12 +144,12 @@ passerelle  Passerelle
 "Password"  "Mot de passe"
 Paste  Coller
 pc  "Ordinateur généric"
-pctexte "Ordinateur Linux console"
+pctexte "Ordinateur Linux texte"
 "Please, be patient"  "Soyez patient"
 portable  "Ordinateur portable"
 "Quit" "Quitter"
 "Quit Network-In!" "Quitter Network-In!"
-"Real network gateway"  "Passerelle réseau réel"
+"Real network NAT router"  "Routeur NAT réseau réel"
 Reboot  Redémarrer
 "Reachable directories"  "Répertoires accessibles"
 "Records suppression"  "Suppression d'enregistrements"
@@ -161,6 +166,7 @@ routeur4 "Routeur à 4 interfaces ethernet"
 Save  Enregistrer
 "Save as"  "Enregistrer sous"
 "Save the actual project"  "Enregistrer le projet actuel"
+"Saved captures"  "Captures sauvegardées"
 "Selected account suppression"  "Suppression du compte sélectionné"
 "Selected route suppression"  "Suppression de la route sélectionnée"
 Security Securité
@@ -201,12 +207,13 @@ unnamed  sansnom
 "Users accounts"  "Comptes utilisateurs"
 version   version
 virtualbox  "Machine virtuelle externe Virtualbox"
+"Virtualbox VM" "Virtualbox VM"
 "Virtualbox VMs list"  "Liste des VMs VirtualBox"
 "Vbox ID"  "ID VirtualBox"
 "Vbox name"  "Nom VirtualBox"
 "Vbox selection"  "Choix de la VM"
 "Web browser"  "Navigateur Web"
-"Welcome to %u in Network-in FTP Server"  "Bienvenue à %u sur le serveur FTP de Network-In"
+"Welcome to %u in Network-In FTP Server"  "Bienvenue à %u sur le serveur FTP de Network-In"
 "Wifi interfaces"  "Interfaces Wifi"
 "Write file denied"  "Ecriture du fichier interdite"
 "You can't create more than one gateway"  "Vous ne pouvez pas créer plus d'une passerelle"
