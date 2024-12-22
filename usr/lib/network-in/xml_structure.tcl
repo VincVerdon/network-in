@@ -279,8 +279,9 @@ proc xml_bloc_equipment_read {f id} {
 			#Autres balises
 			set param {}
 			regexp -expanded {<(.+)>(.*)</.+>} $ligne res param valeur
-			set param [string map {family famille name nom category categorie} $param]
+			set param [string map {name_from_vbox name_from_vbox family famille name nom category categorie} $param]
 			set valeur [string map {computer ordinateur router routeur output sortie laptop portable server serveur cli pctexte desktop pc router routeur straight droit cross croise nat passerelle} $valeur]
+			puts "$id : $param = $valeur"
 			set ::obj($id,$param) $valeur
 		}
 		gets $f ligne

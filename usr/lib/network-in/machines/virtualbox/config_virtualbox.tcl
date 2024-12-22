@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20240504
+# Version 20241217
 
 # Interface de configuration de base de la machine
 ################################################################################
@@ -225,7 +225,7 @@ proc fenetre_config_nom_vbox {id} {
 	labelframe .vbox2.f
 	pack .vbox2.f -fill both -expand 1
 	
-	ttk::checkbutton .vbox2.f.ck -text [::msgcat::mc "Use VM name"] -variable ::obj($id,name_from_vbox) -command "bind_name_to_vbox_name $id"	
+	ttk::checkbutton .vbox2.f.ck -text [::msgcat::mc "Use VM name"] -onvalue true -offvalue false -variable ::obj($id,name_from_vbox) -command "bind_name_to_vbox_name $id"	
 	grid .vbox2.f.ck  -row 0 -column 0 -sticky w
 	
 	label .vbox2.f.l -text "[::msgcat::mc "Name"] : "
@@ -280,12 +280,11 @@ proc fenetre_select_interf_vbox {id} {
 	set liste [get_vbox_interfaces $id]
 	set ::tmp($id,interf_selected) $::obj($id,vbox_interf)
 	foreach {nic mac connected} $liste {
-		set n [expr $nic - 1]
-		ttk::radiobutton .vbox2.f.$n -text eth$n -value $nic -variable ::tmp($id,interf_selected)
+		ttk::radiobutton .vbox2.f.$nic -text "[::msgcat::mc "Interface"] $nic" -value $nic -variable ::tmp($id,interf_selected)
 		if {$::obj($id,vbox_interf) == $nic} {
 			set ::tmp($id,interf_selected) $nic
 		}
-		pack .vbox2.f.$n
+		pack .vbox2.f.$nic
 	}
 	
 	# boutons

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20231230
+# Version 20241222
 
 namespace eval ed {
 	
@@ -92,8 +92,10 @@ namespace eval ed {
 	
 	################################################################################
 	proc apropos {} {
+        set mess [::msgcat::mc "A simple editor for Network-In!"]
+        set mess "$mess\nVersion 20241222\nV. Verdon Corp. !"
 		tk_messageBox -icon info -title "[::msgcat::mc "About"]..." \
-				-message [::msgcat::mc "A simple editor for Network-In! V. Verdon Corp.!"] -parent .t_texte
+				-message $mess -parent .t_texte
 	}
 	
 	#quitter l'éditeur

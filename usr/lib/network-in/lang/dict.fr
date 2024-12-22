@@ -14,7 +14,8 @@ Add  Ajouter
 "Add or change comment" "Ajouter ou modifier un commentaire"
 "Address of server"  "Adresse du serveur"
 "After duplication, MAC address should be changed !"  "Après duplication, l'adresse MAC devrait être changée !"
-"A simple editor for Network-In! V. Verdon Corp.!"  "Un simple éditeur pour Network-In! V. Verdon Corp.!"
+"A simple editor for Network-In!"  "Un simple éditeur pour Network-In!"
+"An interface to Termshark for Network-In!"  "Une interface pour Termshark pour Network-In!"
 Beginner  Débutant
 bridge "Pont avec l'hôte"
 Bridge "Pont avec l'hôte"

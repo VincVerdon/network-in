@@ -14,7 +14,8 @@ Add  Add
 "Add routes"  "Add routes"
 "Address of server" "Address of server"
 "After duplication, MAC address should be changed !"  "After duplication, MAC address should be changed !"
-"A simple editor for Network-In! V. Verdon Corp.!"  "A simple editor for Network-In! V. Verdon Corp.!"
+"A simple editor for Network-In!"  "A simple editor for Network-In!"
+"An interface to Termshark for Network-In!"  "An interface to Termshark for Network-In!"
 Beginner  Beginner
 Bridge "Bridge with the host"
 bridge "Bridge with the host"

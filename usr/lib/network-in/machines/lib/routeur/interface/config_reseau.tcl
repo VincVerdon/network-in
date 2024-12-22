@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Outils config routeur
 ####################################################################
-# Version 20231230
+# Version 20241218
 source [file join $::rep lib_reseau.tcl]
 
 # Enregistre et crée les scripts de routage statique
@@ -28,7 +28,8 @@ proc applique_routage_statique {} {
     set network [lindex $i 0]
     set netmask [lindex $i 1]
     set gateway [lindex $i 2]
-    puts $f "route add  -net $network netmask $netmask gw $gateway"
+    #puts $f "route add  -net $network netmask $netmask gw $gateway"
+    puts $f "ip route add $network/$netmask via $gateway"
   }
   close $f
   file attributes $::rep_conf/routage_on.sh -permissions 0700
@@ -44,7 +45,8 @@ proc applique_routage_statique {} {
     set network [lindex $i 0]
     set netmask [lindex $i 1]
     set gateway [lindex $i 2]
-    puts $f "route del  -net $network netmask $netmask gw $gateway"
+    #puts $f "route del  -net $network netmask $netmask gw $gateway"
+    puts $f "ip route del $network/$netmask via $gateway"
   }
   close $f
   file attributes $::rep_conf/routage_off.sh -permissions 0700

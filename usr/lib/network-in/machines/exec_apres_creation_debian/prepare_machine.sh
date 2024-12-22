@@ -2,7 +2,7 @@
 #Network-in!
 #Script de preparation d'une image de machine
 #V. Verdon
-#Version 20240528
+#Version 20241220
 ###################
 REP=$(dirname $0)
 
@@ -33,15 +33,17 @@ sed -i 's/^SELINUX=permissive/SELINUX=disabled/' /etc/selinux/config
 
 #Paquets nécessaires à Network-in
 #xwininfo nécessaire mais on n'installe pas le paquet car trop gros (on installe libxcb-shape0 par contre car il en a besoin) !
-apt install -y tclsh wish ipcalc libxcb-shape0 wmctrl
+apt install -y tclsh wish ipcalc libxcb-shape0 wmctrl stterm
 
 #Installation paquets pour services et utilisateur
-apt install -y net-tools dnsutils iptables tcpdump termshark nmap traceroute bind9 isc-dhcp-server proftpd-basic openssh-server apache2  ftp
+apt install -y net-tools dnsutils iptables tcpdump termshark nmap traceroute bind9 isc-dhcp-server proftpd-basic openssh-server apache2  ftp 
 systemctl disable bind9.service
 systemctl disable isc-dhcp-server.service
 systemctl disable proftpd.service
 systemctl disable ssh.service
 systemctl disable apache2.service
+
+apt purge -y xterm
 
 #Remplacement du fichier index.html par une version personnalisée
 cp $REP/index.html /var/www/html

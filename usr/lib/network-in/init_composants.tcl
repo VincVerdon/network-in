@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20241202
+# Version 20241217
 # Ce fichier permet d'initialiser chaque type de composant
 
 
@@ -276,7 +276,7 @@ proc initialisation_virtualbox {id} {
 	set ::obj($id,nb_eth) 1
 	set ::obj($id,eth0) {}
 	set ::obj($id,nom) $id
-	set ::obj($id,name_from_vbox) 0
+	set ::obj($id,name_from_vbox) false
 	set ::obj($id,vbox_id) {}
 	set ::obj($id,vbox_interf) {1}
 	#A la création aucune VM attachée à l'objet
