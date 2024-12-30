@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions utilitaires interface bureau ordinateur et routeur
 ####################################################################
-# Version 20240103
+# Version 20241229
 
 # proc positionnant une toplevel à la position du bureau
 ###############################################################################
@@ -14,7 +14,7 @@ proc positionne_fenetre {top} {
 	wm geometry $top +$x+$y
 }
 
-# écriture fichier d'échjange avec le simulateur
+# écriture fichier d'échange avec le simulateur
 ################################################################################
 proc ecrire_fichier_echange {type don} {
 	set fic $::rep_com/$type
@@ -23,16 +23,6 @@ proc ecrire_fichier_echange {type don} {
 	close $f
 }
 
-# lecture fichier d'échange avec le simulateur
-################################################################################
-proc lire_fichier_echange {fic} {
-	if {![file exists $::rep_com/$fic]} {return -1}
-	set f [open $::rep_com/$fic r]
-	set texte [read $f]
-	close $f
-	# file delete $::rep_proj/$id/com/$fic
-	return $texte
-}
 
 # renvoie le véritable id de fenêtre, pas celui donné par winfo id de tcl
 ################################################################################

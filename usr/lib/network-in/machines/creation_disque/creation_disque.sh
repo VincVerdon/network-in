@@ -1,7 +1,12 @@
 #!/bin/bash
+#Network-in!
+#Script de preparation d'une image de machine
+#V. Verdon
+#Version 20241222
+###################
 
 DEB_VERSION=bookworm
-VERSION=1
+VERSION=1.01
 IMG=${DEB_VERSION}_${VERSION}.img
 TAILLE=1536
 
@@ -14,12 +19,14 @@ debootstrap $DEB_VERSION /mnt
 
 cat <<EOF> /mnt/etc/fstab
 #Configuration of root disk for Network-in Simulator
-/dev/ubd0  ext4  defaults  0  0
+/dev/ubda / ext4 discard,errors=remount-ro 0 1
 EOF
 
 echo noname > /mnt/etc/hostname
 
+#Désactivation SeLinux pour la suite (impossible car fichier créé par la suite)
+#sed -i 's/^SELINUX=permissive/SELINUX=disabled/' /mnt/etc/selinux/config
+
 chroot /mnt
 echo root:root | chpasswd
 exit
-

@@ -4,7 +4,8 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de configuration réseau
 ####################################################################
-# Version 20241130
+# Version 20241229
+# Ce module a besoin des libs réseau
 source [file join $::rep lib_reseau.tcl]
 
 # Interface de configuration de base de la machine
@@ -341,78 +342,3 @@ proc ch_ip {interf} {
   changer_ip_machine
   destroy .cfg3
 }
-
-# Ecriture du nom dans /etc/hostname
-################################################################################
-proc changer_dns_machine {domain serv1 serv2 serv3} {
-  set f [open /etc/resolv.conf w]
-  puts $f "#Automatic configuration by Network-In interface"
-  if {$domain != {}} {
-    puts $f "domain $domain"
-  }
-  for  {set i 1} {$i <=3} {incr i} {
-    if {[set serv$i] != {}} {
-      puts $f "nameserver [set serv$i]"
-    }
-  }
-  close $f
-}
-
-# lecture de l'interface configurée
-################################################################################
-proc lire_ifconfig {interf} {
-  
-  # recherche de l'ip
-  set a [catch {set res [exec /sbin/ifconfig $interf]}]
-  if {$a != {0}} {return {{} {} {}}}
-  set n [lsearch $res "addr:*"]
-  if {$n == {-1}} {
-    set n [lsearch $res "adr:*"]
-  }
-  
-  if {$n == {-1}} {
-    # pas d'ip configurée
-    return {{} {} {}}
-  }
-  
-  set ip [lindex $res $n]
-  set ip [split $ip {:}]
-  set ip [lindex $ip 1]
-  
-  # recherche du masque
-  set n [lsearch $res "Mas*"]
-  set netmask [lindex $res $n]
-  set netmask [split $netmask {:}]
-  set netmask [lindex $netmask 1]
-  
-  # recherche de la passerelle
-  set a [catch {set res [eval exec /sbin/route -n | grep "^0.0.0.0.*$interf"]}]
-  if {$a != {0}} {return "$ip $netmask {}"}
-  set gateway [lindex $res 1]
-  return "$ip $netmask $gateway"
-  
-}
-
-# lecture du fichier resolv.conf
-################################################################################
-proc lire_dns_machine {} {
-  set domain {}
-  set serv1 {}
-  set serv2 {}
-  set serv3 {}
-  set i 1
-  set f [open /etc/resolv.conf r]
-  while {![eof $f]} {
-    gets $f ligne
-    if {[lindex $ligne 0] == "domain"} {
-      set domain [lindex $ligne 1]
-    }
-    if {[lindex $ligne 0] == "nameserver" && $i <4} {
-      set serv$i [lindex $ligne 1]
-      incr i
-    }
-  }
-  close $f
-  return [list $domain $serv1 $serv2 $serv3]
-}
-

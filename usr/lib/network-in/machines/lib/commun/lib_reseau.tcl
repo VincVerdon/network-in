@@ -23,6 +23,7 @@ proc changer_nom_machine {nom} {
 	wm title . "$nom"
 }
 
+
 # Changement de la configuration IP des interfaces
 # Enregistrement de la nouvelle config dans /etc/network/interfaces
 ################################################################################
@@ -80,6 +81,7 @@ proc changer_ip_machine {} {
 	
 }
 
+
 # Lit le fichier d'échange des interfaces et complète les données dans $tmp
 # $tmp(nb_eth) et $nb(nb_wlan) et les ip dans $tmp(eth0)... $tmp(wlan1)...
 ################################################################################
@@ -97,11 +99,13 @@ proc lire_interfaces {} {
 	}
 }
 
+
 # lecture du fichier hostname
 ################################################################################
 proc lire_nom_machine {} {
 	return [exec cat /etc/hostname]
 }
+
 
 # lecture du fichier interfaces
 ################################################################################
@@ -154,6 +158,43 @@ proc lire_interface {interface} {
 	return [list $mode $address $netmask $gateway $etat]
 }
 
+
+# lecture de l'interface configurée
+################################################################################
+proc lire_ifconfig {interf} {
+  
+  # recherche de l'ip
+  set a [catch {set res [exec /sbin/ifconfig $interf]}]
+  if {$a != {0}} {return {{} {} {}}}
+  set n [lsearch $res "addr:*"]
+  if {$n == {-1}} {
+    set n [lsearch $res "adr:*"]
+  }
+  
+  if {$n == {-1}} {
+    # pas d'ip configurée
+    return {{} {} {}}
+  }
+  
+  set ip [lindex $res $n]
+  set ip [split $ip {:}]
+  set ip [lindex $ip 1]
+  
+  # recherche du masque
+  set n [lsearch $res "Mas*"]
+  set netmask [lindex $res $n]
+  set netmask [split $netmask {:}]
+  set netmask [lindex $netmask 1]
+  
+  # recherche de la passerelle
+  set a [catch {set res [eval exec /sbin/route -n | grep "^0.0.0.0.*$interf"]}]
+  if {$a != {0}} {return "$ip $netmask {}"}
+  set gateway [lindex $res 1]
+  return "$ip $netmask $gateway"
+  
+}
+
+
 #Fonction qui calcule le masque décimal pointé à partir du CIDR
 ################################################################################
 proc calcul_mask_cidr2dec {cidr} {
@@ -179,6 +220,7 @@ proc calcul_mask_cidr2dec {cidr} {
     return $ret
 }
 
+
 #Fonction qui calcule l'ip de réseau à partir de l'IP+masque
 ################################################################################
 proc calcul_reseau {ip netmask} {
@@ -187,4 +229,75 @@ proc calcul_reseau {ip netmask} {
   set res [lindex $res [expr $n+1]]
   set res [split $res {/}]
   return [lindex $res 0]
+}
+
+# Ecriture DNS dans resolv.conf
+################################################################################
+proc changer_dns_machine {domain serv1 serv2 serv3} {
+  set f [open /etc/resolv.conf w]
+  puts $f "#Automatic configuration by Network-In interface"
+  if {$domain != {}} {
+    puts $f "domain $domain"
+  }
+  for  {set i 1} {$i <=3} {incr i} {
+    if {[set serv$i] != {}} {
+      puts $f "nameserver [set serv$i]"
+    }
+  }
+  close $f
+}
+
+
+# lecture du fichier resolv.conf
+################################################################################
+proc lire_dns_machine {} {
+  set domain {}
+  set serv1 {}
+  set serv2 {}
+  set serv3 {}
+  set i 1
+  set f [open /etc/resolv.conf r]
+  while {![eof $f]} {
+    gets $f ligne
+    if {[lindex $ligne 0] == "domain"} {
+      set domain [lindex $ligne 1]
+    }
+    if {[lindex $ligne 0] == "nameserver" && $i <4} {
+      set serv$i [lindex $ligne 1]
+      incr i
+    }
+  }
+  close $f
+  return [list $domain $serv1 $serv2 $serv3]
+}
+
+
+# lecture fichier d'échange avec le simulateur
+################################################################################
+proc lire_fichier_echange {fic} {
+	if {![file exists $::rep_com/$fic]} {return -1}
+	set f [open $::rep_com/$fic r]
+	set texte [read $f]
+	close $f
+	# file delete $::rep_proj/$id/com/$fic
+	return $texte
+}
+
+
+# Ecriture de données textuelles dans un fichier
+################################################################################
+proc ecrire_fichier {fichier don} {
+  set f [open $fichier w]
+  puts $f $don
+  close $f
+}
+
+
+# Lecture de données textuelles depuis un fichier
+################################################################################
+proc lire_fichier {fichier} {
+  set f [open $fichier r]
+  set don [read $f]
+  close $f
+  return $don
 }

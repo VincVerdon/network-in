@@ -3,9 +3,9 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20241203
-# Ce module a besoin du module général réseau
-source $::rep/config_reseau.tcl
+# Version 20241229
+# Ce module a besoin des libs réseau
+source [file join $::rep lib_reseau.tcl]
 
 # proc de démarrage du module
 ################################################################################
@@ -482,25 +482,9 @@ proc fenetre_config_http {} {
   pack .cfg2.fb.a -side left
 }
 
-################################################################################
-proc ecrire_fichier {fichier don} {
-  set f [open $fichier w]
-  puts $f $don
-  close $f
-}
-
-################################################################################
-proc lire_fichier {fichier} {
-  set f [open $fichier r]
-  set don [read $f]
-  close $f
-  return $don
-}
-
 
 ################################################################################
 proc applique_config_dhcp {} {
-  
   
   # Le réseau doit être au format décimal pas en CIDR
   set ::conf(netmask) [calcul_mask_cidr2dec $::conf(netmask)]
@@ -646,6 +630,7 @@ proc applique_config_ssh {} {
   array unset ::conf
 }
 
+# Renverse l'IP
 ################################################################################
 proc inverse_ip {ip} {
   set ip [split $ip {.}]
@@ -794,7 +779,7 @@ proc fenetre_config_ssh {} {
 }
 
 
-# arret ou démarrage d'un service (systemd)
+# Désactivation ou activation d'un service (systemd)
 ################################################################################
 proc maj_service {daemon etat} {
     if {$etat} {

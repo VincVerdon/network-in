@@ -16,6 +16,7 @@ Add  Ajouter
 "After duplication, MAC address should be changed !"  "Après duplication, l'adresse MAC devrait être changée !"
 "A simple editor for Network-In!"  "Un simple éditeur pour Network-In!"
 "An interface to Termshark for Network-In!"  "Une interface pour Termshark pour Network-In!"
+"A terminal for Network-In!"  "Un terminal pour Network-In!\nBasé sur Simple Term"
 Beginner  Débutant
 bridge "Pont avec l'hôte"
 Bridge "Pont avec l'hôte"
@@ -66,6 +67,7 @@ dte  DTE
 Duplicate  Dupliquer
 Dynamic  Dynamique
 Edit  Edition
+Editor Editeur
 "Equipment Category"  "Catégorie d'équipement"
 err1  "Impossible. Network-In! est déjà démarré !"
 Error  Erreur
@@ -109,6 +111,8 @@ IP  IP
 "IP address"  "Adresse IP"
 "IP address slot"  "Plage d'adresses IP"
 "IP configuration"  "Configuration IP"
+"Keys ctrl-shift-C : copy text"  "Touches ctrl-maj-C : COPIER"
+"Keys ctrl-shift-V : paste text"  "Touches ctrl-maj-V : COLLER"
 Laptop  "Ordinateur portable"
 "Last IP address"  "Dernière adresse IP"
 License  Licence
@@ -130,6 +134,7 @@ New  Nouveau
 "New capture" "Nouvelle capture"
 "New network card added"  "Nouvelle carte réseau ajoutée"
 "New project"  "Nouveau projet"
+"New terminal"  "Nouveau terminal"
 "No file selected !" "Aucun fichier sélectionné !"
 "Not connected" "Non connecté"
 "Off"  "Off"

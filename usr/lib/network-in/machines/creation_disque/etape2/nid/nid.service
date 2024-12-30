@@ -1,9 +1,10 @@
 [Unit]
 Description=Network-in Simulator starting service
 DefaultDependencies=no
+After=systemd-remount-fs.service
 
 [Service]
-Type=oneshot
+Type=forking
 ExecStart=/sbin/networkin-bin/nid/nid.sh start
 ExecStop=/sbin/networkin-bin/nid/nid.sh stop
 

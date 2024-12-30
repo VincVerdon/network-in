@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface bureau
 ####################################################################
-# Version 20240101
+# Version 20241229
 
 # Création de l'interface principale (bureau)
 ################################################################################
@@ -47,6 +47,7 @@ proc fenetre_principale {} {
           incr i
           set x [expr $x + 100]
     }
+    update
     
     # zone de boutons
     frame .fb
