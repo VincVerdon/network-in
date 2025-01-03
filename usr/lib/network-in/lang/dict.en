@@ -192,6 +192,7 @@ Suppression  Suppression
 Switch  Switch
 switch4 "Basic 4 ports switch"
 switch8 "Basic 8 ports switch"
+"Switch off"  "Switch off"
 Terminal Terminal
 "Text editor"  "Text editor"
 "Text interface computer" "Text interface computer"

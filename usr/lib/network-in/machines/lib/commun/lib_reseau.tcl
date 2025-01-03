@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions gestion réseau ordinateur et routeur
 ####################################################################
-# Version 20241212
+# Version 20250103
 
 # Ecriture du nom dans /etc/hostname
 ################################################################################
@@ -269,18 +269,6 @@ proc lire_dns_machine {} {
   }
   close $f
   return [list $domain $serv1 $serv2 $serv3]
-}
-
-
-# lecture fichier d'échange avec le simulateur
-################################################################################
-proc lire_fichier_echange {fic} {
-	if {![file exists $::rep_com/$fic]} {return -1}
-	set f [open $::rep_com/$fic r]
-	set texte [read $f]
-	close $f
-	# file delete $::rep_proj/$id/com/$fic
-	return $texte
 }
 
 

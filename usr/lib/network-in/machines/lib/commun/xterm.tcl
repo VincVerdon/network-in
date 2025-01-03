@@ -63,9 +63,11 @@ namespace eval term {
       } else {
           exec st -f "DejaVu Sans Mono-12"  -w [scan [winfo id $term.f] %x] &
       }
-
       wm deiconify $term
       winid_maj [winid_parent [winfo id $term]]
+      
+      #On déplace le curseur sur le terminal pour avoir le focus, pas d'autre solution !
+      after 100 "event generate $term.f <Motion> -x 150 -y 150 -warp 1"
       
       #Si st est fermé (commande exit ou logout) alors on détruit la fenêtre
       tkwait window $term.f

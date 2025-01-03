@@ -4,15 +4,28 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions utilitaires interface bureau ordinateur et routeur
 ####################################################################
-# Version 20241229
+# Version 20250103
 
 # proc positionnant une toplevel à la position du bureau
 ###############################################################################
-proc positionne_fenetre {top} {
-	set x [winfo x .]
-	set y [winfo y .]
+proc positionne_fenetre {top {parent {.}}} {
+	set x [winfo x $parent]
+	set y [winfo y $parent]
 	wm geometry $top +$x+$y
 }
+
+
+# lecture fichier d'échange avec le simulateur
+################################################################################
+proc lire_fichier_echange {fic} {
+	if {![file exists $::rep_com/$fic]} {return -1}
+	set f [open $::rep_com/$fic r]
+	set texte [read $f]
+	close $f
+	# file delete $::rep_proj/$id/com/$fic
+	return $texte
+}
+
 
 # écriture fichier d'échange avec le simulateur
 ################################################################################

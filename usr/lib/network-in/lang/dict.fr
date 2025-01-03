@@ -194,6 +194,7 @@ Suppression Suppression
 Switch  "Commutateur (switch)"
 switch4 "Switch simple à 4 ports"
 switch8 "Switch simple à 8 ports"
+"Switch off" "Eteindre"
 Terminal Terminal
 "Text editor"  "Editeur de texte"
 "Text interface computer" "Ordinateur interface texte"
