@@ -213,7 +213,13 @@ proc is_vbox_software_installed {} {
 ###################################################################################
 proc fenetre_config_nom_vbox {id} {
 	
-	destroy .vbox2
+    if [winfo exists .vbox2] {
+        raise .vbox2
+        return
+    }
+    
+    set ::tmp(nom) $::obj($id,nom)
+    
 	toplevel .vbox2
 	wm title .vbox2 [::msgcat::mc "Name configuration"]
 	wm transient .vbox2 .vbox
@@ -231,7 +237,6 @@ proc fenetre_config_nom_vbox {id} {
 	label .vbox2.f.l -text "[::msgcat::mc "Name"] : "
 	grid .vbox2.f.l -row 1 -column 0 -sticky w
 	entry .vbox2.f.e -background white -textvariable ::tmp(nom)
-	set ::tmp(nom) $::obj($id,nom)
 	grid .vbox2.f.e -row 1 -column 1 -sticky w
 	bind_name_to_vbox_name $id
 	

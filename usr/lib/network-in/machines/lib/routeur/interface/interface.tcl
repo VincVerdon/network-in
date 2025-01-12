@@ -4,30 +4,33 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface routeur
 ####################################################################
-# Version 20250102
+# Version 20250107
 
 # Création de l'interface de configuration principale
 ################################################################################
 proc fenetre_principale {} {
 
     set nom [exec hostname]
-    if {$nom == "unnamed"} {
-    wm title . [::msgcat::mc "unnamed"]
-    } else  {
-        wm title . $nom
-    }
+    wm title . $nom
     wm protocol . WM_DELETE_WINDOW {#}
     wm iconphoto . -default img_icone
-    ecrire_fichier_echange window_id [winfo id .]
-
+	wm resizable . 0 0
+    #ecrire_fichier_echange window_id [winfo id .]
+    
     label .ico -image img_icone
     pack .ico
 
+    #frame .f -background $::coul(fond)
     frame .f
     pack .f
     # zone de configuration
     labelframe .f.f1 -text [::msgcat::mc "Configuration"]
     pack .f.f1 -fill y -expand 1 -side left
+    catch {
+        label .f.f1.ico -image img_config
+        pack .f.f1.ico
+    }
+    
     button .f.f1.1 -text [::msgcat::mc "IP configuration"] -command {fenetre_choix_interface} -width 20
     pack .f.f1.1 -fill x
 
@@ -40,16 +43,19 @@ proc fenetre_principale {} {
     button .f.f1.2 -text [::msgcat::mc "Static routing"] -command {fenetre_config_routage_statique}
     pack .f.f1.2 -fill x
 
-    button .f.f1.5 -text [::msgcat::mc "Terminal"] -command {ouverture_console}
-    pack .f.f1.5 -fill x
-
-    #zone d'infos
+    #zone d'informations
     labelframe .f.f2 -text [::msgcat::mc "Information"]
     pack .f.f2 -fill y -expand 1 -side left
+    label .f.f2.ico -image img_info
+    pack .f.f2.ico
+    
     button .f.f2.4 -text [::msgcat::mc "Routing table"] -command {fenetre_table_routage}
     pack .f.f2.4 -fill x
     button .f.f2.6 -text [::msgcat::mc "About"] -command {ouverture_a_propos}
     pack .f.f2.6 -fill x
+
+    button .f.f2.5 -text [::msgcat::mc "Terminal"] -command {ouverture_console}
+    pack .f.f2.5 -fill x -side bottom
 
     button .arret -compound left -text [::msgcat::mc "Switch off"] -image img_eteindre -relief flat -command {exec halt &}
     pack .arret -anchor w

@@ -4,20 +4,17 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface bureau
 ####################################################################
-# Version 20241229
+# Version 20250108
 
 # Création de l'interface principale (bureau)
 ################################################################################
 proc fenetre_principale {} {
     
     set nom [exec hostname] 
-    if {$nom == "unnamed"} {
-      wm title . [::msgcat::mc "unnamed"]
-    } else  {
-      wm title . $nom
-    }
+    wm title . $nom
     wm protocol . WM_DELETE_WINDOW {#}
     wm iconphoto . -default img_icone
+    wm resizable . 0 0
     
     # zone de placement des icones
     # On crée un canvas qui va contenir les icones
@@ -47,7 +44,6 @@ proc fenetre_principale {} {
           incr i
           set x [expr $x + 100]
     }
-    update
     
     # zone de boutons
     frame .fb
@@ -60,6 +56,7 @@ proc fenetre_principale {} {
 
     update
     winid_maj [winid_parent [winfo id .]]
+	
 }
 
 

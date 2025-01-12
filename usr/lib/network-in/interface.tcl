@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20241214
+# Version 20250108
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -24,7 +24,7 @@ proc fenetre_principale {} {
   $m.file add command -label [::msgcat::mc "Open an existing project"] -command "dialogue_ouvrir_projet {}"
   $m.file add command -label [::msgcat::mc "Save the actual project"] -command "dialogue_enregistrer_projet"
 	$m.file add separator
-  $m.file add command -label [::msgcat::mc "Quit"] -command "quit"
+  $m.file add command -label [::msgcat::mc "Quit"] -command quit
   # menu outils
   $m add cascade -menu $m.tools -label [::msgcat::mc "Options"]
   menu $m.tools -tearoff 0
@@ -53,7 +53,11 @@ proc fenetre_principale {} {
   #pack .fb.zm -side left
 	ttk::button .fb.si -compound $comp -text [::msgcat::mc "Delete infos"] -image im_del_infos -command {efface_infos_connexion}
 	pack .fb.si -side left
-  ttk::button .fb.quit -compound $comp -text [::msgcat::mc "Quit"] -image im_quitter -command {quit}
+	ttk::button .fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_eteindre -command {
+		if [dialogue_arreter_tout] {arreter_tout}
+	}
+	pack .fb.stopall -side left	
+  ttk::button .fb.quit -compound $comp -text [::msgcat::mc "Quit"] -image im_quitter -command quit
   pack .fb.quit -side right
   ttk::frame .f -relief sunken
   pack .f -fill both -expand 1
@@ -232,54 +236,58 @@ proc clic_gauche_canvas {x y} {
 # met en avant les fenêtres de l'objet
 ################################################################################
 proc raise_objet {id} {
-		switch $::obj($id,type) {
-			"passerelle" {
-				raise_passerelle
-			}
-			"virtualbox" {
-				raise_vbox
-			}
-			"bridge" {
-				raise_bridge
-			}
-			
-			default {
-				
-				set cpt 1
-				foreach wid $::tmp($id,win_id) {
-					if {$cpt != 1} {
-						catch {exec wmctrl -i -a $wid}
-					} else {
-						set desk_wid $wid
-					}
-					incr cpt
-  			}
-				#On met le bureau au premier plan
-				catch {exec wmctrl -i -a $desk_wid}
-			}
+    
+	switch $::obj($id,type) {
+		"passerelle" {
+			raise_passerelle
 		}
+		"virtualbox" {
+			raise_vbox $id
+		}
+		"bridge" {
+			raise_bridge $id
+		}
+		
+		default {
+			
+			set cpt 1
+			foreach wid $::tmp($id,win_id) {
+				if {$cpt != 1} {
+					catch {exec wmctrl -i -a $wid}
+				} else {
+					set desk_wid $wid
+				}
+				incr cpt
+		}
+			#On met le bureau au premier plan
+			catch {exec wmctrl -i -a $desk_wid}
+		}
+	}
+    
 }
 
 
 # réduit les fenêtres de l'objet
 ################################################################################
 proc masque_objet {id} {
-		switch $::obj($id,type) {
-			"passerelle" {
-				hide_passerelle
-			}
-			"virtualbox" {
-				hide_vbox
-			}
-			"bridge" {
-				hide_bridge
-			}
-			default {
-				foreach wid $::tmp($id,win_id) {
-					catch {exec wmctrl -i -r $wid -b add,hidden &}
-				}
+    
+	switch $::obj($id,type) {
+		"passerelle" {
+			hide_passerelle
+		}
+		"virtualbox" {
+			hide_vbox
+		}
+		"bridge" {
+			hide_bridge
+		}
+		default {
+			foreach wid $::tmp($id,win_id) {
+				catch {exec wmctrl -i -r $wid -b add,hidden &}
 			}
 		}
+	}
+    
 }
 
 # proc de gestion des clics de création d'une liaison entre 2 éléments
@@ -340,158 +348,178 @@ proc clic_droit_canvas {x y} {
   
 }
 
+# Création menu contextuel pour un matériel
 ################################################################################
 proc menu_contextuel_objet {id x y} {
 	
-  destroy $::c.mc
-  menu $::c.mc -tearoff 0
-  set famille $::obj($id,famille)
-	set type $::obj($id,type)
+    destroy $::c.mc
+    menu $::c.mc -tearoff 0
+    set famille $::obj($id,famille)
+    set type $::obj($id,type)
+    
+    #prise en compte du niveau de fonctionnalités autorisées en fonction du niveau de détails
+    	if {$::def($type,voir) <= $::tmp(niveau)} {
+    		set etat normal
+    	} else {
+    		set etat disabled
+    	}
+      
+    	#prise en compte de l'état actuel du composant (actions impossibles si composant allumé)
+    if {$::tmp($id,etat)} {
+    	set etat2 normal
+    	set etat3 disabled
+    } else {
+    	set etat2 disabled
+    	set etat3 normal
+    }
 	
-	#prise en compte du niveau de fonctionnalités autorisées en fonction du niveau de détails
-	if {$::def($type,voir) <= $::tmp(niveau)} {
-		set etat normal
-	} else {
-		set etat disabled
-	}
-  
-	#prise en compte de l'état actuel du composant (actions impossibles si composant allumé)
-	if {$::tmp($id,etat)} {
-		set etat2 normal
-		set etat3 disabled
-	} else {
-		set etat2 disabled
-		set etat3 normal
-	}
-	
-  # menu suivant le type d'objet
-  switch $famille {
-    
-    {liaison} {
-			#rien de particulier
-			# infos sur l'objet sélectionné
-			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-			#$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
-			$::c.mc add separator
-			$::c.mc add command -label [::msgcat::mc "Suppress"] -command "supprimer_connexion $id"
-    }
-    
-    {ordinateur} {
-			
-      $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_ordinateur $id" -state $etat3
-      $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_ordinateur $id" -state $etat2
-      $::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_ordinateur $id" -state $etat2
-			# infos sur l'objet sélectionné
-			$::c.mc add separator
-			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
-			$::c.mc add separator
-			$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dialogue_dupliquer $id" -state $etat3
-			$::c.mc add command -label [::msgcat::mc "Suppress"] -command "supprimer_objet $id" -state $etat3
-    
-    }
-    
-    {routeur} {
-			
-      $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_routeur $id" -state $etat3
-      $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_routeur $id" -state $etat2
-			$::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_ordinateur $id" -state $etat2
-			# infos sur l'objet sélectionné
-			$::c.mc add separator
-			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
-			$::c.mc add separator
-			$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dialogue_dupliquer $id" -state $etat3
-			$::c.mc add command -label [::msgcat::mc "Suppress"] -command "supprimer_objet $id" -state $etat3
-    
-    }
-    
-    {sortie} {
+    # menu suivant le type d'objet
+    switch $famille {
         
-			switch $type {
-				{passerelle} {
-                    if {$::obj($id,ip_eth0) != {} && $::obj($id,netmask_eth0) != {}} {
-                        $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_passerelle $id" -state $etat3
-                        $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_passerelle $id" -state $etat2
-                    } else {
-                        $::c.mc add command -label [::msgcat::mc "Start"] -state disabled
-                        $::c.mc add command -label [::msgcat::mc "Stop"] -state disabled
-                    }
-					$::c.mc add separator
-					$::c.mc add command -label [::msgcat::mc "Configuration"] -command "fenetre_config_passerelle $id"
-				}
-				{bridge} {
-					$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_bridge $id" -state $etat3
-					$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_bridge $id" -state $etat2
-					$::c.mc add separator
-					$::c.mc add command -label [::msgcat::mc "Configuration"] -command "fenetre_config_bridge $id" -state $etat3
-				}
-				{virtualbox} {
-					if {$::tmp(vbox_found)} {
-						if {$::tmp($id,is_present)} {
+        {liaison} {
+    			#rien de particulier
+    		# infos sur l'objet sélectionné
+    		$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+    		#$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+    		$::c.mc add separator
+    		$::c.mc add command -label [::msgcat::mc "Suppress"] -command "supprimer_connexion $id"
+    	}
+    
+    	{ordinateur} {
+        		
+            $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_ordinateur $id" -state $etat3
+            $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_ordinateur $id" -state $etat2
+            $::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_ordinateur $id" -state $etat2
+        	# infos sur l'objet sélectionné
+        	$::c.mc add separator
+        	$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+        	$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+        	$::c.mc add separator
+        	$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dialogue_dupliquer $id" -state $etat3
+        	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+            #Sous-menu de changement/ajout/suppression de carte et mac
+            if $::obj($id,reconf) {
+                menu_contextuel_gestion_cartes $id
+            }
+        }
+        
+    	{routeur} {
+    		
+            $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_routeur $id" -state $etat3
+            $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_routeur $id" -state $etat2
+        	$::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_ordinateur $id" -state $etat2
+        	# infos sur l'objet sélectionné
+        	$::c.mc add separator
+        	$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+        	$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+        	$::c.mc add separator
+        	$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dialogue_dupliquer $id" -state $etat3
+        	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+            #Sous-menu de changement/ajout/suppression de carte et mac
+            if $::obj($id,reconf) {
+                menu_contextuel_gestion_cartes $id
+            }
+    	}
+    
+    	{sortie} {
+        
+    		switch $type {
+    			{passerelle} {
+                    $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_passerelle $id" -state $etat3
+                    $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_passerelle $id" -state $etat2
+    			}
+    			{bridge} {
+    				$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_bridge $id" -state $etat3
+    				$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_bridge $id" -state $etat2
+    			}
+    		}
+    		# infos sur l'objet sélectionné
+    		$::c.mc add separator
+    		$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+    		$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+    		$::c.mc add separator
+    		$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+    		
+    	}
+    
+    	{vm} {
+            switch $type {
+                {virtualbox} {
+                    if {$::tmp(vbox_found)} {
+                        if {$::tmp($id,is_present)} {
                             $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_virtualbox $id" -state $etat3
                             $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_virtualbox $id" -state $etat2
                             $::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_virtualbox $id" -state $etat2
-						} else {
+                        } else {
                             $::c.mc add command -label [::msgcat::mc "Start"] -state disabled
                             $::c.mc add command -label [::msgcat::mc "Stop"] -state disabled
                             $::c.mc add command -label [::msgcat::mc "Force stop"] -state disabled
                         }
                         $::c.mc add separator
-						$::c.mc add command -label [::msgcat::mc "Configuration"] -command "fenetre_config_vbox $id" -state $etat3
-					}
-				}
-			}
-			# infos sur l'objet sélectionné
-			$::c.mc add separator
-			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
-			$::c.mc add separator
-			$::c.mc add command -label [::msgcat::mc "Suppress"] -command "supprimer_objet $id" -state $etat3
-			
+                        $::c.mc add command -label [::msgcat::mc "Configuration"] -command "fenetre_config_vbox $id" -state $etat3
+                    }
+                }
+            }
+            # infos sur l'objet sélectionné
+            $::c.mc add separator
+            $::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+            $::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+            $::c.mc add separator
+            $::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+            
+        }
+      
+        {switch} {
+    		
+            $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_switch $id" -state $etat3
+            $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_switch $id" -state $etat2
+        	# infos sur l'objet sélectionné
+        	$::c.mc add separator
+        	$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+        	$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+        	$::c.mc add separator
+        	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+    		
+    	}
+    
+    	{hub} {
+    		
+            $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_switch $id" -state $etat3
+            $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_switch $id" -state $etat2
+        	# infos sur l'objet sélectionné
+        	$::c.mc add separator
+        	$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+        	$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+        	$::c.mc add separator
+        	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+    			
+        }
     }
     
-    {switch} {
-			
-      $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_switch $id" -state $etat3
-      $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_switch $id" -state $etat2
-			# infos sur l'objet sélectionné
-			$::c.mc add separator
-			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
-			$::c.mc add separator
-			$::c.mc add command -label [::msgcat::mc "Suppress"] -command "supprimer_objet $id" -state $etat3
-			
-    }
+    # coordonnées dans le repère écran
+    set X [winfo pointerx .]
+    set Y [winfo pointery .]
+    # affichage
+    $::c.mc post $X $Y
     
-    {hub} {
-			
-      $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_switch $id" -state $etat3
-      $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_switch $id" -state $etat2
-			# infos sur l'objet sélectionné
-			$::c.mc add separator
-			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
-			$::c.mc add separator
-			$::c.mc add command -label [::msgcat::mc "Suppress"] -command "supprimer_objet $id" -state $etat3
-			
-    }
-		
-    {default} {}
-		
-  }
-	
-	#Sous-menu de changement/ajout/suppression de carte et mac
-	if {$::obj($id,famille) != {liaison} && $::obj($id,reconf)} {
-		menu_contextuel_gestion_cartes $id
-	}
-  
-  # coordonnées dans le repère écran
-  set X [winfo pointerx .]
-  set Y [winfo pointery .]
-  # affichage
-  $::c.mc post $X $Y
 }
+
+# Dialogue appelé lors de la demande de suppression d'un composant
+###############################################################
+proc dialogue_supprimer_objet {id} {
+    
+    # l'objet doit d'abord être arrêté
+    if {$::tmp($id,etat)} {
+        tk_messageBox -icon info -title [::msgcat::mc "Impossible"] -message [::msgcat::mc "You must first stop this equipment"]
+    } else {
+        set rep [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "Suppression"] -message [::msgcat::mc "Do you really want to suppress this equipment ? \nIt will suppress all its configuration too"]]
+        if {$rep == "yes"} {
+            supprimer_objet $id
+        }
+    }
+    
+}
+
 
 # Dialogue appelé lors de la demande de duplication d'un composant
 ###############################################################
@@ -647,6 +675,9 @@ proc fenetre_infos_objet {id} {
 			{sortie} {
 				fenetre_infos_sortie $id
 			}
+			{vm} {
+                fenetre_infos_vm $id
+            }
 			{liaison} {
 				fenetre_infos_cable $id
 			}
@@ -670,6 +701,30 @@ proc fenetre_infos_objet {id} {
 ####################################
 proc fenetre_infos_ordinateur {id} {
 	
+	
+	if {[file exists $::rep/disks/$::obj($id,dd)] || [file exists $::rep_conf/disks/$::obj($id,dd)]} {
+		set disk $::obj($id,dd) 
+	} else {
+		set disk "$::obj($id,dd) - [::msgcat::mc "MISSING"]"
+	}
+	
+	if {[file exists $::rep/kernels/$::obj($id,kernel)/linux.uml] || [file exists $::rep_conf/kernels/$::obj($id,kernel)/linux.uml]} {
+		set kern $::obj($id,kernel) 
+	} else {
+		set kern "$::obj($id,kernel) - [::msgcat::mc "MISSING"]"
+	}
+	
+	labelframe .inf.dd -text [::msgcat::mc "System"]
+	pack .inf.dd -fill x
+	label .inf.dd.l1 -text "[::msgcat::mc "System disk"] :"
+	grid .inf.dd.l1 -row 0 -column 0 -sticky e
+	label .inf.dd.l2 -text $disk
+	grid .inf.dd.l2 -row 0 -column 1 -sticky w
+	label .inf.dd.l3 -text "[::msgcat::mc "Kernel"] :"
+	grid .inf.dd.l3 -row 1 -column 0 -sticky e
+	label .inf.dd.l4 -text $kern
+	grid .inf.dd.l4 -row 1 -column 1 -sticky w
+	
 	labelframe .inf.if -text [::msgcat::mc "Ethernet interfaces"]
 	pack .inf.if -fill x
 	for  {set i 0} {$i<$::obj($id,nb_eth)} {incr i} {
@@ -688,67 +743,81 @@ proc fenetre_infos_ordinateur {id} {
 }
 
 
-#Fenêtre d'infos pour passerelle, bridge ou vbox sortie
+#Fenêtre d'infos pour passerelle, bridge ou autre sortie
 ####################################
 proc fenetre_infos_sortie {id} {
 	
 	labelframe .inf.if -text [::msgcat::mc "Ethernet interfaces"]
 	pack .inf.if -fill x
-	
-	if {$::obj($id,type) == "passerelle"} {
-		label .inf.if.l1 -text "eth0 :"
-		grid .inf.if.l1 -row 0 -column 0 -sticky e
-        if {$::tmp($id,etat)} {
-            #label .inf.if.l2 -text "mac adress"
-            #grid .inf.if.l2 -row 0 -column 1 -sticky w
-            if {$::tmp($id,etat_eth0) != ""} {
-                label .inf.if.l3 -text "$::obj($id,ip_eth0)/$::obj($id,netmask_eth0)"
-                grid .inf.if.l3 -row 1 -column 1 -sticky w
+    
+    switch $::obj($id,type) {
+            
+        {passerelle} {
+    		label .inf.if.l1 -text "eth0 :"
+    		grid .inf.if.l1 -row 0 -column 0 -sticky e
+            if {$::tmp($id,etat)} {
+                #label .inf.if.l2 -text "mac adress"
+                #grid .inf.if.l2 -row 0 -column 1 -sticky w
+                if {$::tmp($id,etat_eth0) != ""} {
+                    label .inf.if.l3 -text "$::obj($id,ip_eth0)/$::obj($id,netmask_eth0)"
+                    grid .inf.if.l3 -row 1 -column 1 -sticky w
+                }
+            }
+    	}
+        
+        {bridge} {
+    		label .inf.if.l1 -text "$::obj($id,nom_tap) :"
+    		grid .inf.if.l1 -row 0 -column 0 -sticky e
+            label .inf.if.l2 -text $::obj($id,mac_tap)
+      		grid .inf.if.l2 -row 0 -column 1 -sticky w
+    		if {$::tmp($id,etat) && $::tmp($id,etat_tap) != ""} {
+      			set ip_mask [get_interface_ip $::obj($id,nom_tap)]
+      			label .inf.if.l3 -text "[lindex $ip_mask 0]/[lindex $ip_mask 1]"
+      			grid .inf.if.l3 -row 1 -column 1 -sticky w
+    		}
+    	}
+	}
+}
+
+
+#Fenêtre d'infos pour vm
+####################################
+proc fenetre_infos_vm {id} {
+    
+    labelframe .inf.if -text [::msgcat::mc "Ethernet interfaces"]
+    pack .inf.if -fill x
+    switch $::obj($id,type) {
+        
+        {virtualbox} {
+            label .inf.f.l15 -text "[::msgcat::mc "Vbox name"] : "
+            grid .inf.f.l15 -row 2 -column 0 -sticky e
+            label .inf.f.l16 -text [get_vbox_name $id]
+            grid .inf.f.l16 -row 2 -column 1 -sticky w
+            label .inf.f.l17 -text "[::msgcat::mc "Vbox ID"] : "
+            grid .inf.f.l17 -row 3 -column 0 -sticky e
+            label .inf.f.l18 -text $::obj($id,vbox_id)
+            grid .inf.f.l18 -row 3 -column 1 -sticky w
+            if {$::tmp(vbox_found) && $::tmp($id,is_present)} {
+                foreach {nb mac etat} [get_vbox_interfaces $id] {
+                    set n [expr $nb - 1]
+                    frame .inf.if.f$n
+                    pack .inf.if.f$n -fill x
+                    label .inf.if.f$n.l1 -text "eth$n :"
+                    grid .inf.if.f$n.l1 -row 0 -column 0 -sticky e
+                    label .inf.if.f$n.l2 -text $mac
+                    grid .inf.if.f$n.l2 -row 0 -column 1 -sticky w
+                    set txt "[::msgcat::mc "Not connected"]"
+                    if {$::obj($id,vbox_interf) == $nb} {
+                        set txt "[::msgcat::mc "Connected to simulator"]"
+                    }
+                    label .inf.if.f$n.l3 -text $txt
+                    grid .inf.if.f$n.l3 -row 1 -column 1 -sticky w
+                }
             }
         }
-	}
-	
-	if {$::obj($id,type) == "bridge"} {
-		label .inf.if.l1 -text "$::obj($id,tap) :"
-		grid .inf.if.l1 -row 0 -column 0 -sticky e
-		if {$::tmp($id,etat)} {
-  		label .inf.if.l2 -text [get_interface_mac $::obj($id,tap)]
-  		grid .inf.if.l2 -row 0 -column 1 -sticky w
-			if {$::tmp($id,etat_eth0) != ""} {
-  			set ip_mask [get_interface_ip $::obj($id,tap)]
-  			label .inf.if.l3 -text "[lindex $ip_mask 0]/[lindex $ip_mask 1]"
-  			grid .inf.if.l3 -row 1 -column 1 -sticky w
-			}
-		}
-	}
-	
-	if {$::obj($id,type) == "virtualbox"} {
-		label .inf.f.l15 -text "[::msgcat::mc "Vbox name"] : "
-		grid .inf.f.l15 -row 2 -column 0 -sticky e
-		label .inf.f.l16 -text [get_vbox_name $id]
-		grid .inf.f.l16 -row 2 -column 1 -sticky w
-		label .inf.f.l17 -text "[::msgcat::mc "Vbox ID"] : "
-		grid .inf.f.l17 -row 3 -column 0 -sticky e
-		label .inf.f.l18 -text $::obj($id,vbox_id)
-		grid .inf.f.l18 -row 3 -column 1 -sticky w
-		if {$::tmp(vbox_found) && $::tmp($id,is_present)} {
-  		foreach {nb mac etat} [get_vbox_interfaces $id] {
-				set n [expr $nb - 1]
-  			frame .inf.if.f$n
-  			pack .inf.if.f$n -fill x
-  			label .inf.if.f$n.l1 -text "eth$n :"
-    		grid .inf.if.f$n.l1 -row 0 -column 0 -sticky e
-  			label .inf.if.f$n.l2 -text $mac
-  			grid .inf.if.f$n.l2 -row 0 -column 1 -sticky w
-  			set txt "[::msgcat::mc "Not connected"]"
-  			if {$::obj($id,vbox_interf) == $nb} {
-  				set txt "[::msgcat::mc "Connected to simulator"]"
-  			}
-  			label .inf.if.f$n.l3 -text $txt
-  			grid .inf.if.f$n.l3 -row 1 -column 1 -sticky w
-  		}
-		}
-	}
+        
+    }
+    
 }
 
 
@@ -1126,12 +1195,10 @@ proc affiche_note_on {id} {
 ################################################################################
 proc dialogue_ouvrir_projet {fic} {
   
-  # on vérifie si les machines ont été arrêtées
-  if {![verif_arret]} {
-    dialogue_arreter_tout
-    return
-  }
-  
+	# on vérifie si on souhaite bien arrêter les machines si ce n'est pas le cas
+	if ![dialogue_arreter_tout] {
+		return
+	}
   set reponse [tk_messageBox -type yesno -icon warning -title [::msgcat::mc "Open a project"] -message [::msgcat::mc "Do you really want to open another project ? If you don't  save the actual project, it will be lost"]]
   if {$reponse != "no"} {
   	if {$fic == {} } {
@@ -1139,31 +1206,57 @@ proc dialogue_ouvrir_projet {fic} {
   	}
     if {$fic != {}} {
       desarchiver_projet $fic
-    }
-      
+    }  
   }
+	
 }
 
+
+# Dialogue proposant de tout arreter et effacer pour créer un nouveau projet
 ################################################################################
 proc dialogue_nouveau_projet {} {
   
-  # on vérifie si les machines ont été arrêtées
-  if {![verif_arret]} {
-    dialogue_arreter_tout
-    return
-  }
-  
+	# on vérifie si on souhaite bien arrêter les machines si ce n'est pas le cas
+	if ![dialogue_arreter_tout] {
+		return
+	}
   set reponse [tk_messageBox -type yesno -icon warning -title [::msgcat::mc "New project"] -message [::msgcat::mc "Do you really want to start a new project ? If you don't  save the actual project, it will be lost"]]
-  if {$reponse == "no"} {
-    return
-  } else {
+  if {$reponse == "yes"} {
     init_projet
   }
+	
 }
 
+
+# Dialogue proposant de tout arreter et effacer pour créer un nouveau projet
 ################################################################################
 proc dialogue_arreter_tout {} {
-  set rep [tk_messageBox -icon info -title [::msgcat::mc "Quit Network-In!"] -message [::msgcat::mc "You must stop every equipment before doing this"]]
+	
+	set ret 0
+	if [verif_arret] {
+		set ret 1
+	} else {
+		set reponse [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "Warning"] -message [::msgcat::mc "This action needs to shutdown every equipment. Proceed ?"]]
+  	if {$reponse == "yes"} {
+  		set ret 1
+  	}
+	}
+	return $ret
+	
+}
+
+
+#Dialogue appelé si le disque système d'une machine n'est pas trouvé
+################################################################################
+proc dialogue_system_disk_missing {img} {
+	set rep [tk_messageBox -icon info -title [::msgcat::mc "System disk"] -message "[::msgcat::mc "System disk not found for this equipment"] :\ $img"]
+}
+
+
+#Dialogue appelé si le disque système d'une machine n'est pas trouvé
+################################################################################
+proc dialogue_kernel_missing {kern} {
+	set rep [tk_messageBox -icon info -title [::msgcat::mc "Kernel"] -message "[::msgcat::mc "Kernel not found for this equipment"] :\ $kern"]
 }
 
 
@@ -1175,9 +1268,8 @@ proc dialogue_creation_passerelle_impossible {} {
 ################################################################################
 proc dialogue_enregistrer_projet {} {
   
-  # on vérifie si les machines ont été arrêtées
-  if {![verif_arret]} {
-    dialogue_arreter_tout
+  # on vérifie si on souhaite bien arrêter les machines si ce n'est pas le cas
+  if ![dialogue_arreter_tout] {
     return
   }
   
@@ -1338,4 +1430,12 @@ proc fenetre_change_carte {id type n} {
 proc applique_change_mac {id type n} {
 	set ::obj($id,mac_${type}$n) $::tmp(mac)
 	destroy .fcc
+}
+
+# proc positionnant une toplevel à la position du bureau
+###############################################################################
+proc positionne_fenetre {top {parent {.}}} {
+    set x [winfo x $parent]
+    set y [winfo y $parent]
+    wm geometry $top +$x+$y
 }

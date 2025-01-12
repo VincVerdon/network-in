@@ -5,14 +5,13 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 #version 20240321
 ####################################################################
-
 TMP=/tmp/network-in
+#REP_PROJ=/home/vincent/network-in-proj/
+#LOG_FILE=$REP_PROJ/network-in.log
 ID=$1
 VM=$2
 ACTION=$3
 NIC=$4
-REP_PROJ=/home/vincent/network-in-proj/
-LOG_FILE=$REP_PROJ/network-in.log
 
 case "$ACTION" in
 	start)

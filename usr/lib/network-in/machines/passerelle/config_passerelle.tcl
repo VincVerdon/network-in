@@ -4,17 +4,17 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20241212
+# Version 20250109
 
 # Interface de configuration de base de la machine
 ################################################################################
-proc fenetre_config_passerelle {id} {
+proc interface_passerelle {id} {
   
-  destroy .passe
   toplevel .passe
   maj_nom_passerelle $id
-  wm protocol .passe WM_DELETE_WINDOW {supprime_fenetre_config_passerelle}
+  wm protocol .passe WM_DELETE_WINDOW {#}
   wm iconphoto .passe -default im_passerelle
+  wm resizable .passe 0 0
   
   label .passe.ico -image im_passerelle
   pack .passe.ico
@@ -28,19 +28,11 @@ proc fenetre_config_passerelle {id} {
   pack .passe.f.3 -fill x
   
 	# boutons
-	frame .passe.fb
-	pack .passe.fb
-	ttk::button .passe.fb.a -compound left -text [::msgcat::mc "Close"] -image im_annuler -command {supprime_fenetre_config_passerelle}
-	pack .passe.fb.a -side left
+	button .passe.arret -compound left -text [::msgcat::mc "Switch off"] -image im_eteindre -relief flat -command "arrete_passerelle $id"
+	pack .passe.arret -anchor w
 	
 }
 
-################################################################################
-proc supprime_fenetre_config_passerelle {} {
-	destroy .passe
-	destroy .passe2
-	destroy .passe3
-}
 
 # Fait passer la fenêtre de la passerelle en avant-plan
 ################################################################################
@@ -61,20 +53,24 @@ proc hide_passerelle {} {
 
 ################################################################################
 proc change_nom_passerelle {id} {
-  set ::obj($id,nom) $::tmp(nom)
+    
+  set ::obj($id,nom) $::tmp($id,nom)
   # mise à jour dans l'interface de la passerelle
   maj_nom_passerelle $id
   # on régénère le dessin de l'objet
   dessine_objet $id
+    
 }
 
 ################################################################################
 proc maj_nom_passerelle {id} {
+    
   if {$::obj($id,nom) == {}} {
     wm title .passe [::msgcat::mc "unnamed"]
   } else  {
     wm title .passe $::obj($id,nom)
   }
+    
 }
 
 
@@ -82,10 +78,17 @@ proc maj_nom_passerelle {id} {
 ################################################################################
 proc fenetre_config_nom_passerelle {id} {
   
-  destroy .passe2
+    if [winfo exists .passe2] {
+        raise .passe2
+        return
+    }
+    
+    set ::tmp($id,nom) $::obj($id,nom)
+    
   toplevel .passe2
   wm title .passe2 [::msgcat::mc "Name configuration"]
   wm transient .passe2 .passe
+  positionne_fenetre .passe2 .passe
   
   label .passe2.ico -image im_config
   pack .passe2.ico
@@ -95,17 +98,13 @@ proc fenetre_config_nom_passerelle {id} {
   pack .passe2.f -fill both -expand 1
   label .passe2.f.l -text "[::msgcat::mc "Name"] : "
   pack .passe2.f.l -side left
-  entry .passe2.f.e -background white -textvariable ::tmp(nom)
-  set ::tmp(nom) $::obj($id,nom)
+  entry .passe2.f.e -background white -textvariable ::tmp($id,nom)
   pack .passe2.f.e -fill x -side left -expand 1
   
   # boutons
   frame .passe2.fb
   pack .passe2.fb
-  button .passe2.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "
-    change_nom_passerelle $id
-    destroy .passe2
-  "
+  button .passe2.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "change_nom_passerelle $id ; destroy .passe2"
   pack .passe2.fb.v -side left
   button .passe2.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .passe2} -relief flat
   pack .passe2.fb.a -side left
@@ -114,20 +113,21 @@ proc fenetre_config_nom_passerelle {id} {
 # Fenetre de config de l'adresse
 ################################################################################
 proc fenetre_config_ip_passerelle {id} {
+    
+  if [winfo exists .passe3] {
+      raise .passe3
+      return
+  }
+    
+  set ::tmp($id,ip) $::obj($id,ip_eth0)
+  set ::tmp($id,netmask)  $::obj($id,netmask_eth0)
+  set ::tmp($id,ip_anc) $::obj($id,ip_eth0)
+  set ::tmp($id,netmask_anc)  $::obj($id,netmask_eth0)
   
-  set ::tmp(ip) $::obj($id,ip_eth0)
-  set ::tmp(netmask)  $::obj($id,netmask_eth0)
-	set ::tmp(ip_anc) $::obj($id,ip_eth0)
-	set ::tmp(netmask_anc)  $::obj($id,netmask_eth0)
-  
-  destroy .passe3
   toplevel .passe3
   wm title .passe3 [::msgcat::mc "IP configuration"]
-  if {[winfo exists .passe2]} {
-    wm transient .passe3 .passe2
-  } else  {
-    wm transient .passe3 .passe
-  }
+  wm transient .passe3 .passe
+  positionne_fenetre .passe3 .passe
   
   label .passe3.ico -image im_config
   pack .passe3.ico
@@ -136,7 +136,7 @@ proc fenetre_config_ip_passerelle {id} {
   labelframe .passe3.f2 -text [::msgcat::mc "Generalities"]
   pack .passe3.f2 -fill both -expand 1
   label .passe3.f2.l0 -text [::msgcat::mc "Type : ethernet"]
-	grid .passe3.f2.l0 -row 1 -column 2 -sticky w
+  grid .passe3.f2.l0 -row 1 -column 2 -sticky w
   label .passe3.f2.l1 -text "Nom : eth0"
   grid .passe3.f2.l1 -row 1 -column 0 -sticky w
 	
@@ -144,9 +144,9 @@ proc fenetre_config_ip_passerelle {id} {
   labelframe .passe3.f -text [::msgcat::mc "Parameters"]
   pack .passe3.f -fill both -expand 1
   label .passe3.f.l1 -text "[::msgcat::mc "IP address"] : "
-  entry .passe3.f.e1 -background white -width 16 -textvariable ::tmp(ip)
+  entry .passe3.f.e1 -background white -width 16 -textvariable ::tmp($id,ip)
   label .passe3.f.l2 -text "[::msgcat::mc "Network mask"] : "
-  entry .passe3.f.e2 -background white -width 16 -textvariable ::tmp(netmask)
+  entry .passe3.f.e2 -background white -width 16 -textvariable ::tmp($id,netmask)
   grid .passe3.f.l1 -row 1 -column 0 -sticky e
   grid .passe3.f.e1 -row 1 -column 1 -sticky w
   grid .passe3.f.l2 -row 2 -column 0 -sticky e
@@ -165,13 +165,13 @@ proc fenetre_config_ip_passerelle {id} {
 ################################################################################
 proc applique_config_ip_passerelle {id} {
   
-  set ::obj($id,ip_eth0) $::tmp(ip)
-  set ::obj($id,netmask_eth0) $::tmp(netmask)
+  set ::obj($id,ip_eth0) $::tmp($id,ip)
+  set ::obj($id,netmask_eth0) $::tmp($id,netmask)
   set ::tmp($id,etat_eth0) "$::obj($id,ip_eth0)/[calcul_mask_dec2cidr $::obj($id,netmask_eth0)]"
 	
   # on applique les changements : redémarrage de l'interface réseau
 	if {$::tmp($id,etat)} {
-        exec_config_passerelle $id $::tmp(ip_anc) $::tmp(netmask_anc) stop
+        exec_config_passerelle $id $::tmp($id,ip_anc) $::tmp($id,netmask_anc) stop
         exec_config_passerelle $id $::obj($id,ip_eth0) $::obj($id,netmask_eth0) start
         #on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
         set id_liaison $::obj($id,eth0)
@@ -180,10 +180,10 @@ proc applique_config_ip_passerelle {id} {
         }
 	}
 	
-	unset ::tmp(ip)
-	unset ::tmp(ip_anc)
-	unset ::tmp(netmask)
-	unset ::tmp(netmask_anc)
+	unset ::tmp($id,ip)
+	unset ::tmp($id,ip_anc)
+	unset ::tmp($id,netmask)
+	unset ::tmp($id,netmask_anc)
 }
 
 ################################################################################
@@ -228,11 +228,18 @@ proc demarre_passerelle {id} {
 		demarre_connexion $id_liaison
 	}
 	maj_infos_connexion $id_liaison
+	
+	#Affichage interface
+	interface_passerelle $id
 }
 
 # Arrêt de la passerelle
 ################################################################################
 proc arrete_passerelle {id} {
+	
+	destroy .passe
+	destroy .passe2
+	destroy .passe3
 	
 	# on débranche le câble
 	set id_liaison $::obj($id,eth0)

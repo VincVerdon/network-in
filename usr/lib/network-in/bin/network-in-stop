@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20231219
+#version 20250111
 ####################################################################
 TMP=/tmp/network-in
 
@@ -17,7 +17,7 @@ kill $(pidof vde_switch)
 
 #Désactivation des interfaces
 /sbin/ip link set networkin_com down
-vde_tunctl -d networkin_com
+/sbin/ip link delete networkin_com
 
 #Suppression du répertoire temporaire
 rm -rf $TMP

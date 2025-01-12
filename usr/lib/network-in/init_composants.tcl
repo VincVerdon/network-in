@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20241217
+# Version 20250111
 # Ce fichier permet d'initialiser chaque type de composant
 
 
@@ -119,25 +119,25 @@ proc initialisation_switch4 {id} {
 ################################################################################
 proc initialisation_switch8 {id} {
 	set ::obj($id,reconf) false
-  set ::obj($id,famille) switch
-  set ::obj($id,type) switch8
-  set ::obj($id,categorie) dce
+	set ::obj($id,famille) switch
+	set ::obj($id,type) switch8
+	set ::obj($id,categorie) dce
 	set ::obj($id,techno) ethernet
-  set ::obj($id,nb_eth) 8
-  init_eth $id
-  set ::obj($id,nom) $id
+	set ::obj($id,nb_eth) 8
+	init_eth $id
+	set ::obj($id,nom) $id
 }
 
 
 ################################################################################
 proc initialisation_hub4 {id} {
 	set ::obj($id,reconf) false
-  set ::obj($id,famille) hub
-  set ::obj($id,type) hub4
-  set ::obj($id,categorie) dce
-  set ::obj($id,techno) ethernet
-  set ::obj($id,nb_eth) 4
-  init_eth $id
+	set ::obj($id,famille) hub
+	set ::obj($id,type) hub4
+	set ::obj($id,categorie) dce
+	set ::obj($id,techno) ethernet
+	set ::obj($id,nb_eth) 4
+	init_eth $id
 	set ::obj($id,nom) $id
 }
 
@@ -206,44 +206,44 @@ proc initialisation_routeur4 {id} {
 ################################################################################
 proc initialisation_droit {id id1 id2 eth1 eth2} {
 	set ::obj($id,reconf) false
-  set ::obj($id,famille) liaison
-  set ::obj($id,type) droit
-  set ::obj($id,techno) ethernet
-  set ::obj($id,nom) {}
-  set ::obj($id,id1) $id1
-  set ::obj($id,id2) $id2
-  set ::obj($id,interf1) $eth1
-  set ::obj($id,interf2) $eth2
-  set ::obj($id1,$eth1) $id
-  set ::obj($id2,$eth2) $id
+	set ::obj($id,famille) liaison
+	set ::obj($id,type) droit
+	set ::obj($id,techno) ethernet
+	set ::obj($id,nom) {}
+	set ::obj($id,id1) $id1
+	set ::obj($id,id2) $id2
+	set ::obj($id,interf1) $eth1
+	set ::obj($id,interf2) $eth2
+	set ::obj($id1,$eth1) $id
+	set ::obj($id2,$eth2) $id
 }
 
 
 ################################################################################
 proc initialisation_croise {id id1 id2 eth1 eth2} {
 	set ::obj($id,reconf) false
-  set ::obj($id,famille) liaison
-  set ::obj($id,type) croise
-  set ::obj($id,techno) ethernet
-  set ::obj($id,nom) {}
-  set ::obj($id,id1) $id1
-  set ::obj($id,id2) $id2
-  set ::obj($id,interf1) $eth1
-  set ::obj($id,interf2) $eth2
-  set ::obj($id1,$eth1) $id
-  set ::obj($id2,$eth2) $id
+	set ::obj($id,famille) liaison
+	set ::obj($id,type) croise
+	set ::obj($id,techno) ethernet
+	set ::obj($id,nom) {}
+	set ::obj($id,id1) $id1
+	set ::obj($id,id2) $id2
+	set ::obj($id,interf1) $eth1
+	set ::obj($id,interf2) $eth2
+	set ::obj($id1,$eth1) $id
+	set ::obj($id2,$eth2) $id
 }
 
 
 ################################################################################
 proc initialisation_passerelle {id} {
 	set ::obj($id,reconf) false
-  set ::obj($id,famille) sortie
-  set ::obj($id,type) passerelle
-  set ::obj($id,categorie) dte
-  set ::obj($id,techno) ethernet
-  set ::obj($id,nb_eth) 1
-  set ::obj($id,eth0) {}
+	set ::obj($id,famille) sortie
+	set ::obj($id,type) passerelle
+	set ::obj($id,categorie) dte
+	set ::obj($id,techno) ethernet
+	set ::obj($id,nb_eth) 1
+	set ::obj($id,eth0) {}
 	set ::obj($id,ip_eth0) {}
 	set ::obj($id,netmask_eth0) {}
 	set ::obj($id,nom) $id
@@ -257,19 +257,23 @@ proc initialisation_bridge {id} {
 	set ::obj($id,type) bridge
 	set ::obj($id,categorie) dce
 	set ::obj($id,techno) ethernet
+    set ::obj($id,nom) $id
 	set ::obj($id,nb_eth) 1
 	set ::obj($id,eth0) {}
-	set ::obj($id,ip_eth0) {}
-	set ::obj($id,netmask_eth0) {}
-	set ::obj($id,nom) $id
-	set ::obj($id,tap) "tap_$id"
+    #Interface TAP côté machine hôte
+    set ::obj($id,nom_tap) "eth_$id"
+    set ::obj($id,mac_tap) [aleatoire_mac]
+	set ::obj($id,ip_tap) {}
+	set ::obj($id,netmask_tap) {}
+    set ::obj($id,gateway_tap) {}
+    set ::obj($id,conf_tap) {off}
 }
 
 
 ################################################################################
 proc initialisation_virtualbox {id} {
 	set ::obj($id,reconf) false
-	set ::obj($id,famille) sortie
+	set ::obj($id,famille) vm
 	set ::obj($id,type) virtualbox
 	set ::obj($id,categorie) dte
 	set ::obj($id,techno) ethernet

@@ -1,0 +1,28 @@
+How to create a system disk for Network-In! computers
+------------------------------------------------------
+
+A) Stage 1
+-----------
+1) Configurer le script stage1.sh pour adapter la version et nom d'image
+2) Exécuter le script
+
+B) Stage 2
+-----------
+Start a new simulation and create a computer. Don't start the computer. Exit from Network-In! simulator.
+
+Copy the new disk 
+
+#In /etc/network/interfaces :
+
+auto eth0
+iface eth0 inet static
+address 10.0.0.1
+network 255.255.255.0
+gateway 10.0.0.254
+
+#In resolv.conf
+echo nameserver 9.9.9.9 > /etc/resolv.conf
+
+
+Construire l'image définitive en mergeant l'image de base et le disque cow :
+uml_moo  system.cow resultat.img

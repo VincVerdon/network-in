@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20241228
+# Version 20250109
 
 #Lecture de ::obj et ::tmp et enregistrement de la structure en XML
 ####################################
@@ -107,10 +107,6 @@ proc xml_bloc_equipment_write {f id} {
 	if {[info exists ::obj($id,note)]} {
 		puts $f "    <note>$::obj($id,note)</note>"
 	}
-	#Dans le cas d'un bridge, nom de l'interface réseau TAP
-	if {[info exists ::obj($id,tap)]} {
-			puts $f "    <tap>$::obj($id,tap)</tap>"
-	}
 	#Dans le cas d'une virtualbox, id de la VM
 	if {[info exists ::obj($id,vbox_id)]} {
 			puts $f "    <vbox_id>$::obj($id,vbox_id)</vbox_id>"
@@ -133,29 +129,47 @@ proc xml_bloc_equipment_write {f id} {
 	}
 	
 	if {[lsearch $::obj($id,techno) "ethernet"] != {-1}} {   
-				#enregistrement des interfaces eth
-				for  {set j 0} {$j<$::obj($id,nb_eth)} {incr j} {
-						set eth eth$j
-						puts $f "    <interf>"
-						puts $f "        <type>ethernet</type>"
-						puts $f "        <name>$eth</name>"
-						if {[info exists ::obj($id,mac_eth$j)]} {
-								puts $f "        <mac>$::obj($id,mac_eth$j)</mac>"
-						}
-						if {[info exists ::obj($id,ip_eth$j)]} {
-								puts $f "        <ip>$::obj($id,ip_eth$j)</ip>"
-						}
-						if {[info exists ::obj($id,netmask_eth$j)]} {
-								puts $f "        <netmask>$::obj($id,netmask_eth$j)</netmask>"
-						}
-						if {[info exists ::obj($id,vbox_interf)]} {
-															puts $f "        <vbox_interf>$::obj($id,vbox_interf)</vbox_interf>"
-													}
-						puts $f "    </interf>"
-				}
+		#enregistrement des interfaces eth
+		for  {set j 0} {$j<$::obj($id,nb_eth)} {incr j} {
+			set eth eth$j
+			puts $f "    <interf>"
+			puts $f "        <type>ethernet</type>"
+			puts $f "        <name>$eth</name>"
+			if {[info exists ::obj($id,mac_eth$j)]} {
+					puts $f "        <mac>$::obj($id,mac_eth$j)</mac>"
 			}
+			if {[info exists ::obj($id,ip_eth$j)]} {
+					puts $f "        <ip>$::obj($id,ip_eth$j)</ip>"
+			}
+			if {[info exists ::obj($id,netmask_eth$j)]} {
+					puts $f "        <netmask>$::obj($id,netmask_eth$j)</netmask>"
+			}
+			if {[info exists ::obj($id,vbox_interf)]} {
+												puts $f "        <vbox_interf>$::obj($id,vbox_interf)</vbox_interf>"
+										}
+			puts $f "    </interf>"
+		}
+        #enregistrement interface TAP d'un bridge
+        if {[info exists ::obj($id,nom_tap)]} {
+            puts $f "    <interf>"
+            puts $f "        <type>tap</type>"
+            puts $f "        <name>$::obj($id,nom_tap)</name>"
+            puts $f "        <mac>$::obj($id,mac_tap)</mac>"
+            puts $f "        <configure>$::obj($id,conf_tap)</configure>"
+            if {[info exists ::obj($id,ip_tap)]} {
+                    puts $f "        <ip>$::obj($id,ip_tap)</ip>"
+                }
+                if {[info exists ::obj($id,netmask_tap)]} {
+                    puts $f "        <netmask>$::obj($id,netmask_tap)</netmask>"
+                }
+                if {[info exists ::obj($id,gateway_tap)]} {
+                    puts $f "        <gateway>$::obj($id,gateway_tap)</gateway>"
+                }
+            puts $f "    </interf>"
+        }
+	}
 	
-		puts $f "</equipment>"
+	puts $f "</equipment>"
 }
 
 
@@ -255,20 +269,35 @@ proc xml_bloc_equipment_read {f id} {
 			#Traitement bloc interface (eth ou autre)
 			gets $f ligne
 			while {![regexp -expanded {</interf>} $ligne res]} {
-				if [regexp -expanded {<name>(.*)</name>} $ligne res valeur] {
-					set name $valeur
-					set ::obj($id,$name) {}
-				} elseif [regexp -expanded {<type>(.*)</type>} $ligne res valeur] {
+                if [regexp -expanded {<type>(.*)</type>} $ligne res valeur] {
 					set type $valeur
+                    
 					if {$type == "ethernet"} {
 						incr ::obj($id,nb_eth)
+                        set tmp_type $type
 					}
+                    if {$type == "tap"} {
+                        set tmp_type $type
+                    }
+				} elseif [regexp -expanded {<name>(.*)</name>} $ligne res valeur] {
+					set name $valeur
+                    switch $type {
+                        {ethernet} {set ::obj($id,$name) {}}
+                        {tap} {
+                            set ::obj($id,nom_tap) $name
+                            set name tap
+                        }
+                    }
 				} elseif [regexp -expanded {<mac>(.*)</mac>} $ligne res valeur] {
-					set ::obj($id,mac_$name) $valeur
+                    set ::obj($id,mac_$name) $valeur
 				} elseif [regexp -expanded {<ip>(.*)</ip>} $ligne res valeur] {
 					set ::obj($id,ip_$name) $valeur
 				} elseif [regexp -expanded {<netmask>(.*)</netmask>} $ligne res valeur] {
 					set ::obj($id,netmask_$name) $valeur
+                } elseif [regexp -expanded {<gateway>(.*)</gateway>} $ligne res valeur] {
+                    set ::obj($id,gateway_$name) $valeur
+                } elseif [regexp -expanded {<configure>(.*)</configure>} $ligne res valeur] {
+                    set ::obj($id,conf_$name) $valeur
 				} elseif [regexp -expanded {<vbox_interf>(.*)</vbox_interf>} $ligne res valeur] {
 					set ::obj($id,vbox_interf) $valeur
 				}

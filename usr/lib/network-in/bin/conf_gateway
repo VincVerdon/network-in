@@ -5,11 +5,10 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 #version 20241202
 ####################################################################
-
+TMP=/tmp/network-in
 IP=$1
 MASK=$2
 ACTION=$3
-TMP=/tmp/network-in
 
 if [ "$ACTION" = "start" ]
 then

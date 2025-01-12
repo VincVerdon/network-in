@@ -2,7 +2,7 @@
 #Network-in!
 #Script de preparation d'une image de machine
 #V. Verdon
-#Version 20241229
+#Version 20250106
 ###################
 REP=$(dirname $0)
 
@@ -44,12 +44,13 @@ apt install -y tclsh wish ipcalc libxcb-shape0 wmctrl stterm
 
 #Installation paquets pour services et utilisateur
 #Besoin d'activer ensuite manuellement l'auto-complétion dans bash.bashrc
-apt install -y net-tools dnsutils iptables tcpdump termshark curl nmap traceroute bind9 isc-dhcp-server isc-dhcp-relay proftpd-basic openssh-server apache2  ftp  netsurf-gtk gftp man bash-completion
+apt install -y net-tools dnsutils iptables tcpdump termshark curl nmap traceroute bind9 isc-dhcp-server isc-dhcp-relay proftpd-basic openssh-server apache2 frr ftp  netsurf-gtk gftp man bash-completion
 systemctl disable named.service
 systemctl disable isc-dhcp-server.service
 systemctl disable isc-dhcp-relay.service
 systemctl disable proftpd.service
 systemctl disable ssh.service
+systemctl disable frr.service
 systemctl disable apache2.service
 
 apt purge -y xterm

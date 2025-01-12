@@ -109,6 +109,8 @@ IP  IP
 "IP address"  "IP address"
 "IP address slot"  "IP address slot"
 "IP configuration"  "IP configuration"
+Kernel  Kernel
+"Kernel not found for this equipment"  "Kernel not found for this equipment"
 "Keys ctrl-shift-C : copy text"  "Keys ctrl-shift-C : COPY"
 "Keys ctrl-shift-V : paste text"  "Keys ctrl-shift-V : PASTE"
 Laptop  Laptop
@@ -119,6 +121,7 @@ License  License
 List  List
 "Login terminal" "Login terminal"
 "Logs print" "Log print"
+MISSING MISSING
 Name  Name
 "Name configuration"  "Name configuration"
 Network  Network
@@ -152,7 +155,6 @@ pctexte  "Linux text computer"
 "Please, be patient"  "Please, be patient"
 portable  "Laptop computer"
 "Quit" "Quit"
-"Quit Network-In!" "Quit Network-In!"
 "Real network NAT router"  "Real network NAT router"
 Reboot  Reboot
 "Reachable directories"  "Reachable directories"
@@ -193,6 +195,9 @@ Switch  Switch
 switch4 "Basic 4 ports switch"
 switch8 "Basic 8 ports switch"
 "Switch off"  "Switch off"
+System  System
+"System disk"  "System disk"
+"System disk not found for this equipment"  "System disk not found for this equipment"
 Terminal Terminal
 "Text editor"  "Text editor"
 "Text interface computer" "Text interface computer"
@@ -201,6 +206,7 @@ Terminal Terminal
 "The FTP server allows to put and to access files"  "The FTP server allows to put and to access files"
 "The HTTP server hosts Websites"  "The HTTP server hosts Websites"
 "The SSH server offers ability to control the computer at distance "  "The SSH server offers ability to control the computer at distance "
+"This action needs to shutdown every equipment. Proceed ?"  "This action needs to shutdown every equipment. Proceed ?"
 "This file doesn't exist"  "This file doesn't exist"
 Tools Tools
 Type  Type
@@ -217,13 +223,13 @@ virtualbox "Virtualbox VM"
 "Vbox ID"  "VirtualBox ID"
 "Vbox name"  "VirtualBox name"
 "Vbox selection" "VM choice"
+"Virtual machine"  "Virtual machine"
 "Web browser"  "Web browser"
 "Welcome to %u in Network-In FTP Server"  "Welcome to %u in Network-in FTP Server"
 "Wifi interfaces"  "Wifi interfaces"
 "Write file denied"  "Write file denied"
 "You can't create more than one gateway"  "You can't create more than one gateway"
 "You must first stop this equipment"  "You must first stop this equipment"
-"You must stop every equipment before doing this"  "You must stop every equipment before doing this"
 "You must choose a name"  "You must choose a name"
 "You must choose  an IP address and a mask"  "You must choose  an IP address and a mask"
 "2 interfaces router"  "2 interfaces router"

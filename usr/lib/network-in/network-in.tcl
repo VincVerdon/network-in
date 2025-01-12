@@ -4,7 +4,7 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-#version 20240216
+#version 20250107
 set version(network-in) 2.0-beta4
 
 # Démarrage de Network-in!
@@ -19,30 +19,30 @@ set rep [file dirname [file normalize [info script]]]
 
 # on définit le répertoire temporaire
 set rep_tmp /tmp/network-in
-#set rep_tmp /tmp/network-in
 
 # on initialise quelques variables
 set ::tmp(id1) {}
 set ::tmp(id2) {}
 
-# on source le fichier de config
+# on source le fichier de config général et personnel s'il existe
 source /etc/network-in.cfg
-if {[file exists ~/.network-in.cfg]} {
-  source ~/.network-in.cfg
+if {[file exists $::rep_conf/network-in.cfg]} {
+  source $::rep_conf/network-in.cfg
 }
 
 #Création du rep de projet s'il n'existe pas
-catch {file mkdir $::rep_proj}
+if ![file exists $::rep_proj] {
+	file mkdir $::rep_proj
+}
 
-# interprétation du signe ~ dans les chemins
-set rep_proj [file join [file nativename $rep_proj]]
-set rep_home [file join [file nativename $rep_home]]
-
-# Nom de l'exe usermode linux a lancer
-set exe_linux $rep/uml/$::kernel/linux.uml
-
-# Definition du disque image des modules
-set modules_dd $::rep/uml/$::kernel/modules.img
+#Création des rep de config et de stockage d'images disque s'il n'existent pas
+if ![file exists $::rep_conf/disks] {
+	file mkdir $::rep_conf/disks
+	file mkdir $::rep_conf/kernels
+}
+if ![file exists $::rep_conf/kernels] {
+	file mkdir $::rep_conf/kernels
+}
 
 # définition de la première ip de communication utilisable
 set decoup [split $::ip_hote .]

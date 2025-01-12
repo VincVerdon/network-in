@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version du 20241203
+#Version du 20250109
 #ce fichier définit la façon dont sont présentés les différents composants dans l'interface
 
 # Définition de l'ordre d'apparition des familles de composants dans l'interface
@@ -38,6 +38,7 @@ set def(croise,label) [::msgcat::mc "Crossed cable"]
 set def(sortie,label)  [::msgcat::mc "Host network"]
 set def(passerelle,label)  [::msgcat::mc "Real network NAT router"]
 set def(bridge,label)  [::msgcat::mc "Bridge"]
+set def(vm,label)  [::msgcat::mc "Virtual machine"]
 set def(virtualbox,label)  [::msgcat::mc "Virtualbox VM"]
 
 # Définition des éléments vus en fonction du niveau d'interface
