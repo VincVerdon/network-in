@@ -114,14 +114,14 @@ fenetre_principale
 
 if {[file exists $::rep_proj/datas/structure.xml]} {
 	# restauration du projet en cours
-  restaurer_projet
+    restaurer_projet
 	if {$argc != 0} {
 		#Cas où un nom de fichier est passé au démarrage
 		dialogue_ouvrir_projet [lindex $argv 0]
 	}
 } else {
 	# pas de projet en cours
-		init_projet
+	init_projet
 	if {$argc != 0} {
 		#Cas où un nom de fichier est passé au démarrage
 		desarchiver_projet [lindex $argv 0]

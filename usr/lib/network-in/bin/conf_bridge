@@ -50,6 +50,7 @@ case "$ACTION" in
 	    /sbin/ip link set $TAP down
 		/sbin/ip a flush dev $TAP
 		#/sbin/ip link delete $TAP
+		pkill -f "dhclient $TAP"
 	;;
 	
 esac

@@ -4,54 +4,54 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20241217
+# Version 20250115
 
 # Interface de configuration de base de la machine
 ################################################################################
 proc fenetre_config_vbox {id} {
 	
-	destroy .vbox
-	toplevel .vbox
-	wm title .vbox [get_vbox_current_name $id]
-	wm protocol .vbox WM_DELETE_WINDOW {supprime_fenetre_config_vbox}
-	wm iconphoto .vbox -default im_virtualbox
-	label .vbox.ico -image im_virtualbox
-	pack .vbox.ico
+	destroy .vbox$id
+	toplevel .vbox$id
+	wm title .vbox$id [get_vbox_current_name $id]
+	wm protocol .vbox$id WM_DELETE_WINDOW "supprime_fenetre_config_vbox $id"
+	wm iconphoto .vbox$id -default im_virtualbox
+	label .vbox$id.ico -image im_virtualbox
+	pack .vbox$id.ico
 	
-	labelframe .vbox.f -text [::msgcat::mc "Configuration"]
-	pack .vbox.f -fill both -expand 1
-	button .vbox.f.1 -text [::msgcat::mc "Name"]  -command "fenetre_config_nom_vbox $id" -width 20
-	pack .vbox.f.1 -fill x
-	button .vbox.f.2 -text [::msgcat::mc "Vbox selection"]  -command "fenetre_select_vbox $id" -width 20
-	pack .vbox.f.2 -fill x
-	button .vbox.f.3 -text [::msgcat::mc "Connected interface"] -command "fenetre_select_interf_vbox $id"
-	pack .vbox.f.3 -fill x
+	labelframe .vbox$id.f -text [::msgcat::mc "Configuration"]
+	pack .vbox$id.f -fill both -expand 1
+	button .vbox$id.f.1 -text [::msgcat::mc "Name"]  -command "fenetre_config_nom_vbox $id" -width 20
+	pack .vbox$id.f.1 -fill x
+	button .vbox$id.f.2 -text [::msgcat::mc "VM selection"]  -command "fenetre_select_vbox $id" -width 20
+	pack .vbox$id.f.2 -fill x
+	button .vbox$id.f.3 -text [::msgcat::mc "Connected interface"] -command "fenetre_select_interf_vbox $id"
+	pack .vbox$id.f.3 -fill x
 	if {! $::tmp($id,is_present)} {
-		.vbox.f.3 configure -state disabled
+		.vbox$id.f.3 configure -state disabled
 	}
 	
 	# boutons
-	frame .vbox.fb
-	pack .vbox.fb
-	ttk::button .vbox.fb.a -compound left -text [::msgcat::mc "Close"] -image im_annuler -command {supprime_fenetre_config_vbox}
-	pack .vbox.fb.a -side left
+	frame .vbox$id.fb
+	pack .vbox$id.fb
+	ttk::button .vbox$id.fb.a -compound left -text [::msgcat::mc "Close"] -image im_annuler -command "supprime_fenetre_config_vbox $id"
+	pack .vbox$id.fb.a -side left
 	
 }
 
 
 ################################################################################
-proc supprime_fenetre_config_vbox {} {
-	destroy .vbox
-	destroy .vbox2
-	destroy .vbox3
+proc supprime_fenetre_config_vbox {id} {
+	destroy .vbox$id
+	destroy .vbox2$id
+	destroy .vbox3$id
 }
 
 
 # Fait passer la fenêtre de la passerelle en avant-plan
 ################################################################################
-proc raise_vbox {} {
-	if [winfo exists .vbox] {
-		raise .vbox
+proc raise_vbox {id} {
+	if [winfo exists .vbox$id] {
+		raise .vbox$id
 	}
 }
 
@@ -59,8 +59,8 @@ proc raise_vbox {} {
 # Fait disparaître la fenêtre de la passerelle
 ################################################################################
 proc hide_vbox {} {
-	if [winfo exists .vbox] {
-		lower .vbox
+	if [winfo exists .vbox$id] {
+		lower .vbox$id
 	}
 }
 
@@ -68,51 +68,49 @@ proc hide_vbox {} {
 ################################################################################
 proc fenetre_select_vbox {id} {
   
-	destroy .vbox2
-	toplevel .vbox2
-	wm title .vbox2 [::msgcat::mc "Vbox choice-"]
-	wm transient .vbox2 .vbox
+	destroy .vbox2$id
+	toplevel .vbox2$id
+	wm title .vbox2$id [::msgcat::mc "VM selection"]
+	wm transient .vbox2$id .vbox$id
 	
-  label .vbox2.ico -image im_config
-	pack .vbox2.ico
+  label .vbox2$id.ico -image im_config
+	pack .vbox2$id.ico
 	
 	# zone de saisie
-	labelframe .vbox2.f
-	pack .vbox2.f -fill both -expand 1
-	label .vbox2.f.l -text "[::msgcat::mc "Actual VM ID"] : "
-	pack .vbox2.f.l -side left
-	label .vbox2.f.e -background white -text $::obj($id,vbox_id)
-	pack .vbox2.f.e -fill x -side left -expand 1
+	labelframe .vbox2$id.f
+	pack .vbox2$id.f -fill both -expand 1
+	label .vbox2$id.f.l -text "[::msgcat::mc "Actual VM ID"] : "
+	pack .vbox2$id.f.l -side left
+	label .vbox2$id.f.e -background white -text $::obj($id,vbox_id)
+	pack .vbox2$id.f.e -fill x -side left -expand 1
 	
 	# zone d'affichage des VM virtualbox existantes
-	labelframe .vbox2.fvm -text [::msgcat::mc "Virtualbox VMs list"]
-	pack .vbox2.fvm -fill both -expand 1
-	ttk::treeview .vbox2.fvm.t -columns {nom id} -show headings -yscroll {.vbox2.fvm.sv set}
-	pack .vbox2.fvm.t -side left -fill both -expand 1
-	scrollbar .vbox2.fvm.sv -orient vertical -command {.vbox2.fvm.t yview}
-	pack .vbox2.fvm.sv -side left -fill y
-	.vbox2.fvm.t heading nom -text [::msgcat::mc "Name"]
-	.vbox2.fvm.t heading id -text [::msgcat::mc "ID"]
+	labelframe .vbox2$id.fvm -text [::msgcat::mc "VMs list"]
+	pack .vbox2$id.fvm -fill both -expand 1
+	ttk::treeview .vbox2$id.fvm.t -columns {nom id} -show headings -yscroll ".vbox2$id.fvm.sv set"
+	pack .vbox2$id.fvm.t -side left -fill both -expand 1
+	scrollbar .vbox2$id.fvm.sv -orient vertical -command ".vbox2$id.fvm.t yview"
+	pack .vbox2$id.fvm.sv -side left -fill y
+	.vbox2$id.fvm.t heading nom -text [::msgcat::mc "Name"]
+	.vbox2$id.fvm.t heading id -text [::msgcat::mc "ID"]
 	# insertion des données sur les VMs
 	set liste [get_vms_list]
 	foreach vm $liste {
-			set item [.vbox2.fvm.t insert {} end -values [list [lindex $vm 0] [lindex $vm 1]]]
+			set item [.vbox2$id.fvm.t insert {} end -values [list [lindex $vm 0] [lindex $vm 1]]]
 		if {$::obj($id,vbox_id) == [lindex $vm 1]} {
-			.vbox2.fvm.t selection set $item
+			.vbox2$id.fvm.t selection set $item
 		}
 	}
 	
-	bind .vbox2.fvm.t <ButtonPress-1> {
-		.vbox2.fb.v configure -state normal
-	}
+	bind .vbox2$id.fvm.t <ButtonPress-1> ".vbox2$id.fb.v configure -state normal"
 	
 	# boutons
-	frame .vbox2.fb
-	pack .vbox2.fb
-	ttk::button .vbox2.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command "save_vbox_conf $id" -state disabled
-	pack .vbox2.fb.v -side left
-	ttk::button .vbox2.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .vbox2}
-	pack .vbox2.fb.a -side left
+	frame .vbox2$id.fb
+	pack .vbox2$id.fb
+	ttk::button .vbox2$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command "save_vbox_conf $id" -state disabled
+	pack .vbox2$id.fb.v -side left
+	ttk::button .vbox2$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command "destroy .vbox2$id"
+	pack .vbox2$id.fb.a -side left
 	
 }
 
@@ -120,11 +118,11 @@ proc fenetre_select_vbox {id} {
 #Validation de la conf
 ###################################################################################
 proc save_vbox_conf {id} {
-	set vbox_id [.vbox2.fvm.t selection]
-	set vbox_id [lindex [.vbox2.fvm.t item $vbox_id -values] 1]
-	destroy .vbox2
+	set vbox_id [.vbox2$id.fvm.t selection]
+	set vbox_id [lindex [.vbox2$id.fvm.t item $vbox_id -values] 1]
+	destroy .vbox2$id
 	set ::tmp($id,is_present) 1
-	.vbox.f.3 configure -state normal
+	.vbox$id.f.3 configure -state normal
 	if {$vbox_id != $::obj($id,vbox_id)} {
 		set ::obj($id,vbox_id) $vbox_id
 		maj_affichage_nom_vbox $id
@@ -213,53 +211,53 @@ proc is_vbox_software_installed {} {
 ###################################################################################
 proc fenetre_config_nom_vbox {id} {
 	
-    if [winfo exists .vbox2] {
-        raise .vbox2
+    if [winfo exists .vbox2$id] {
+        raise .vbox2$id
         return
     }
     
     set ::tmp(nom) $::obj($id,nom)
     
-	toplevel .vbox2
-	wm title .vbox2 [::msgcat::mc "Name configuration"]
-	wm transient .vbox2 .vbox
+	toplevel .vbox2$id
+	wm title .vbox2$id [::msgcat::mc "Name configuration"]
+	wm transient .vbox2$id .vbox$id
 	
-	label .vbox2.ico -image im_config
-	pack .vbox2.ico
+	label .vbox2$id.ico -image im_config
+	pack .vbox2$id.ico
 	
 	# zone de saisie
-	labelframe .vbox2.f
-	pack .vbox2.f -fill both -expand 1
+	labelframe .vbox2$id.f
+	pack .vbox2$id.f -fill both -expand 1
 	
-	ttk::checkbutton .vbox2.f.ck -text [::msgcat::mc "Use VM name"] -onvalue true -offvalue false -variable ::obj($id,name_from_vbox) -command "bind_name_to_vbox_name $id"	
-	grid .vbox2.f.ck  -row 0 -column 0 -sticky w
+	ttk::checkbutton .vbox2$id.f.ck -text [::msgcat::mc "Use VM name"] -onvalue true -offvalue false -variable ::obj($id,name_from_vbox) -command "bind_name_to_vbox_name $id"	
+	grid .vbox2$id.f.ck  -row 0 -column 0 -sticky w
 	
-	label .vbox2.f.l -text "[::msgcat::mc "Name"] : "
-	grid .vbox2.f.l -row 1 -column 0 -sticky w
-	entry .vbox2.f.e -background white -textvariable ::tmp(nom)
-	grid .vbox2.f.e -row 1 -column 1 -sticky w
+	label .vbox2$id.f.l -text "[::msgcat::mc "Name"] : "
+	grid .vbox2$id.f.l -row 1 -column 0 -sticky w
+	entry .vbox2$id.f.e -background white -textvariable ::tmp(nom)
+	grid .vbox2$id.f.e -row 1 -column 1 -sticky w
 	bind_name_to_vbox_name $id
 	
 	#Si aucune VM Virtualbox n'est attachée à cet équipement on désactive ce bouton
 	if {! $::tmp($id,is_present)} {
 		if {$::obj($id,name_from_vbox)} {
 			#On décoche d'abord le bouton
-			.vbox2.f.ck invoke
+			.vbox2$id.f.ck invoke
 		}
-		.vbox2.f.ck configure -state disabled
+		.vbox2$id.f.ck configure -state disabled
 	}
 	
 	# boutons
-	frame .vbox2.fb
-	pack .vbox2.fb
-	button .vbox2.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "
+	frame .vbox2$id.fb
+	pack .vbox2$id.fb
+	button .vbox2$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "
 		change_nom_vbox $id
-		destroy .vbox2
+		destroy .vbox2$id
 	"
 	
-	pack .vbox2.fb.v -side left
-	button .vbox2.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .vbox2} -relief flat
-	pack .vbox2.fb.a -side left
+	pack .vbox2$id.fb.v -side left
+	button .vbox2$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command "destroy .vbox2$id" -relief flat
+	pack .vbox2$id.fb.a -side left
 }
 
 # Fenêtre permettant de modifier le nom du matériel
@@ -267,54 +265,57 @@ proc fenetre_config_nom_vbox {id} {
 ###################################################################################
 proc fenetre_select_interf_vbox {id} {
 	
-	destroy .vbox2
-	toplevel .vbox2
-	wm title .vbox2 [::msgcat::mc "Connected interface"]
-	wm transient .vbox2 .vbox
+	destroy .vbox2$id
+	toplevel .vbox2$id
+	wm title .vbox2$id [::msgcat::mc "Connected interface"]
+	wm transient .vbox2$id .vbox$id
 	
-	label .vbox2.ico -image im_config
-	pack .vbox2.ico
+	label .vbox2$id.ico -image im_config
+	pack .vbox2$id.ico
 	
-	label .vbox2.l -text [::msgcat::mc "Choose the interface of VirtualBox VM to bind to Network-In simulator"]
-	pack .vbox2.l
+	label .vbox2$id.l -text [::msgcat::mc "Choose the interface of VirtualBox VM to bind to Network-In simulator"]
+	pack .vbox2$id.l
 	
 	# zone de saisie
-	labelframe .vbox2.f -text [::msgcat::mc "Interfaces list"]
-	pack .vbox2.f -fill both -expand 1
+	labelframe .vbox2$id.f -text [::msgcat::mc "Interfaces list"]
+	pack .vbox2$id.f -fill both -expand 1
 	
 	set liste [get_vbox_interfaces $id]
 	set ::tmp($id,interf_selected) $::obj($id,vbox_interf)
 	foreach {nic mac connected} $liste {
-		ttk::radiobutton .vbox2.f.$nic -text "[::msgcat::mc "Interface"] $nic" -value $nic -variable ::tmp($id,interf_selected)
+		ttk::radiobutton .vbox2$id.f.$nic -text "[::msgcat::mc "Interface"] $nic" -value $nic \
+		-variable ::tmp($id,interf_selected)
 		if {$::obj($id,vbox_interf) == $nic} {
 			set ::tmp($id,interf_selected) $nic
 		}
-		pack .vbox2.f.$nic
+		pack .vbox2$id.f.$nic
 	}
 	
 	# boutons
-	frame .vbox2.fb
-	pack .vbox2.fb
-	button .vbox2.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "change_vbox_interf $id"
+	frame .vbox2$id.fb
+	pack .vbox2$id.fb
+	button .vbox2$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat \
+	-command "change_vbox_interf $id"
 	
-	pack .vbox2.fb.v -side left
-	button .vbox2.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .vbox2} -relief flat
-	pack .vbox2.fb.a -side left
+	pack .vbox2$id.fb.v -side left
+	button .vbox2$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler \
+	-command "destroy .vbox2$id" -relief flat
+	pack .vbox2$id.fb.a -side left
 }
 
 ################################################################################
 proc change_vbox_interf {id} {
 	set ::obj($id,vbox_interf) $::tmp($id,interf_selected)
-	destroy .vbox2
+	destroy .vbox2$id
 }
 
 
 ################################################################################
 proc bind_name_to_vbox_name {id} {
 	if {$::obj($id,name_from_vbox)} {
-		.vbox2.f.e configure -state disabled
+		.vbox2$id.f.e configure -state disabled
 		} else {
-			.vbox2.f.e configure -state normal
+			.vbox2$id.f.e configure -state normal
 	}
 }
 
@@ -331,7 +332,7 @@ proc change_nom_vbox {id} {
 ################################################################################
 proc maj_affichage_nom_vbox {id} {
 	# mise à jour dans l'interface de la VM
-	wm title .vbox [get_vbox_current_name $id]
+	wm title .vbox$id [get_vbox_current_name $id]
 	# on régénère le dessin de l'objet
 	dessine_objet $id
 }
@@ -350,7 +351,7 @@ proc demarre_virtualbox {id} {
 	set ::tmp($id,etat) 1
 	affiche_objet_on $id
 	
-	set ::tmp($id,etat_eth0) ""
+	set ::tmp($id,etat_eth0) {}
 	
 	# Création de l'interface et du switch bridge
 	exec $::rep/bin/conf_virtualbox $id $::obj($id,vbox_id) start $::obj($id,vbox_interf)

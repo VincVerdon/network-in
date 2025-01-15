@@ -198,7 +198,7 @@ proc fenetre_config_ip_bridge {id} {
     labelframe .brip$id.f0 -text [::msgcat::mc "Configuration method"]
     pack .brip$id.f0 -fill both -expand 1
     
-    ttk::radiobutton .brip$id.f0.r1 -text "[::msgcat::mc "Managed by the host"]" \
+    ttk::radiobutton .brip$id.f0.r1 -text "[::msgcat::mc "Managed by the host system"]" \
     -value {off} -variable ::tmp($id,conf_tap) -command  "desactive_interface_conf_ip $id"
     grid .brip$id.f0.r1 -row 0 -column 0 -sticky w
     ttk::radiobutton .brip$id.f0.r2 -text "[::msgcat::mc "DHCP configuration"]" \
@@ -322,16 +322,17 @@ proc exec_config_bridge {id action} {
 # Mise à jour des étiquettes d'état de l'interface ethernet du TAP
 ################################################################################
 proc maj_infos_connexion_bridge {id} {
-    
-    # Conf actuelle de l'interface pour affichage
-    if {$::obj($id,ip_tap) != "" && $::obj($id,netmask_tap) != ""} {
-        set ::tmp($id,etat_eth0) "$::obj($id,ip_tap)/[calcul_mask_dec2cidr $::obj($id,netmask_tap)]"
+	
+	set liaison $::obj($id,eth0)
+	
+    if {$::obj($id,ip_tap) != {} && $::obj($id,netmask_tap) != {}} {
+        set ::tmp($id,etat_tap) "$::obj($id,ip_tap)/[calcul_mask_dec2cidr $::obj($id,netmask_tap)]"
     } else {
-        set ::tmp($id,etat_eth0) ""
+        set ::tmp($id,etat_tap) {}
     }
-    
-	maj_infos_connexion $::obj($id,eth0)
-    
+	
+	maj_infos_connexion $liaison
+	
 }
 
 
@@ -340,10 +341,6 @@ proc maj_infos_connexion_bridge {id} {
 proc demarre_bridge {id} {
 	
 	puts ">>>>Démarrage BRIDGE $id"
-	
-	set famille $::obj($id,famille)
-	set type $::obj($id,type)
-	set id_liaison $::obj($id,eth0)
     
 	# Configuration de l'interface réseau
     exec_config_bridge $id start
@@ -354,12 +351,15 @@ proc demarre_bridge {id} {
     # l'objet est déclaré actif désormais
 	set ::tmp($id,etat) 1
 	affiche_objet_on $id
-	maj_infos_connexion_bridge $id
     
 	# activation du câble réseau
-	demarre_connexion $id_liaison
+	demarre_connexion $::obj($id,eth0)
     
-    
+	#Mise à jour affichage sur les étiquettes de câbles
+	set ::tmp($id,etat_eth0) {}
+	set ::tmp($id,etat_tap) {}
+    maj_infos_connexion_bridge $id
+	
 }
 
 
@@ -373,7 +373,6 @@ proc arrete_bridge {id} {
 
     # on débranche le câble de connexion
 	set id_liaison $::obj($id,eth0)
-	set ::tmp($id,etat_eth0) {}
 	arrete_connexion $id_liaison
     
     #Déconfiguration de l'interface TAP

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250108
+# Version 20250115
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -51,7 +51,7 @@ proc fenetre_principale {} {
   #pack .fb.zp -side left
   #ttk::button .fb.zm -image im_zoom- -command {$::c scale all 0 0 0.5 0.5}
   #pack .fb.zm -side left
-	ttk::button .fb.si -compound $comp -text [::msgcat::mc "Delete infos"] -image im_del_infos -command {efface_infos_connexion}
+	ttk::button .fb.si -compound $comp -text [::msgcat::mc "Delete info labels"] -image im_del_infos -command {efface_infos_connexion}
 	pack .fb.si -side left
 	ttk::button .fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_eteindre -command {
 		if [dialogue_arreter_tout] {arreter_tout}
@@ -447,8 +447,12 @@ proc menu_contextuel_objet {id x y} {
                 {virtualbox} {
                     if {$::tmp(vbox_found)} {
                         if {$::tmp($id,is_present)} {
-                            $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_virtualbox $id" -state $etat3
-                            $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_virtualbox $id" -state $etat2
+							if [winfo exists .vbox$id] {
+								$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_virtualbox $id" -state disabled
+							} else {
+								$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_virtualbox $id" -state $etat3
+							}
+							$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_virtualbox $id" -state $etat2
                             $::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_virtualbox $id" -state $etat2
                         } else {
                             $::c.mc add command -label [::msgcat::mc "Start"] -state disabled
@@ -635,12 +639,13 @@ proc affiche_note {id} {
 	
 }
 
+# Fenêtre d'information sur un matériel (accessible depuis clic droit)
 ################################################################################
 proc fenetre_infos_objet {id} {
-  destroy .inf
-  toplevel .inf
-  
-  wm title .inf "$id - [::msgcat::mc "Informations"]"
+    
+    destroy .inf
+    toplevel .inf
+    wm title .inf "$id - [::msgcat::mc "Informations"]"
 	label .inf.l -text "[::msgcat::mc "Informations about"] $id"
 	pack .inf.l
 	labelframe .inf.f -text [::msgcat::mc "Generalities"]
@@ -660,47 +665,44 @@ proc fenetre_infos_objet {id} {
 	grid .inf.f.l6 -row 1 -column 1 -sticky w
 	
 	switch $::obj($id,famille) {
-			{ordinateur} {
-				fenetre_infos_ordinateur $id
-			}
-			{routeur} {
-				fenetre_infos_ordinateur $id
-			}
-			{switch} {
-				fenetre_infos_switch $id
-			}
-			{hub} {
-				fenetre_infos_switch $id
-			}
-			{sortie} {
-				fenetre_infos_sortie $id
-			}
-			{vm} {
-                fenetre_infos_vm $id
-            }
-			{liaison} {
-				fenetre_infos_cable $id
-			}
+		{ordinateur} {
+			fenetre_infos_ordinateur $id
 		}
+		{routeur} {
+			fenetre_infos_ordinateur $id
+		}
+		{switch} {
+			fenetre_infos_switch $id
+		}
+		{hub} {
+			fenetre_infos_switch $id
+		}
+		{sortie} {
+            switch $::obj($id,type) {
+                {passerelle} {fenetre_infos_passerelle $id}
+                {bridge} {fenetre_infos_bridge $id}
+            }
+		}
+		{vm} {
+            fenetre_infos_vm $id
+        }
+		{liaison} {
+			fenetre_infos_cable $id
+		}
+	}
+	
+	#création du bouton fermer
+	ttk::button .inf.bou -compound right -text [::msgcat::mc "Close"] -image im_valider -command {destroy .inf}
+	pack .inf.bou
+	focus .inf.bou
+    positionne_fenetre .inf
   
-  #création du bouton fermer
-  ttk::button .inf.bou -compound right -text [::msgcat::mc "Close"] -image im_valider -command {
-    destroy .inf
-  }
-  pack .inf.bou
-  focus .inf.bou
-  
-  # coordonnées dans le repère écran
-  set X [winfo pointerx .]
-  set Y [winfo pointery .]
-  wm geometry .inf +$X+$Y
-	update
 }
+
 
 #Fenêtre d'infos pour un pc/routeur
 ####################################
 proc fenetre_infos_ordinateur {id} {
-	
 	
 	if {[file exists $::rep/disks/$::obj($id,dd)] || [file exists $::rep_conf/disks/$::obj($id,dd)]} {
 		set disk $::obj($id,dd) 
@@ -743,40 +745,57 @@ proc fenetre_infos_ordinateur {id} {
 }
 
 
-#Fenêtre d'infos pour passerelle, bridge ou autre sortie
+#Fenêtre d'infos pour passerelle
 ####################################
-proc fenetre_infos_sortie {id} {
-	
-	labelframe .inf.if -text [::msgcat::mc "Ethernet interfaces"]
-	pack .inf.if -fill x
+proc fenetre_infos_passerelle {id} {
     
-    switch $::obj($id,type) {
-            
-        {passerelle} {
-    		label .inf.if.l1 -text "eth0 :"
-    		grid .inf.if.l1 -row 0 -column 0 -sticky e
-            if {$::tmp($id,etat)} {
-                #label .inf.if.l2 -text "mac adress"
-                #grid .inf.if.l2 -row 0 -column 1 -sticky w
-                if {$::tmp($id,etat_eth0) != ""} {
-                    label .inf.if.l3 -text "$::obj($id,ip_eth0)/$::obj($id,netmask_eth0)"
-                    grid .inf.if.l3 -row 1 -column 1 -sticky w
-                }
-            }
-    	}
-        
-        {bridge} {
-    		label .inf.if.l1 -text "$::obj($id,nom_tap) :"
-    		grid .inf.if.l1 -row 0 -column 0 -sticky e
-            label .inf.if.l2 -text $::obj($id,mac_tap)
-      		grid .inf.if.l2 -row 0 -column 1 -sticky w
-    		if {$::tmp($id,etat) && $::tmp($id,etat_tap) != ""} {
-      			set ip_mask [get_interface_ip $::obj($id,nom_tap)]
-      			label .inf.if.l3 -text "[lindex $ip_mask 0]/[lindex $ip_mask 1]"
-      			grid .inf.if.l3 -row 1 -column 1 -sticky w
-    		}
-    	}
-	}
+    labelframe .inf.if -text [::msgcat::mc "Ethernet interfaces"]
+    pack .inf.if -fill x 
+	label .inf.if.l1 -text "eth0 :"
+	grid .inf.if.l1 -row 0 -column 0 -sticky e
+    if {$::tmp($id,etat)} {
+        #label .inf.if.l2 -text "mac adress"
+        #grid .inf.if.l2 -row 0 -column 1 -sticky w
+        if {$::tmp($id,etat_eth0) != ""} {
+            label .inf.if.l3 -text "$::obj($id,ip_eth0)/$::obj($id,netmask_eth0)"
+            grid .inf.if.l3 -row 1 -column 1 -sticky w
+        }
+    }
+
+}
+
+
+#Fenêtre d'infos pour bridge
+####################################
+proc fenetre_infos_bridge {id} {
+    
+    labelframe .inf.if -text [::msgcat::mc "Ethernet ports"]
+    pack .inf.if -fill x
+    
+    #On détermine quel matériel est connecté au port eth0
+    if {$::obj($id,eth0) != {}} {
+        set m $::obj($::obj($id,eth0),id1)
+        if {$m == $id} {
+            set m $::obj($::obj($id,eth0),id2)
+        }
+    } else {
+        set m "-"
+    }
+    
+    label .inf.if.l1 -text "([::msgcat::mc "Simulator side"]) port1 : "
+    grid .inf.if.l1 -row 0 -column 0 -sticky e
+    label .inf.if.l2 -text $m
+    grid .inf.if.l2 -row 0 -column 1 -sticky w
+    label .inf.if.l3 -text "([::msgcat::mc "Host side"]) port2 : "
+    grid .inf.if.l3 -row 1 -column 0 -sticky e
+    label .inf.if.l4 -text "[::msgcat::mc "Connected interface"] = $::obj($id,nom_tap) ($::obj($id,mac_tap))"
+    grid .inf.if.l4 -row 1 -column 1 -sticky w
+    if {$::tmp($id,etat)} {
+        set ip_mask [get_interface_ip $::obj($id,nom_tap)]
+        label .inf.if.l5 -text "[lindex $ip_mask 0]/[lindex $ip_mask 1]"
+        grid .inf.if.l5 -row 2 -column 1 -sticky w
+    }
+
 }
 
 
@@ -831,12 +850,13 @@ proc fenetre_infos_switch {id} {
 		#frame contenant les infos d'une interface
 		frame .inf.if.f$i
 		pack .inf.if.f$i -fill x
+        
+        #On détermine quel matériel est connecté au port
         if {$::obj($id,eth$i) != {}} {
             set m $::obj($::obj($id,eth$i),id1)
             if {$m == $id} {
                 set m $::obj($::obj($id,eth$i),id2)
             }
-            
         } else {
             set m "-"
         }
@@ -1045,13 +1065,8 @@ proc dessine_objet {id} {
   } else {
     $::c create image $x $y -tag "$id $famille $type"  -image im_$type -anchor c
   }
-  
   $::c create text $x [expr $y + [image height im_$type] / 2 + 10] -tag "$id $famille $type" -text $::def($::obj($id,type),label) -anchor c -fill $::coul(texte)
-  if {$::obj($id,nom)  == "unnamed"} {
-    $::c create text $x [expr $y + [image height im_$type] / 2 + 30] -tag "$id $famille $type" -text [::msgcat::mc "unnamed"] -anchor c -fill $::coul(texte)
-  } else  {
-    $::c create text $x [expr $y + [image height im_$type] / 2 + 30] -tag "$id $famille $type" -text $nom -anchor c -fill $::coul(texte)
-  }
+  $::c create text $x [expr $y + [image height im_$type] / 2 + 30] -tag "$id $famille $type" -text $nom -anchor c -fill $::coul(texte)
   
   # affichage de l'état de l'objet
   image create photo $id
@@ -1077,18 +1092,18 @@ proc dessine_objet {id} {
 #dessin de la connexion sur le canvas
 ################################################################################
 proc dessine_connexion {id} {
+	
   $::c delete $id
   set type $::obj($id,type)
-	
-	#Infos des 2 objets connectés par cette connexion
+  #Infos des 2 objets connectés par cette connexion
   set id1 $::obj($id,id1)
   set id2 $::obj($id,id2)
   set x1 $::obj($id1,x)
   set y1 $::obj($id1,y)
   set x2 $::obj($id2,x)
   set y2 $::obj($id2,y)
-  set l [$::c create line $x1 $y1 $x2 $y2 -tag "$id connectique $type" -dash $::def($type,trait) -width 2 -fill $::def($type,coul)] 
-  #canvas
+  set l [$::c create line $x1 $y1 $x2 $y2 -tag "$id connectique $type" \
+   -dash $::def($type,trait) -width 2 -fill $::def($type,coul)] 
   # le trait de connexion passe en dessous des autres objets
   $::c lower $l
 	
@@ -1104,92 +1119,161 @@ proc maj_infos_connexion {id} {
 	if {$id == {}} {return}
 	if {$::tmp($id,infos_connexion) == 0} {return}
 	
-  set type $::obj($id,type)
+	set type $::obj($id,type)
 	
 	#Infos des 2 objets connectés par cette connexion
-  set id1 $::obj($id,id1)
-  set id2 $::obj($id,id2)
-  set interf1 $::obj($id,interf1)
-  set interf2 $::obj($id,interf2)
-  set famille1 $::obj($id1,famille)
-  set famille2 $::obj($id2,famille)
-  set x1 $::obj($id1,x)
-  set y1 $::obj($id1,y)
-  set x2 $::obj($id2,x)
-  set y2 $::obj($id2,y)
-  
-  set d [expr sqrt(pow($x2-$x1,2)+pow($y2-$y1,2))]
-  set dx [expr ($d-$x2+$x1) * 0.05]
-  set dy [expr ($d-$y2+$y1) * 0.05]
-  set X1 [expr $x1 + $dx + ($x2 - $x1) / 3.0]
-  set Y1 [expr $y1 + $dy + ($y2 - $y1) / 3.0]
-  set X2 [expr $x2 - $dx - ($x2 - $x1) / 3.0]
-  set Y2 [expr $y2 - $dy - ($y2 - $y1) / 3.0]
-
-  if {$famille1 == "hub" || $famille1 == "switch"} {
-      regexp -expanded {[0-9]+} $interf1 n
-      set nom_interf1 "port$n"
-  } else {
-      set nom_interf1 $interf1
-  }
-  if {$famille2 == "hub" || $famille2 == "switch"} {
-      regexp -expanded {[0-9]+} $interf2 n
-      set nom_interf2 "port$n"
-  } else {
-      set nom_interf2 $interf2
-  }
-  
-	#dessin des infos dans le canvas
-	$::c create rectangle [expr $X1-50] [expr $Y1-10] [expr $X1+50] [expr $Y1+30] -fill white -tag "$id info inf$id"
-	$::c create rectangle [expr $X2-50] [expr $Y2+10] [expr $X2+50] [expr $Y2-30] -fill white -tag "$id info inf$id"
-  $::c create text [expr $X1-45] $Y1 -tag "$id info inf$id" -anchor w -text $nom_interf1 -fill $::def($type,coul) -font infos
-  $::c create text [expr $X2-45] [expr $Y2-20] -tag "$id info inf$id" -anchor w -text $nom_interf2 -fill $::def($type,coul) -font infos
-  
-	# Affichage éventuel des ip et masques
-  if {$::tmp($id1,etat) != {0} && $::tmp($id1,etat_$interf1) != {}} {
-		set info1 $::tmp($id1,etat_$interf1)
-    $::c create text [expr $X1-45] [expr $Y1 +15] -tag "$id info inf$id" -anchor w -text $info1 -fill $::def($type,coul) -font infos
-  }
-  if {$::tmp($id2,etat) != {0} && $::tmp($id2,etat_$interf2) != {}} {
-		set info2  $::tmp($id2,etat_$interf2)
-    $::c create text [expr $X2-45] [expr $Y2 -0] -tag "$id info inf$id" -anchor w -text $info2 -fill $::def($type,coul) -font infos
+	set id1 $::obj($id,id1)
+	set id2 $::obj($id,id2)
+	set interf1 $::obj($id,interf1)
+	set interf2 $::obj($id,interf2)
+	set famille1 $::obj($id1,famille)
+	set famille2 $::obj($id2,famille)
+	set type1 $::obj($id1,type)
+	set type2 $::obj($id2,type)
+	set x1 $::obj($id1,x)
+	set y1 $::obj($id1,y)
+	set x2 $::obj($id2,x)
+	set y2 $::obj($id2,y)
+	
+	#Points d'insertion des étiquettes
+	if {[expr $x1 - $x2] >= 0} {
+		set X1 [expr $x1 - 80]
+		set X2 [expr $x2 + 80]
+	} else {
+		set X1 [expr $x1 + 80]
+		set X2 [expr $x2 - 80]
+	}
+	if {[expr $y1 - $y2] >= 0} {
+		set Y1 [expr $y1 - 30]
+		set Y2 [expr $y2 + 30]
+	} else {
+		set Y1 [expr $y1 + 30]
+		set Y2 [expr $y2 - 30]
 	}
 	
+	
+	if {$famille1 == {hub} || $famille1 == {switch}} {
+		regexp -expanded {[0-9]+} $interf1 n
+		set nom_interf1 "port$n"
+	} else {
+		set nom_interf1 $interf1
+	}
+	if {$famille2 == "hub" || $famille2 == "switch"} {
+		regexp -expanded {[0-9]+} $interf2 n
+		set nom_interf2 "port$n"
+	} else {
+		set nom_interf2 $interf2
+	}
+	
+	# Dans le cas d'un bridge on crée une étiquette à côté du matériel
+	# Pour renseigner sur l'interface côté hôte
+	if {$type1 == {bridge}} {
+		set nom_interf1 {port1}
+		maj_etiquette_bridge $id1 $id $x1 $y1 $x2 $y2 $::def($type,coul)
+		}
+	if {$type2 == {bridge}} {
+		set nom_interf2 {port1}
+		maj_etiquette_bridge $id2 $id $x2 $y2 $x1 $y1 $::def($type,coul)
+	}
+	
+	#dessin des infos dans le canvas
+	$::c create rectangle [expr $X1-50] [expr $Y1-20] [expr $X1+50] [expr $Y1+20] -fill white -tag "$id info inf$id"
+	$::c create rectangle [expr $X2-50] [expr $Y2+20] [expr $X2+50] [expr $Y2-20] -fill white -tag "$id info inf$id"
+	$::c create text [expr $X1-45] [expr $Y1-10] -tag "$id info inf$id" -anchor w \
+	-text $nom_interf1 -fill $::def($type,coul) -font infos
+	$::c create text [expr $X2-45] [expr $Y2-10] -tag "$id info inf$id" -anchor w \
+	-text $nom_interf2 -fill $::def($type,coul) -font infos
+	
+	# Affichage éventuel des ip et masques
+	if {$::tmp($id1,etat) != {0}} {
+		set info1 $::tmp($id1,etat_$interf1)
+		$::c create text [expr $X1-45] [expr $Y1 +5] -tag "$id info inf$id" -anchor w \
+      -text $info1 -fill $::def($type,coul) -font infos
+     }
+    if {$::tmp($id2,etat) != {0}} {
+		set info2  $::tmp($id2,etat_$interf2)
+		$::c create text [expr $X2-45] [expr $Y2 -5] -tag "$id info inf$id" -anchor w \
+      -text $info2 -fill $::def($type,coul) -font infos
+    }
+	
 	#Effacement des étiquettes si on clique sur  une étiquette
-  $::c bind inf$id <Button> "$::c delete inf$id ; set ::tmp($id,infos_connexion) 0"
-  
+	$::c bind inf$id <Button> "$::c delete inf$id ; set ::tmp($id,infos_connexion) 0"
+	
 }
 
+
+# Dessin étiquette d'info côté interface de l'hôte d'un bridge
+# x1 et y1 sont les coordonnées du bridge
+################################################################################
+proc maj_etiquette_bridge {id id_liaison x1 y1 x2 y2 coul} {
+	
+	#Point d'insertion de l'étiquette
+	if {[expr $x1 - $x2] >= 0} {
+		set Xb1 [expr $x1 + 90]
+	} else {
+		set Xb1 [expr $x1 - 90]
+	}
+	if {[expr $y1 - $y2] >= 0} {
+		set Yb1 [expr $y1 + 50]
+	} else {
+		set Yb1 [expr $y1 - 50]
+	}
+	$::c create rectangle [expr $Xb1-65] [expr $Yb1-30] [expr $Xb1+65] [expr $Yb1+35] -fill white -tag "$id_liaison info inf$id_liaison"
+	$::c create text [expr $Xb1-60] [expr $Yb1-20] -tag "$id_liaison info inf$id_liaison" -anchor w \
+	-text "port2 ([::msgcat::mc "Host side"])" -fill $coul -font infos
+	$::c create text [expr $Xb1-60] [expr $Yb1-5] -tag "$id_liaison info inf$id_liaison" -anchor w \
+	-text "[::msgcat::mc "Connected interface"] :" -fill $coul -font infos
+	$::c create text [expr $Xb1-60] [expr $Yb1+10] -tag "$id_liaison info inf$id_liaison" -anchor w \
+	-text "$::obj($id,nom_tap)" -fill $coul -font infos
+	if {$::tmp($id,etat) != {0}} {
+		$::c create text [expr $Xb1-60] [expr $Yb1+25] -tag "$id_liaison info inf$id_liaison" -anchor w \
+		-text $::tmp($id,etat_tap) -fill $coul -font infos
+	}
+	
+}
+
+
+# Affichage matériel éteint
 ################################################################################
 proc affiche_objet_off {id} {
   $id blank
   $id copy im_off
 }
 
+
+# Affichage matériel en cours de démarrage
 ################################################################################
 proc affiche_objet_demarre {id} {
   $id blank
   $id copy im_demarre
 }
 
+
+# Affichage matériel démarré
 ################################################################################
 proc affiche_objet_on {id} {
-  $id blank
-  $id copy im_on
+  	$id blank
+  	$id copy im_on
+	update
 }
+
 
 #enlève l'icone de note à côté de l'objet
 ################################################################################
 proc affiche_note_off {id} {
 	$id-note blank
+	update
 }
+
 
 #ajoute l'icone de note à côté de l'objet
 ################################################################################
 proc affiche_note_on {id} {
 	$id-note blank
 	$id-note copy im_note_mini
+	update
 }
+
 
 #Ouvre un dialogue de confirmation d'ouverture de nouveau projet
 ################################################################################

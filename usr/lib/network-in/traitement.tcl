@@ -79,7 +79,7 @@ proc demarre_ordinateur {id} {
 		}
 	}
 	
-	puts ">>>>Démarrage MACHINE $id"
+  puts ">>>>Démarrage MACHINE $id"
   set famille $::obj($id,famille)
   set type $::obj($id,type)
   
@@ -729,7 +729,6 @@ proc restaurer_projet {} {
   
 	#récupération de la structure
 	xml_structure_read $::rep_proj/datas/structure.xml
-	
 	#puts [array get ::tmp]
 	#puts [array get ::obj]
 	
@@ -747,14 +746,13 @@ proc restaurer_projet {} {
         # l'objet est inactif au démarrage
         set ::tmp($id,etat) 0
         if [info exists ::obj($id,famille)] {
-            #On commence par nettoyer le répertoire d'échange dans le rep du projet
-            file delete -force $::rep_proj/datas/$id/com
-            
             if {$::obj($id,famille) == "liaison"} {
-            set ::tmp($id,pid) {}
+            	set ::tmp($id,pid) {}
 				set ::tmp($id,infos_connexion) 0
 				dessine_connexion $id
             } else  {
+				#On commence par nettoyer le répertoire d'échange dans le rep du projet
+				file delete -force $::rep_proj/datas/$id/com
 				#Vérification configuration VM virtualbox
 				if {$::obj($id,type) == "virtualbox"} {
 					set ::tmp($id,is_present) 0

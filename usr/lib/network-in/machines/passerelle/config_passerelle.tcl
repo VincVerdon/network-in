@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250109
+# Version 20250113
 
 # Interface de configuration de base de la machine
 ################################################################################
@@ -62,6 +62,7 @@ proc change_nom_passerelle {id} {
     
 }
 
+
 ################################################################################
 proc maj_nom_passerelle {id} {
     
@@ -109,6 +110,7 @@ proc fenetre_config_nom_passerelle {id} {
   button .passe2.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .passe2} -relief flat
   pack .passe2.fb.a -side left
 }
+
 
 # Fenetre de config de l'adresse
 ################################################################################
@@ -162,6 +164,7 @@ proc fenetre_config_ip_passerelle {id} {
   
 }
 
+
 ################################################################################
 proc applique_config_ip_passerelle {id} {
   
@@ -179,12 +182,13 @@ proc applique_config_ip_passerelle {id} {
             maj_infos_connexion $id_liaison
         }
 	}
-	
 	unset ::tmp($id,ip)
 	unset ::tmp($id,ip_anc)
 	unset ::tmp($id,netmask)
 	unset ::tmp($id,netmask_anc)
+	
 }
+
 
 ################################################################################
 proc exec_config_passerelle {id ip masque action} {

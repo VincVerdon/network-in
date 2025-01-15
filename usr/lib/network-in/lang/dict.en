@@ -46,10 +46,11 @@ Copy  Copy
 Cut  cut
 dce  DCE
 "Delete capture"  "Delete capture"
-"Delete infos" "Delete infos"
+"Delete info labels"  "Delete info labels"
 "Delete network card"  "Delete network card"
 "Desk computer"  "Desk computer" 
 "DHCP : automatic DNS configuration"  "DHCP : automatic DNS configuration"
+"DHCP configuration"  "DHCP configuration"
 "DHCP server" "DHCP service"
 "DHCP server configuration"  "DHCP service configuration"
 "Direct admin (root) connexion"  "Direct admin (root) connexion"
@@ -92,6 +93,8 @@ Help Help
 "Here you can add or modify the comment for the component"  "Here you can add or modify \nthe comment for the component"
 "Here you can choose a new mac address"  "Here you can choose a new mac address"
 "Host network" "Host network"
+"Host side"  "Host side"
+"Host side IP configuration"  "Host side IP configuration"
 "HTTP server"  "HTTP server"
 "HTTP server configuration"  "HTTP service configuration"
 "HTTP server directory (/var/www)"  "HTTP server directory (/var/www)"
@@ -121,6 +124,7 @@ License  License
 List  List
 "Login terminal" "Login terminal"
 "Logs print" "Log print"
+"Managed by the host system"  "Managed by the host system"
 MISSING MISSING
 Name  Name
 "Name configuration"  "Name configuration"
@@ -180,11 +184,14 @@ Server  Server
 serveur "Server computer"
 "Server state"  "Server state"
 "Services configuration"  "Services configuration"
+"Simulator side"  "Simulator side"
 Shutdown  Shutdown
+"Shutdown all"  "Shutdown all"
 "SSH server"  "SSH server"
 "SSH server configuration"  "SSH service configuration"
 Start  Start
 Static Static
+"Static configuration"  "Static configuration"
 "Static routing" "Static routing"
 "Static routing configuration" "Static routing configuration"
 Stop  Stop
@@ -219,11 +226,12 @@ unnamed  unnamed
 version   version
 virtualbox "Virtualbox VM"
 "Virtualbox VM" "Virtualbox VM"
-"Virtualbox VMs list"  "Virtualbox VMs list"
+"VMs list"  "VMs list"
 "Vbox ID"  "VirtualBox ID"
 "Vbox name"  "VirtualBox name"
-"Vbox selection" "VM choice"
+"VM selection" "VM selection"
 "Virtual machine"  "Virtual machine"
+Warning  Warning
 "Web browser"  "Web browser"
 "Welcome to %u in Network-In FTP Server"  "Welcome to %u in Network-in FTP Server"
 "Wifi interfaces"  "Wifi interfaces"

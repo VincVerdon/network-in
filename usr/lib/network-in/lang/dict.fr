@@ -46,10 +46,11 @@ Copy  Copier
 Cut  Couper
 dce  DCE
 "Delete capture"  "Supprimer la capture"
-"Delete infos"  "Effacer infos"
+"Delete info labels"  "Effacer les étiquettes d'infos"
 "Delete network card" "Supprimer une carte réseau"
 "Desk computer"  "Ordinateur de bureau"
 "DHCP : automatic DNS configuration"  "Configuration DHCP : DNS obtenu automatiquement"
+"DHCP configuration"  "Configuration DHCP"
 "DHCP server" "Serveur DHCP"
 "DHCP server configuration"  "Configuration service DHCP"
 "Direct admin (root) connexion"  "Connexion directe de l'admin (root)"
@@ -92,6 +93,8 @@ Help Aide
 "Here you can add or modify the comment for the component"  "Ici vous pouvez ajouter ou modifier \nle commentaire pour le composant"
 "Here you can choose a new mac address"  "Ici vous pouvez choisir une nouvelle adresse Mac"
 "Host network"  "Réseau de l'hôte"
+"Host side"  "Côté hôte"
+"Host side IP configuration"  "Configuration IP côté hôte"
 "HTTP server" "Serveur HTTP"
 "HTTP server configuration"  "Configuration service HTTP"
 "HTTP server directory (/var/www)"  "Répertoire serveur HTTP (/var/www)"
@@ -123,6 +126,7 @@ License  Licence
 List  Liste
 "Login terminal" "Terminal login"
 "Logs print" "Affichage des logs"
+"Managed by the host system"  "Gérée par le système hôte"
 MISSING  ABSENT
 Name  Nom
 "Name configuration"  "Configuration du nom"
@@ -182,11 +186,14 @@ Server  Serveur
 serveur  "Ordinateur serveur"
 "Server state"  "Etat du serveur"
 "Services configuration"  "Configuration des services"
+"Simulator side"  "Côté simulateur"
 Shutdown  Arrêter
+"Shutdown all"  "Tout arrêter"
 "SSH server"  "Serveur SSH"
 "SSH server configuration"  "Configuration du service SSH"
 Start  Démarrer
 Static Statique
+"Static configuration"  "Configuration statique"
 "Static routing" "Routage statique"
 "Static routing configuration" "Configuration du routage statique"
 Stop  Arrêter
@@ -221,11 +228,12 @@ unnamed  sansnom
 version   version
 virtualbox  "Machine virtuelle externe Virtualbox"
 "Virtualbox VM" "VM Virtualbox"
-"Virtualbox VMs list"  "Liste des VMs VirtualBox"
+"VMs list"  "Liste des VM"
 "Vbox ID"  "ID VirtualBox"
 "Vbox name"  "Nom VirtualBox"
-"Vbox selection"  "Choix de la VM"
+"VM selection"  "Choix de la VM"
 "Virtual machine"  "Machine virtuelle"
+Warning  Attention
 "Web browser"  "Navigateur Web"
 "Welcome to %u in Network-In FTP Server"  "Bienvenue à %u sur le serveur FTP de Network-In"
 "Wifi interfaces"  "Interfaces Wifi"

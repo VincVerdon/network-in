@@ -106,13 +106,13 @@ proc initialisation_pctexte {id} {
 ################################################################################
 proc initialisation_switch4 {id} {
 	set ::obj($id,reconf) false
-  set ::obj($id,famille) switch
-  set ::obj($id,type) switch4
-  set ::obj($id,categorie) dce
+	set ::obj($id,famille) switch
+	set ::obj($id,type) switch4
+	set ::obj($id,categorie) dce
 	set ::obj($id,techno) ethernet
-  set ::obj($id,nb_eth) 4
+	set ::obj($id,nb_eth) 4
 	init_eth $id
-  set ::obj($id,nom) $id
+	set ::obj($id,nom) $id
 }
 
 
@@ -145,12 +145,12 @@ proc initialisation_hub4 {id} {
 ################################################################################
 proc initialisation_hub8 {id} {
 	set ::obj($id,reconf) false
-  set ::obj($id,famille) hub
-  set ::obj($id,type) hub8
-  set ::obj($id,categorie) dce
-  set ::obj($id,techno) ethernet
-  set ::obj($id,nb_eth) 8
-  init_eth $id
+	set ::obj($id,famille) hub
+	set ::obj($id,type) hub8
+	set ::obj($id,categorie) dce
+	set ::obj($id,techno) ethernet
+	set ::obj($id,nb_eth) 8
+	init_eth $id
 	set ::obj($id,nom) $id
 }
 
@@ -158,14 +158,14 @@ proc initialisation_hub8 {id} {
 ################################################################################
 proc initialisation_routeur2 {id} {
 	set ::obj($id,reconf) false
-  set ::obj($id,famille) routeur
-  set ::obj($id,type) routeur2
-  set ::obj($id,categorie) dte
+	set ::obj($id,famille) routeur
+	set ::obj($id,type) routeur2
+	set ::obj($id,categorie) dte
 	set ::obj($id,techno) ethernet
-  set ::obj($id,nb_eth) 2
-  init_eth_mac $id
-  set ::obj($id,nom) $id
-  set ::obj($id,mem) 128M
+	set ::obj($id,nb_eth) 2
+	init_eth_mac $id
+	set ::obj($id,nom) $id
+	set ::obj($id,mem) 128M
 	set ::obj($id,dd) $::img_dd
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
 	set ::obj($id,kernel) $::kernel
@@ -182,14 +182,14 @@ proc initialisation_routeur2 {id} {
 ################################################################################
 proc initialisation_routeur4 {id} {
 	set ::obj($id,reconf) false
-  set ::obj($id,famille) routeur
-  set ::obj($id,type) routeur4
-  set ::obj($id,categorie) dte
+	set ::obj($id,famille) routeur
+  	set ::obj($id,type) routeur4
+  	set ::obj($id,categorie) dte
 	set ::obj($id,techno) ethernet
-  set ::obj($id,nb_eth) 4
-  init_eth_mac $id
-  set ::obj($id,nom) $id
-  set ::obj($id,mem) 128M
+	set ::obj($id,nb_eth) 4
+  	init_eth_mac $id
+  	set ::obj($id,nom) $id
+  	set ::obj($id,mem) 128M
 	set ::obj($id,dd) $::img_dd
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
 	set ::obj($id,kernel) $::kernel
