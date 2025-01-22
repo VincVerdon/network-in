@@ -161,6 +161,7 @@ pctexte "Ordinateur Linux texte"
 "Please, be patient"  "Soyez patient"
 portable  "Ordinateur portable"
 "Quit" "Quitter"
+"RAM memory"  "Mémoire RAM"
 "Real network NAT router"  "Routeur NAT réseau réel"
 Reboot  Redémarrer
 "Reachable directories"  "Répertoires accessibles"

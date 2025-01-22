@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250120
+# Version 20250122
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -728,6 +728,10 @@ proc fenetre_infos_ordinateur {id} {
 	grid .inf.dd.l3 -row 1 -column 0 -sticky e
 	label .inf.dd.l4 -text $kern
 	grid .inf.dd.l4 -row 1 -column 1 -sticky w
+	label .inf.dd.l5 -text "[::msgcat::mc "RAM memory"] :"
+	grid .inf.dd.l5 -row 2 -column 0 -sticky e
+	label .inf.dd.l6 -text $::obj($id,mem)
+	grid .inf.dd.l6 -row 2 -column 1 -sticky w
 	
 	labelframe .inf.if -text [::msgcat::mc "Ethernet interfaces"]
 	pack .inf.if -fill x

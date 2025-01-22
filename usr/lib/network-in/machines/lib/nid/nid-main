@@ -1,8 +1,8 @@
 #!/bin/bash
 #Daemon pour communiquer avec le simulateur network-in!
-#+ gestion de l'interface graphique
+#+ gestion de l'interface graphique et autres configurations de démarrage
 #V. Verdon
-#Version 20241229
+#Version 20250122
 ###################
 
 REP_NETW=/var/networkin
@@ -14,6 +14,11 @@ export USER=root
 export HOME=/root
 cd $HOME
 . /etc/profile
+
+#Correction pug noyau relatif aux processus
+cp /proc/cpuinfo /tmp/
+echo >> /tmp/cpuinfo
+mount --bind /tmp/cpuinfo /proc/cpuinfo
 
 #on indique au simulateur que le demarrage est fini
 echo "en marche" > $REP_NETW/com/on
@@ -60,6 +65,7 @@ done < $REP_NETW/com/interfaces
 
 #Initialisation et demarrage de l'interface graphique
 $REP_NETW/init &
+
 
 ##################
 #demarrage de la boucle de surveillance
