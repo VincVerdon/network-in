@@ -303,15 +303,12 @@ proc exec_config_bridge {id action} {
     } else {
         switch $::obj($id,conf_tap) {
             {off} {
-                puts "exec sudo $::rep/bin/conf_bridge $id $::obj($id,nom_tap) off $::obj($id,mac_tap)"
                 catch {exec sudo $::rep/bin/conf_bridge $id $::obj($id,nom_tap) off $::obj($id,mac_tap)}
             }
             {static} {
-                puts "exec sudo $::rep/bin/conf_bridge $id $::obj($id,nom_tap) static $::obj($id,mac_tap) $::obj($id,ip_tap) $::obj($id,netmask_tap) $::obj($id,gateway_tap)"
-                catch {exec sudo $::rep/bin/conf_bridge $id $::obj($id,nom_tap) static $::obj($id,mac_tap) $::obj($id,ip_tap) $::obj($id,netmask_tap) $::obj($id,gateway_tap)}
+            	catch {exec sudo $::rep/bin/conf_bridge $id $::obj($id,nom_tap) static $::obj($id,mac_tap) $::obj($id,ip_tap) $::obj($id,netmask_tap) $::obj($id,gateway_tap)}
             }
             {dhcp} {
-                puts "exec sudo $::rep/bin/conf_bridge $id $::obj($id,nom_tap) dhcp $::obj($id,mac_tap)"
                 catch {exec sudo $::rep/bin/conf_bridge $id $::obj($id,nom_tap) dhcp $::obj($id,mac_tap) &}
             }
         }

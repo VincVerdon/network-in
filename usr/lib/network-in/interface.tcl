@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250115
+# Version 20250120
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -53,8 +53,13 @@ proc fenetre_principale {} {
   #pack .fb.zm -side left
 	ttk::button .fb.si -compound $comp -text [::msgcat::mc "Delete info labels"] -image im_del_infos -command {efface_infos_connexion}
 	pack .fb.si -side left
-	ttk::button .fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_eteindre -command {
-		if [dialogue_arreter_tout] {arreter_tout}
+	ttk::button .fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_eteindre \
+	-command {
+		if ![verif_arret] {
+			if [dialogue_arreter_tout] {
+			  arreter_tout
+			}
+		}
 	}
 	pack .fb.stopall -side left	
   ttk::button .fb.quit -compound $comp -text [::msgcat::mc "Quit"] -image im_quitter -command quit
@@ -80,7 +85,6 @@ proc fenetre_principale {} {
 	#pack .hscroll -fill x
 	
   # événements canvas
-  set ::tmp(event_move) 0
   bind $::c <B1-Motion> {clic_gauche_canvas_bouge %x %y}
   bind $::c <ButtonPress-1> {clic_gauche_canvas %x %y}
   bind $::c <ButtonPress-3> {clic_droit_canvas %x %y}
@@ -182,12 +186,7 @@ proc maj_titre {} {
 # Gestion du clic simple gauche sur le canvas
 ################################################################################
 proc clic_gauche_canvas {x y} {
-
-    after 1
-    if {$::tmp(event_move) == 1} {
-        return
-    }
-	puts "$::tmp(event_move)"
+	
 	#set X [lindex [.hscroll get ] 0]
 	#set tx [$::c cget -width]
 	#set tx [winfo width $::c]
@@ -203,15 +202,17 @@ proc clic_gauche_canvas {x y} {
 		
 		#On a cliqué sur un objet
 		set id [lindex $tags 0]
+		#Il passe en avant plan
+		$::c raise $id
 		
 		if {[lindex $tags 1] == "note"} {
 			#Affichage d'une note car clic sur l'icone de note
 			affiche_note $id
-		} elseif {$::obj($id,famille) == {liaison}} {
+		} elseif {$::obj($id,famille) == {connection}} {
 			#On a cliqué sur une connexion, on affiche les infos sur cette connexion
 			set ::tmp($id,infos_connexion) 1
 			maj_infos_connexion $id
-		} elseif {$::tmp(sel,type) != {0} && $::tmp(sel,famille) == {liaison}} {
+		} elseif {$::tmp(sel,type) != {0} && $::tmp(sel,famille) == {connection}} {
 			#On est en mode création de liaison
 			creation_liaison $id
 		} else {
@@ -222,7 +223,7 @@ proc clic_gauche_canvas {x y} {
 	} else {
 		
 		#On a cliqué dans le vide (aucun objet sélectionné)
-		if {$::tmp(sel,type) != {0} && $::tmp(sel,famille) != {liaison}} {
+		if {$::tmp(sel,type) != {0} && $::tmp(sel,famille) != {connection}} {
 			# on veut créer un objet (pas une liaison)
 			creation_objet $::tmp(sel,famille) $::tmp(sel,type) $x $y
 			# on repasse en mode sélection
@@ -233,18 +234,19 @@ proc clic_gauche_canvas {x y} {
 	
 }
 
+
 # met en avant les fenêtres de l'objet
 ################################################################################
 proc raise_objet {id} {
     
 	switch $::obj($id,type) {
-		"passerelle" {
+		{nat} {
 			raise_passerelle
 		}
-		"virtualbox" {
+		{virtualbox} {
 			raise_vbox $id
 		}
-		"bridge" {
+		{bridge} {
 			raise_bridge $id
 		}
 		
@@ -272,13 +274,13 @@ proc raise_objet {id} {
 proc masque_objet {id} {
     
 	switch $::obj($id,type) {
-		"passerelle" {
+		{nat} {
 			hide_passerelle
 		}
-		"virtualbox" {
+		{virtualbox} {
 			hide_vbox
 		}
-		"bridge" {
+		{bridge} {
 			hide_bridge
 		}
 		default {
@@ -376,7 +378,7 @@ proc menu_contextuel_objet {id x y} {
     # menu suivant le type d'objet
     switch $famille {
         
-        {liaison} {
+        {connection} {
     			#rien de particulier
     		# infos sur l'objet sélectionné
     		$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
@@ -385,7 +387,7 @@ proc menu_contextuel_objet {id x y} {
     		$::c.mc add command -label [::msgcat::mc "Suppress"] -command "supprimer_connexion $id"
     	}
     
-    	{ordinateur} {
+    	{computer} {
         		
             $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_ordinateur $id" -state $etat3
             $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_ordinateur $id" -state $etat2
@@ -403,7 +405,7 @@ proc menu_contextuel_objet {id x y} {
             }
         }
         
-    	{routeur} {
+    	{router} {
     		
             $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_routeur $id" -state $etat3
             $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_routeur $id" -state $etat2
@@ -421,10 +423,10 @@ proc menu_contextuel_objet {id x y} {
             }
     	}
     
-    	{sortie} {
+    	{output} {
         
     		switch $type {
-    			{passerelle} {
+    			{nat} {
                     $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_passerelle $id" -state $etat3
                     $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_passerelle $id" -state $etat2
     			}
@@ -656,7 +658,7 @@ proc fenetre_infos_objet {id} {
 	grid .inf.f.l4 -row 0 -column 1 -sticky w
 	label .inf.f.l5 -text "[::msgcat::mc "Equipment Category"] : "
 	grid .inf.f.l5 -row 1 -column 0 -sticky e
-    if {$::obj($id,famille) == {liaison}} {
+    if {$::obj($id,famille) == {connection}} {
         label .inf.f.l6 -text "[::msgcat::mc {cable}]"
     } else {
         label .inf.f.l6 -text "[::msgcat::mc $::obj($id,categorie)]"
@@ -665,10 +667,10 @@ proc fenetre_infos_objet {id} {
 	grid .inf.f.l6 -row 1 -column 1 -sticky w
 	
 	switch $::obj($id,famille) {
-		{ordinateur} {
+		{computer} {
 			fenetre_infos_ordinateur $id
 		}
-		{routeur} {
+		{router} {
 			fenetre_infos_ordinateur $id
 		}
 		{switch} {
@@ -677,16 +679,16 @@ proc fenetre_infos_objet {id} {
 		{hub} {
 			fenetre_infos_switch $id
 		}
-		{sortie} {
+		{output} {
             switch $::obj($id,type) {
-                {passerelle} {fenetre_infos_passerelle $id}
+                {nat} {fenetre_infos_passerelle $id}
                 {bridge} {fenetre_infos_bridge $id}
             }
 		}
 		{vm} {
             fenetre_infos_vm $id
         }
-		{liaison} {
+		{connection} {
 			fenetre_infos_cable $id
 		}
 	}
@@ -876,11 +878,9 @@ proc fenetre_infos_cable {id} {
 
 ################################################################################
 proc clic_gauche_canvas_bouge {x y} {
-    set ::tmp(event_move) 1
-  puts $::tmp(event_move)
+    
   if {$::tmp(sel,type) != {0}} {
     # cas où on est en mode ajout, on sort
-    set ::tmp(event_move) 0
     return
   }
   
@@ -889,15 +889,13 @@ proc clic_gauche_canvas_bouge {x y} {
   
   # si on n'a pas cliqué sur un objet, on sort
   if {[lindex $tags end] != {current}} {
-      set ::tmp(event_move) 0
       return
   }
   
   set id [lindex $tags 0]
-  
-  if {$::obj($id,famille) == {liaison}} {
+	
+  if {$::obj($id,famille) == {connection}} {
     # cas où on a cliqué sur une connexion : rien à faire alors
-    set ::tmp(event_move) 0
     return
   }
   
@@ -920,7 +918,7 @@ proc clic_gauche_canvas_bouge {x y} {
       }
     }
   }
-  set ::tmp(event_move) 0
+  
 }
 
 ################################################################################
@@ -964,6 +962,7 @@ proc menu_choix_connexion {id} {
   vwait ::tmp(sel,interface)
 }
 
+
 ################################################################################
 proc creation_onglet {famille} {
   
@@ -991,7 +990,9 @@ proc creation_onglet {famille} {
 			}
 		}
 	}
+	
 }
+
 
 ################################################################################
 proc traite_changement_panneau {} {
@@ -1008,19 +1009,19 @@ proc creer_images_interface {} {
   image create photo im_network-in -file $::rep/images/network-in.gif
   #image create photo im_zoom+ -file $::rep/images/zoom+.gif
   #image create photo im_zoom- -file $::rep/images/zoom-.gif
-  image create photo im_quitter -file $::rep/images/quitter.gif
+  image create photo im_quitter -file $::rep/images/quit.gif
   image create photo im_select -file $::rep/images/select.gif
   image create photo im_off -file $::rep/images/off.gif
-  image create photo im_demarre -file $::rep/images/demarre.gif
+  image create photo im_demarre -file $::rep/images/start.gif
   image create photo im_on -file $::rep/images/on.gif
-  image create photo im_config -file $::rep/images/configuration.gif
-  image create photo im_annuler -file $::rep/images/annuler.gif
-  image create photo im_valider -file $::rep/images/valider.gif
-  image create photo im_eteindre -file $::rep/images/eteindre.gif
-  image create photo im_del_infos -file $::rep/images/del_infos.gif
-  image create photo im_carte -file $::rep/images/carte.gif
+  image create photo im_config -file $::rep/images/configure.gif
+  image create photo im_annuler -file $::rep/images/cancel.gif
+  image create photo im_valider -file $::rep/images/apply.gif
+  image create photo im_eteindre -file $::rep/images/shutdown.gif
+  image create photo im_del_infos -file $::rep/images/delete_infos.gif
+  image create photo im_carte -file $::rep/images/map.gif
   image create photo im_note -file $::rep/images/note.gif
-  image create photo im_rafraichir -file $::rep/images/rafraichir.gif
+  image create photo im_rafraichir -file $::rep/images/refresh.gif
   image create photo im_note_mini
   im_note_mini copy im_note -subsample 2
 	
@@ -1192,7 +1193,7 @@ proc maj_infos_connexion {id} {
      }
     if {$::tmp($id2,etat) != {0}} {
 		set info2  $::tmp($id2,etat_$interf2)
-		$::c create text [expr $X2-45] [expr $Y2 -5] -tag "$id info inf$id" -anchor w \
+		$::c create text [expr $X2-45] [expr $Y2 +5] -tag "$id info inf$id" -anchor w \
       -text $info2 -fill $::def($type,coul) -font infos
     }
 	
@@ -1280,8 +1281,10 @@ proc affiche_note_on {id} {
 proc dialogue_ouvrir_projet {fic} {
   
 	# on vérifie si on souhaite bien arrêter les machines si ce n'est pas le cas
-	if ![dialogue_arreter_tout] {
-		return
+	if ![verif_arret] {
+		if ![dialogue_arreter_tout] {
+		  return
+		}
 	}
   set reponse [tk_messageBox -type yesno -icon warning -title [::msgcat::mc "Open a project"] -message [::msgcat::mc "Do you really want to open another project ? If you don't  save the actual project, it will be lost"]]
   if {$reponse != "no"} {
@@ -1300,14 +1303,17 @@ proc dialogue_ouvrir_projet {fic} {
 ################################################################################
 proc dialogue_nouveau_projet {} {
   
-	# on vérifie si on souhaite bien arrêter les machines si ce n'est pas le cas
-	if ![dialogue_arreter_tout] {
-		return
-	}
-  set reponse [tk_messageBox -type yesno -icon warning -title [::msgcat::mc "New project"] -message [::msgcat::mc "Do you really want to start a new project ? If you don't  save the actual project, it will be lost"]]
-  if {$reponse == "yes"} {
-    init_projet
-  }
+  	set reponse [tk_messageBox -type yesno -icon warning -title [::msgcat::mc "New project"] -message [::msgcat::mc "Do you really want to start a new project ? If you don't  save the actual project, it will be lost"]]
+  	if {$reponse == "yes"} {
+	  # on vérifie si on souhaite bien arrêter les machines si ce n'est pas le cas
+	  if ![verif_arret] {
+		  if [dialogue_arreter_tout] {
+			arreter_tout
+			after 3000 init_projet
+		  }
+	  }
+  		
+  	}
 	
 }
 
@@ -1317,14 +1323,10 @@ proc dialogue_nouveau_projet {} {
 proc dialogue_arreter_tout {} {
 	
 	set ret 0
-	if [verif_arret] {
-		set ret 1
-	} else {
-		set reponse [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "Warning"] -message [::msgcat::mc "This action needs to shutdown every equipment. Proceed ?"]]
+	set reponse [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "Warning"] -message [::msgcat::mc "This action needs to shutdown every equipment. Proceed ?"]]
   	if {$reponse == "yes"} {
   		set ret 1
   	}
-	}
 	return $ret
 	
 }
@@ -1353,8 +1355,10 @@ proc dialogue_creation_passerelle_impossible {} {
 proc dialogue_enregistrer_projet {} {
   
   # on vérifie si on souhaite bien arrêter les machines si ce n'est pas le cas
-  if ![dialogue_arreter_tout] {
-    return
+  if ![verif_arret] {
+      if ![dialogue_arreter_tout] {
+        return
+      }
   }
   
   set f [tk_getSaveFile -initialdir $::rep_home -initialfile $::tmp(file) -filetypes {{Network-in! .net} {Network-in! .NET}}]

@@ -21,13 +21,13 @@ namespace eval capt {
     #####################################
     proc fenetre_termshark {} {
         
-      image create photo img_capture -file $::rep/images/wireshark.gif
-      image create photo img_lire -file $::rep/images/lire.gif
+      image create photo im_capture -file $::rep/images/wireshark.gif
+      image create photo im_lire -file $::rep/images/read.gif
       
       destroy .cap
       toplevel .cap
       wm title .cap  "[::msgcat::mc "Frame analysis"] ([wm title .])"
-      wm iconphoto .cap img_capture
+      wm iconphoto .cap im_capture
       wm protocol .cap WM_DELETE_WINDOW capt::quit
       positionne_fenetre .cap
 
@@ -49,7 +49,7 @@ namespace eval capt {
       # Barre de boutons
       frame .cap.fb
       pack .cap.fb -fill x
-      button .cap.fb.a -compound top -relief flat -text [::msgcat::mc "Quit"] -image img_quitter -command  capt::quit
+      button .cap.fb.a -compound top -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  capt::quit
       pack .cap.fb.a -side right
 
       frame .cap.f
@@ -73,7 +73,7 @@ namespace eval capt {
       # boutons gestion des captures
       label .cap.f.seecap.f3
       
-      ttk::button .cap.f.seecap.f3.b1 -compound left -text [::msgcat::mc "Delete capture"]  -image img_supprimer -command {
+      ttk::button .cap.f.seecap.f3.b1 -compound left -text [::msgcat::mc "Delete capture"]  -image im_supprimer -command {
         set liste_sel [.cap.f.seecap.f2.t selection]
         if {$liste_sel != {}} {
             foreach n $liste_sel {
@@ -83,7 +83,7 @@ namespace eval capt {
             }
         }
       }
-      ttk::button .cap.f.seecap.f3.b2 -compound left -text [::msgcat::mc "Open capture"]  -image img_lire -command {
+      ttk::button .cap.f.seecap.f3.b2 -compound left -text [::msgcat::mc "Open capture"]  -image im_lire -command {
         set liste_sel [.cap.f.seecap.f2.t selection]
         if {$liste_sel != {}} {
             set fic [file join $capt::rep  [.cap.f.seecap.f2.t item [lindex $liste_sel 0] -values]]
@@ -120,14 +120,14 @@ namespace eval capt {
       frame .cap.f.newcap.inf -background black
       pack .cap.f.newcap.inf -fill both -expand 1
       # Bouton démarrage
-      ttk::button .cap.f.newcap.v -compound left -text [::msgcat::mc "Start"] -image img_capture -command {
+      ttk::button .cap.f.newcap.v -compound left -text [::msgcat::mc "Start"] -image im_capture -command {
         .cap.f.newcap.v configure -state disabled
         .cap.f.newcap.a configure -state enabled
         capt::exec_termshark_capture $::tmp(choix_interf)
       }
       pack .cap.f.newcap.v -side right
       # Bouton arrêt
-      ttk::button .cap.f.newcap.a -compound left -text [::msgcat::mc "Stop"] -image img_eteindre -state disabled -command {
+      ttk::button .cap.f.newcap.a -compound left -text [::msgcat::mc "Stop"] -image im_eteindre -state disabled -command {
         .cap.f.newcap.a configure -state disabled
         .cap.f.newcap.v configure -state enabled
         catch {exec kill $::tmp(pid_capture)}

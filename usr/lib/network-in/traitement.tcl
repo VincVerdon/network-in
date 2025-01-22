@@ -233,14 +233,14 @@ proc demarre_connexion {id} {
 	
   # Si le choix de la connexion est mauvais, on sort
 	switch $::obj($id,type) {
-		{droit} {
+		{straight} {
 			if {$::obj($id1,categorie) == $::obj($id2,categorie)} {
   			set valid false
   		} else  {
   			set valid true
   		}
 		}
-		{croise} {
+		{cross} {
 			if {$::obj($id1,categorie) == $::obj($id2,categorie)} {
 				set valid true
 			} else  {
@@ -259,13 +259,13 @@ proc demarre_connexion {id} {
     foreach i "$id1 $id2" {
       incr n
       switch $::obj($i,famille) {
-        {ordinateur} {set rep$n $::rep_tmp/vde/$i-$::obj($id,interf$n)}
-        {routeur} {set rep$n $::rep_tmp/vde/$i-$::obj($id,interf$n)}
+        {computer} {set rep$n $::rep_tmp/vde/$i-$::obj($id,interf$n)}
+        {router} {set rep$n $::rep_tmp/vde/$i-$::obj($id,interf$n)}
         {switch} {set rep$n $::rep_tmp/vde/$i}
         {hub} {set rep$n $::rep_tmp/vde/$i}
-        {sortie} {
+        {output} {
 			switch $::obj($i,type) {
-				{passerelle} {set rep$n $::rep_tmp/vde/switch_gateway}
+				{nat} {set rep$n $::rep_tmp/vde/switch_gateway}
 				{bridge} {set rep$n $::rep_tmp/vde/$i}
 			}
         }
@@ -377,17 +377,17 @@ proc arrete_switch {id} {
   
 }
 
+
 # Demande d'arrêt d'un ordinateur ou routeur transmis à la machine
 # Arrêt effectué par la machine elle-même par une séquence halt
 ################################################################################
 proc arrete_ordinateur {id} {
   
-  # on écrit un fichier qui indique à la machine que l'on souhaite l'arret
-  ecrire_fichier_echange $id halt "STOP"
-	
-	#arrete_connexion $::obj($id,eth0)
+  	# on écrit un fichier qui indique à la machine que l'on souhaite l'arret
+  	ecrire_fichier_echange $id halt "STOP"
 	
 }
+
 
 # Arrêt forcé de la machine virtuelle de type ordinateur ou routeur
 # (Arrêt de l'instance usermode-linux)
@@ -538,10 +538,9 @@ proc boucle_scan_objet {id} {
         file delete -force $::rep_proj/datas/$id/com
         file delete $::rep_proj/datas/$id/interface/dict.actu
          # l'objet est déclaré inactif désormais
-    	affiche_objet_off $id
     	file delete -force $::rep_proj/datas/$id/com
     	puts ">>>>MACHINE $id arrêtée"
-        after 2000 "set ::tmp($id,etat) 0"
+        after 2000 "set ::tmp($id,etat) 0 ; affiche_objet_off $id"
     }
   
 }
@@ -595,10 +594,10 @@ proc creation_objet {famille type x y} {
   
   # On traite les cas particuliers
 	switch $type {
-		{passerelle} {
+		{nat} {
 			#On cherche si un composant passerelle a déjà été créé ce qui n'est pas accepté
   		foreach t [array get ::obj *,type] {
-        if {$t == {passerelle}} {
+        if {$t == {nat}} {
           dialogue_creation_passerelle_impossible
           return
         }
@@ -679,12 +678,12 @@ proc arreter_tout {} {
     if {[array name ::obj $id,*] != {}} {
       if {$::tmp($id,etat)} {
         switch $::obj($id,famille) {
-            {ordinateur} {arrete_ordinateur $id}
-            {routeur} {arrete_ordinateur $id}
+            {computer} {arrete_ordinateur $id}
+            {router} {arrete_ordinateur $id}
             {switch} {arrete_switch $id}
             {hub} {arrete_switch $id}
-            {sortie} {
-        		if {$::obj($id,type) == {passerelle}} {arrete_passerelle $id}
+            {output} {
+        		if {$::obj($id,type) == {nat}} {arrete_passerelle $id}
                 if {$::obj($id,type) == {bridge}} {arrete_bridge $id}
         	}
             {vm} {
@@ -746,7 +745,7 @@ proc restaurer_projet {} {
         # l'objet est inactif au démarrage
         set ::tmp($id,etat) 0
         if [info exists ::obj($id,famille)] {
-            if {$::obj($id,famille) == "liaison"} {
+            if {$::obj($id,famille) == "connection"} {
             	set ::tmp($id,pid) {}
 				set ::tmp($id,infos_connexion) 0
 				dessine_connexion $id

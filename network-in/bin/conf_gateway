@@ -1,0 +1,40 @@
+#!/bin/sh
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
+#version 20241202
+####################################################################
+TMP=/tmp/network-in
+IP=$1
+MASK=$2
+ACTION=$3
+
+if [ "$ACTION" = "start" ]
+then
+
+    #/usr/sbin/vde_tunctl -t networkin_out
+    /usr/bin/vde_switch -d -nostdin -s $TMP/vde/switch_gateway -m 666
+    /usr/bin/slirpvde -d -nostdin --host $IP/$MASK -s $TMP/vde/switch_gateway 
+
+    #Ancienne méthode
+    #/usr/sbin/vde_tunctl -t networkin_out
+    #/usr/bin/vde_switch -d -nostdin -tap networkin_out -s $TMP/vde/switch_gateway -M /tmp/pass -m 666
+    #/sbin/ip a add $IP/$MASK dev networkin_out
+    #/sbin/ip link set networkin_out up
+    #/sbin/iptables -t nat -A POSTROUTING -s $IP/$MASK -j MASQUERADE
+    
+else
+
+    #déparamétrage et suppression du switch
+    PID=$(lsof -Fp $TMP/vde/switch_gateway/ctl)
+    PID=${PID##p}
+    /bin/kill $PID
+
+    #Ancienne méthode
+	#/sbin/iptables -t nat -D POSTROUTING -s $IP/$MASK -j MASQUERADE
+    #PID=$(lsof -Fp $TMP/vde/switch_gateway/ctl)
+    #PID=${PID##p}
+    #/bin/kill $PID
+    
+fi

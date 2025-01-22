@@ -1,0 +1,10 @@
+[Unit]
+Description=Network-in Simulator communication when reboot
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/networkin-bin/nid/nid-reboot.sh
+
+[Install]
+WantedBy=reboot.target

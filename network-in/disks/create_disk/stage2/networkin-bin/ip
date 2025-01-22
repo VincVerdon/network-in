@@ -1,0 +1,62 @@
+#!/usr/bin/tclsh
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
+# commande ifconfig modifiée pour cacher eth99
+####################################################################
+# Version 20231223
+
+# nom de l'interface à supprimer
+set interf_supp eth99
+
+# Commande ip address
+proc commande_address {res} {
+  global interf_supp
+  set res [split $res \n]
+  set long [llength $res]
+  for {set i 0} {$i < $long} {incr i} {
+  set ligne [lindex $res $i]
+    if {[string first $interf_supp $ligne] == -1} {
+      puts [lindex $res $i]
+    } else {
+      exit
+    }
+  }
+}
+
+# Commande ip route
+proc commande_route {res} {
+  global interf_supp
+  set res [split $res \n]
+  set long [llength $res]
+  for {set i 0} {$i < $long} {incr i} {
+  set ligne [lindex $res $i]
+    if {[string first $interf_supp $ligne] == -1} {
+      puts [lindex $res $i]
+    }
+  }
+}
+
+############Début
+if {$interf_supp ==  [lindex $argv end]} {
+  puts "Device \"$interf_supp\" does not exist."
+  exit
+}
+
+set a [catch {set res [eval exec /sbin/ip $argv]} err]
+if {$a == {1}} {
+  puts $err
+  exit
+}
+
+# Action en fonction de la commande
+set comm [lindex $argv 0]
+if {[regexp "ad?d?r?e?s?s?" $comm]} {
+  commande_address $res
+} elseif  {[regexp "ro?u?t?e?" $comm]} {
+  commande_route $res
+} else {
+  puts $res
+  exit
+}

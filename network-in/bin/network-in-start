@@ -1,0 +1,34 @@
+#!/bin/sh
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
+#version 20240320
+####################################################################
+
+TMP=/tmp/network-in
+IP_HOST=172.31.255.1
+MASK_HOST=255.255.255.0
+
+#Création du répertoire temporaire pour les sockets
+mkdir -p $TMP/vde $TMP/terminal
+chmod -R 777 $TMP
+
+#Création de l'interface et du switch de communication avec les machines virtuelles
+vde_tunctl -t networkin_com
+/sbin/ip a add $IP_HOST/$MASK_HOST dev networkin_com
+/sbin/ip link set networkin_com up
+vde_switch -d -nostdin -tap networkin_com -s $TMP/vde/switch_com -m 666
+
+#On vide les regles du pare-feu (encore actives en cas de crash)
+/sbin/iptables -D INPUT -i networkin_com -p tcp --dport 6000 -j ACCEPT 2>/dev/null
+/sbin/iptables -D INPUT -i networkin_com -j DROP 2>/dev/null
+/sbin/iptables -D FORWARD -i networkin_com -j DROP 2>/dev/null
+
+#on empèche les machines virtuelles UML de sortir par l'interface de com, sauf X11 pour l'affichage
+/sbin/iptables -A INPUT -i networkin_com -p tcp --dport 6000 -j ACCEPT
+/sbin/iptables -A INPUT -i networkin_com -j DROP
+/sbin/iptables -A FORWARD -i networkin_com -j DROP
+
+#Activation du routage des paquets + nat
+echo 1 > /proc/sys/net/ipv4/ip_forward

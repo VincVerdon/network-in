@@ -1,0 +1,250 @@
+A  A
+"Admin terminal" "Terminal admin"
+Abort  Annuler
+About  "A propos"
+"Access to the HTTP server"  "Accès au répertoire du serveur http"
+"Accounts addition"  "Ajout de comptes"
+"Accounts suppression"  "Suppression de comptes"
+"Active interface"  "Activer l'interface"
+"Actual VM ID"  "ID de VM actuel"
+Add  Ajouter
+"Add network card" "Ajouter une carte réseau"
+"Add records"  "Ajout d'enregistrements"
+"Add routes"  "Ajout de routes"
+"Add or change comment" "Ajouter ou modifier un commentaire"
+"Address of server"  "Adresse du serveur"
+"After duplication, MAC address should be changed !"  "Après duplication, l'adresse MAC devrait être changée !"
+"A simple editor for Network-In!"  "Un simple éditeur pour Network-In!"
+"An interface to Termshark for Network-In!"  "Une interface pour Termshark pour Network-In!"
+"A terminal for Network-In!"  "Un terminal pour Network-In!\nBasé sur Simple Term"
+Beginner  Débutant
+bridge "Pont avec l'hôte"
+Bridge "Pont avec l'hôte"
+"Bridge interface name"  "Nom de l'interface pont"
+Cable  Câble
+"Cannot connect on itself !" "Connexion impossible sur soi-même !"
+"Change network card"  "Changer de carte réseau"
+"Choose a random Mac address"  "Choisir une adresse Mac aléatoire"
+"Choose file"  "Choix du fichier"
+"Choose the interface of VirtualBox VM to bind to Network-In simulator"  "Choisir l'interface de la VM VirtualBox à relier au simulateur Network-In"
+Close  Fermer
+CNAME  CNAME
+Complete  Complète
+Composants Composants
+Computer  Ordinateur
+"Computer name" "Nom de la machine"
+Configuration  Configuration
+"Configuration method" "Méthode de configuration"
+"Configuration options"  "Options de configuration"
+Confirm  Valider
+"Connected interface"  "Interface connectée"
+"Connected to simulator" "Connecté au simulateur"
+Console  Console
+Copy  Copier
+"Crossed cable"  "Câble croisé"
+"Current records"  "Enregistrements actuels"
+Cut  Couper
+dce  DCE
+"Delete capture"  "Supprimer la capture"
+"Delete info labels"  "Effacer les étiquettes d'infos"
+"Delete network card" "Supprimer une carte réseau"
+"Desk computer"  "Ordinateur de bureau"
+"DHCP : automatic DNS configuration"  "Configuration DHCP : DNS obtenu automatiquement"
+"DHCP configuration"  "Configuration DHCP"
+"DHCP server" "Serveur DHCP"
+"DHCP server configuration"  "Configuration service DHCP"
+"Direct admin (root) connexion"  "Connexion directe de l'admin (root)"
+DNS  DNS
+"DNS address"  "Adresse du serveur DNS"
+"DNS Configuration" "Configuration DNS"
+"DNS server" "Serveur DNS"
+"DNS server configuration"  "Configuration service DNS"
+Domain  Domaine
+"Domain name"  "Nom de domaine"
+"Do you really want to open another project ? If you don't  save the actual project, it will be lost"  "Voulez-vous vraiment ré-ouvrir un autre projet ? Si le projet actuel n'a pas été sauvegardé, il sera perdu"
+"Do you really want to start a new project ? If you don't  save the actual project, it will be lost" "Voulez-vous vraiment démarrer un nouveau projet ? Si le projet actuel n'a pas été sauvegardé, il sera perdu"
+"Do you really want to suppress this equipment ? \nIt will suppress all its configuration too"  "Voulez-vous vraiment supprimer ce matériel ?\nCela supprimera également toute sa configuration."
+dte  DTE
+Duplicate  Dupliquer
+Dynamic  Dynamique
+Edit  Edition
+Editor Editeur
+"Equipment Category"  "Catégorie d'équipement"
+err1  "Impossible. Network-In! est déjà démarré !"
+Error  Erreur
+"Ethernet interfaces"  "Interfaces ethernet"
+"Ethernet ports" "Ports ethernet"
+"Existing routes" "Routes existantes"
+Exit  Quitter
+Family  Famille
+File  Fichier
+"File not saved"  "Fichier non sauvegardé"
+"File not saved. Continue anymore ?"  "Fichier non sauvegardé. Voulez-vous continuer ?"
+"First IP address"  "Première adresse IP"
+"Force stop" "Forcer l'arrêt"
+"FTP client"  "Client FTP"
+"FTP server"  "Serveur FTP"
+"FTP server configuration"  "Configuration service FTP"
+"Frame analysis"  "Analyse de trames"
+Gateway Passerelle
+"Gateway address"  "Adresse de passerelle"
+Generalities  Généralités
+Help Aide
+"Here you can add or modify the comment for the component"  "Ici vous pouvez ajouter ou modifier \nle commentaire pour le composant"
+"Here you can choose a new mac address"  "Ici vous pouvez choisir une nouvelle adresse Mac"
+"Host network"  "Réseau de l'hôte"
+"Host side"  "Côté hôte"
+"Host side IP configuration"  "Configuration IP côté hôte"
+"HTTP server" "Serveur HTTP"
+"HTTP server configuration"  "Configuration service HTTP"
+"HTTP server directory (/var/www)"  "Répertoire serveur HTTP (/var/www)"
+Hub  "Concentrateur (hub)"
+hub4 "Concentrateur à 4 ports"
+hub8 "Concentrateur à 8 ports"
+ID  ID
+Impossible  Impossible
+"index.html file content"  "Contenu du ficher index.html"
+Informations Informations
+"Informations about" "Informations sur"
+"Interface configuration" "Configuration de l'interface"
+"Interfaces configuration" "Configuration des interfaces"
+"Interfaces list"  "Interfaces disponibles"
+"Interface to capture"  "Interface à capturer"
+IP  IP
+"IP address"  "Adresse IP"
+"IP address slot"  "Plage d'adresses IP"
+"IP configuration"  "Configuration IP"
+"Keys ctrl-shift-C : copy text"  "Touches ctrl-maj-C : COPIER"
+"Keys ctrl-shift-V : paste text"  "Touches ctrl-maj-V : COLLER"
+Kernel  Noyau
+"Kernel not found for this equipment"  "Pas de noyau disponible pour ce matériel"
+Laptop  "Ordinateur portable"
+"Last IP address"  "Dernière adresse IP"
+License  Licence
+"Listening interface"  "Interface en écoute"
+"Linux text"  "Ordinateur Linux texte"
+List  Liste
+"Login terminal" "Terminal login"
+"Logs print" "Affichage des logs"
+"Managed by the host system"  "Gérée par le système hôte"
+MISSING  ABSENT
+Name  Nom
+"Name configuration"  "Configuration du nom"
+Network  Réseau
+"Network card suppressed"  "Carte réseau supprimée"
+"Network configuration"  "Configuration du réseau"
+"Network mask"  "Masque de réseau"
+"Network-In! is a network simulator"  "Network-In! est un simulateur de réseaux"
+"Network-In! simulator" "Simulateur Network-In!"
+"Network address"  "Adresse du réseau"
+New  Nouveau
+"New capture" "Nouvelle capture"
+"New network card added"  "Nouvelle carte réseau ajoutée"
+"New project"  "Nouveau projet"
+"New terminal"  "Nouveau terminal"
+"No file selected !" "Aucun fichier sélectionné !"
+"Not connected" "Non connecté"
+"Off"  "Off"
+"On"  "On"
+Open Ouvrir
+"Open an existing project"  "Ouvrir un projet existant"
+"Open a project"  "Ouvrir un projet"
+"Open capture"  "Ouvrir la capture"
+"Open file"  "Ouvrir fichier"
+Options  Options
+Parameters  Paramètres
+passerelle  Passerelle
+"Password"  "Mot de passe"
+Paste  Coller
+pc  "Ordinateur généric"
+pctexte "Ordinateur Linux texte"
+"Please, be patient"  "Soyez patient"
+portable  "Ordinateur portable"
+"Quit" "Quitter"
+"Real network NAT router"  "Routeur NAT réseau réel"
+Reboot  Redémarrer
+"Reachable directories"  "Répertoires accessibles"
+"Records suppression"  "Suppression d'enregistrements"
+Refresh Rafraichir
+Refuse Refuser
+Router  Routeur
+routeur2 "Routeur à 2 interfaces ethernet"
+routeur4 "Routeur à 4 interfaces ethernet"
+"Router name" "Nom du routeur"
+"Routes list" "Liste des routes"
+"Routes suppression" "Suppression de routes"
+"Routing decides how to join other networks"  "Le routage détermine comment joindre d'autres réseaux"
+"Routing table" "Table de routage"
+Save  Enregistrer
+"Save as"  "Enregistrer sous"
+"Save the actual project"  "Enregistrer le projet actuel"
+"Saved captures"  "Captures sauvegardées"
+"Selected account suppression"  "Suppression du compte sélectionné"
+"Selected route suppression"  "Suppression de la route sélectionnée"
+Security Securité
+Server  Serveur
+serveur  "Ordinateur serveur"
+"Server state"  "Etat du serveur"
+"Services configuration"  "Configuration des services"
+"Simulator side"  "Côté simulateur"
+Shutdown  Arrêter
+"Shutdown all"  "Tout arrêter"
+"SSH server"  "Serveur SSH"
+"SSH server configuration"  "Configuration du service SSH"
+Start  Démarrer
+Static Statique
+"Static configuration"  "Configuration statique"
+"Static routing" "Routage statique"
+"Static routing configuration" "Configuration du routage statique"
+Stop  Arrêter
+Suppress  Supprimer
+Suppression Suppression
+"Suppression of a selected record"  "Suppression d'un enregistrement sélectionné"
+Switch  "Commutateur (switch)"
+switch4 "Switch simple à 4 ports"
+switch8 "Switch simple à 8 ports"
+"Switch off" "Eteindre"
+System  Système
+"System disk"  "Disque système"
+"System disk not found for this equipment"  "Pas de disque système pour ce matériel"
+Terminal Terminal
+"Text editor"  "Editeur de texte"
+"Text interface computer" "Ordinateur interface texte"
+"The DHCP server provides IP address for the other computers of the LAN"  "Le serveur DHCP fournit les adresses IP aux autres machines du réseau local"
+"The DNS server translates computers names into IP address"  "Le serveur DNS traduit les noms d'ordinateurs en adresses IP"
+"The FTP server allows to put and to access files"  "Le serveur FTP permet le dépot et l'accès à des fichiers"
+"The HTTP server hosts Websites"  "Le serveur HTTP héberge les sites Web"
+"The SSH server offers ability to control the computer at distance "  "Le serveur SSH offre la capacité de contrôler l'ordinateur à distance"
+"This action needs to shutdown every equipment. Proceed ?"  "Cette action nécessite l'arrêt de tous les matériels. Continuer ?"
+"This file doesn't exist" "Ce fichier n'existe pas"
+Tools  Outils
+Type  Type
+"Type of interface"  "Type d'interface"
+"Type : ethernet"  "Type : ethernet"
+"Uncrossed cable"  "Câble droit"
+unnamed  sansnom
+"Use VM name" "Utiliser le nom de la VM VirtualBox"
+"Users accounts"  "Comptes utilisateurs"
+version   version
+virtualbox  "Machine virtuelle externe Virtualbox"
+"Virtualbox VM" "VM Virtualbox"
+"VMs list"  "Liste des VM"
+"Vbox ID"  "ID VirtualBox"
+"Vbox name"  "Nom VirtualBox"
+"VM selection"  "Choix de la VM"
+"Virtual machine"  "Machine virtuelle"
+Warning  Attention
+"Web browser"  "Navigateur Web"
+"Welcome to %u in Network-In FTP Server"  "Bienvenue à %u sur le serveur FTP de Network-In"
+"Wifi interfaces"  "Interfaces Wifi"
+"Write file denied"  "Ecriture du fichier interdite"
+"You can't create more than one gateway"  "Vous ne pouvez pas créer plus d'une passerelle"
+"You must first stop this equipment" "Vous devez tout d'abord arrêter ce matériel"
+"You must choose a name"  "Vous devez choisir un nom"
+"You must choose  an IP address and a mask"  "Vous devez choisir une adresse IP et un masque"
+"2 interfaces router"  "Routeur 2 interfaces"
+"4 interfaces router"  "Routeur 4 interfaces"
+"4 ports hub"  "Hub 4 ports"
+"4 ports switch"  "Switch 4 ports"
+"8 ports hub"  "Hub 8 ports"
+"8 ports switch"  "Switch 8 ports"

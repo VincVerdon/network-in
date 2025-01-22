@@ -86,7 +86,7 @@ source [file join $rep interface.tcl]
 source [file join $rep interface_composants.tcl]
 source [file join $rep init_composants.tcl]
 source [file join $rep traitement.tcl]
-source [file join $rep machines passerelle config_passerelle.tcl]
+source [file join $rep machines nat config_passerelle.tcl]
 source [file join $rep machines virtualbox config_virtualbox.tcl]
 source [file join $rep machines bridge config_bridge.tcl]
 

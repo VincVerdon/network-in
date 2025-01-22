@@ -21,11 +21,11 @@ namespace eval term {
       #Nom aléatoire pour le terminal, afin de pouvoir en démarrer plusieurs
       set term ".[clock seconds]"
         
-      image create photo img_term -file $::rep/images/xterm.gif
+      image create photo im_term -file $::rep/images/xterm.gif
       toplevel $term
       wm title $term  "[::msgcat::mc "Terminal"] ([wm title .])"
       wm withdraw $term
-      wm iconphoto $term img_term
+      wm iconphoto $term im_term
       wm protocol $term WM_DELETE_WINDOW "term::quit $term"
       positionne_fenetre $term
       wm geometry $term 640x480
@@ -54,7 +54,7 @@ namespace eval term {
       label $term.fb.h.h2 -text [::msgcat::mc "Keys ctrl-shift-V : paste text"]
       pack $term.fb.h.h1
       pack $term.fb.h.h2
-      button $term.fb.q -compound top -relief flat -text [::msgcat::mc "Quit"] -image img_quitter -command  "term::quit $term"
+      button $term.fb.q -compound top -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  "term::quit $term"
       pack $term.fb.q -side right
       frame $term.f -container 1
       pack $term.f -fill both -expand 1

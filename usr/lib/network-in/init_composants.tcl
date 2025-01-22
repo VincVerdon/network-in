@@ -8,10 +8,10 @@
 
 
 ################################################################################
-proc initialisation_pc {id} {
+proc initialisation_desktop {id} {
 	set ::obj($id,reconf) true
-  set ::obj($id,famille) ordinateur
-  set ::obj($id,type) pc
+  set ::obj($id,famille) computer
+  set ::obj($id,type) desktop
   set ::obj($id,categorie) dte
   set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
@@ -26,16 +26,16 @@ proc initialisation_pc {id} {
 	file copy -force $::rep/machines/lib/nid $::rep_proj/datas/$id
 	file copy -force $::rep/machines/lib/images $::rep_proj/datas/$id/interface
 	file_copy_motif $::rep/machines/lib/commun/* $::rep_proj/datas/$id/interface
-	file_copy_motif $::rep/machines/lib/ordinateur/* $::rep_proj/datas/$id
-	file_copy_motif $::rep/machines/pc/* $::rep_proj/datas/$id
+	file_copy_motif $::rep/machines/lib/computer/* $::rep_proj/datas/$id
+	file_copy_motif $::rep/machines/desktop/* $::rep_proj/datas/$id
 }
 
 
 ################################################################################
-proc initialisation_portable {id} {
+proc initialisation_laptop {id} {
 	set ::obj($id,reconf) false
-  set ::obj($id,famille) ordinateur
-  set ::obj($id,type) portable
+  set ::obj($id,famille) computer
+  set ::obj($id,type) laptop
   set ::obj($id,categorie) dte
   set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
@@ -50,16 +50,16 @@ proc initialisation_portable {id} {
 	file copy -force $::rep/machines/lib/nid $::rep_proj/datas/$id
 	file copy -force $::rep/machines/lib/images $::rep_proj/datas/$id/interface
 	file_copy_motif $::rep/machines/lib/commun/* $::rep_proj/datas/$id/interface
-	file_copy_motif $::rep/machines/lib/ordinateur/* $::rep_proj/datas/$id
-	file_copy_motif $::rep/machines/portable/* $::rep_proj/datas/$id
+	file_copy_motif $::rep/machines/lib/computer/* $::rep_proj/datas/$id
+	file_copy_motif $::rep/machines/laptop/* $::rep_proj/datas/$id
 }
 
 
 ################################################################################
-proc initialisation_serveur {id} {
+proc initialisation_server {id} {
 	set ::obj($id,reconf) true
-  set ::obj($id,famille) ordinateur
-  set ::obj($id,type) serveur
+  set ::obj($id,famille) computer
+  set ::obj($id,type) server
   set ::obj($id,categorie) dte
 	set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
@@ -74,22 +74,22 @@ proc initialisation_serveur {id} {
 	file copy -force $::rep/machines/lib/nid $::rep_proj/datas/$id
 	file copy -force $::rep/machines/lib/images $::rep_proj/datas/$id/interface
 	file_copy_motif $::rep/machines/lib/commun/* $::rep_proj/datas/$id/interface
-	file_copy_motif $::rep/machines/lib/ordinateur/* $::rep_proj/datas/$id
-	file_copy_motif $::rep/machines/serveur/* $::rep_proj/datas/$id
+	file_copy_motif $::rep/machines/lib/computer/* $::rep_proj/datas/$id
+	file_copy_motif $::rep/machines/server/* $::rep_proj/datas/$id
 }
 
 
 ################################################################################
-proc initialisation_pctexte {id} {
+proc initialisation_linux {id} {
 	set ::obj($id,reconf) true
-  set ::obj($id,famille) ordinateur
-  set ::obj($id,type) pctexte
+  set ::obj($id,famille) computer
+  set ::obj($id,type) linux
   set ::obj($id,categorie) dte
   set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
 	init_eth_mac $id
   set ::obj($id,nom) $id
-  set ::obj($id,mem) 512M
+  set ::obj($id,mem) 256M
 	set ::obj($id,dd) $::img_dd
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
 	set ::obj($id,kernel) $::kernel
@@ -98,8 +98,8 @@ proc initialisation_pctexte {id} {
 	file copy -force $::rep/machines/lib/nid $::rep_proj/datas/$id
 	file copy -force $::rep/machines/lib/images $::rep_proj/datas/$id/interface
 	file_copy_motif $::rep/machines/lib/commun/* $::rep_proj/datas/$id/interface
-	file_copy_motif $::rep/machines/lib/ordinateur/* $::rep_proj/datas/$id
-	file_copy_motif $::rep/machines/pctexte/* $::rep_proj/datas/$id
+	file_copy_motif $::rep/machines/lib/computer/* $::rep_proj/datas/$id
+	file_copy_motif $::rep/machines/linux/* $::rep_proj/datas/$id
 }
 
 
@@ -156,10 +156,10 @@ proc initialisation_hub8 {id} {
 
 
 ################################################################################
-proc initialisation_routeur2 {id} {
+proc initialisation_router2 {id} {
 	set ::obj($id,reconf) false
-	set ::obj($id,famille) routeur
-	set ::obj($id,type) routeur2
+	set ::obj($id,famille) router
+	set ::obj($id,type) router2
 	set ::obj($id,categorie) dte
 	set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 2
@@ -174,16 +174,16 @@ proc initialisation_routeur2 {id} {
 	file copy -force $::rep/machines/lib/nid $::rep_proj/datas/$id
 	file copy -force $::rep/machines/lib/images $::rep_proj/datas/$id/interface
 	file_copy_motif $::rep/machines/lib/commun/* $::rep_proj/datas/$id/interface
-	file_copy_motif $::rep/machines/lib/routeur/* $::rep_proj/datas/$id
-	file_copy_motif $::rep/machines/routeur2/* $::rep_proj/datas/$id
+	file_copy_motif $::rep/machines/lib/router/* $::rep_proj/datas/$id
+	file_copy_motif $::rep/machines/router2/* $::rep_proj/datas/$id
 }
 
 
 ################################################################################
-proc initialisation_routeur4 {id} {
+proc initialisation_router4 {id} {
 	set ::obj($id,reconf) false
-	set ::obj($id,famille) routeur
-  	set ::obj($id,type) routeur4
+	set ::obj($id,famille) router
+  	set ::obj($id,type) router4
   	set ::obj($id,categorie) dte
 	set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 4
@@ -198,16 +198,16 @@ proc initialisation_routeur4 {id} {
 	file copy -force $::rep/machines/lib/nid $::rep_proj/datas/$id
 	file copy -force $::rep/machines/lib/images $::rep_proj/datas/$id/interface
 	file_copy_motif $::rep/machines/lib/commun/* $::rep_proj/datas/$id/interface
-	file_copy_motif $::rep/machines/lib/routeur/* $::rep_proj/datas/$id
-	file_copy_motif $::rep/machines/routeur4/* $::rep_proj/datas/$id	
+	file_copy_motif $::rep/machines/lib/router/* $::rep_proj/datas/$id
+	file_copy_motif $::rep/machines/router4/* $::rep_proj/datas/$id	
 }
 
 
 ################################################################################
-proc initialisation_droit {id id1 id2 eth1 eth2} {
+proc initialisation_straight {id id1 id2 eth1 eth2} {
 	set ::obj($id,reconf) false
-	set ::obj($id,famille) liaison
-	set ::obj($id,type) droit
+	set ::obj($id,famille) connection
+	set ::obj($id,type) straight
 	set ::obj($id,techno) ethernet
 	set ::obj($id,nom) {}
 	set ::obj($id,id1) $id1
@@ -220,10 +220,10 @@ proc initialisation_droit {id id1 id2 eth1 eth2} {
 
 
 ################################################################################
-proc initialisation_croise {id id1 id2 eth1 eth2} {
+proc initialisation_cross {id id1 id2 eth1 eth2} {
 	set ::obj($id,reconf) false
-	set ::obj($id,famille) liaison
-	set ::obj($id,type) croise
+	set ::obj($id,famille) connection
+	set ::obj($id,type) cross
 	set ::obj($id,techno) ethernet
 	set ::obj($id,nom) {}
 	set ::obj($id,id1) $id1
@@ -236,10 +236,10 @@ proc initialisation_croise {id id1 id2 eth1 eth2} {
 
 
 ################################################################################
-proc initialisation_passerelle {id} {
+proc initialisation_nat {id} {
 	set ::obj($id,reconf) false
-	set ::obj($id,famille) sortie
-	set ::obj($id,type) passerelle
+	set ::obj($id,famille) output
+	set ::obj($id,type) nat
 	set ::obj($id,categorie) dte
 	set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
@@ -253,7 +253,7 @@ proc initialisation_passerelle {id} {
 ################################################################################
 proc initialisation_bridge {id} {
 	set ::obj($id,reconf) false
-	set ::obj($id,famille) sortie
+	set ::obj($id,famille) output
 	set ::obj($id,type) bridge
 	set ::obj($id,categorie) dce
 	set ::obj($id,techno) ethernet

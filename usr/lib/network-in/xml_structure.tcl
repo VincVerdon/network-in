@@ -19,7 +19,7 @@ proc xml_structure_write {file} {
 	for {set i 1} {$i<=$::tmp(lastid)} {incr i} {
 		set id m$i
 		if {[info exists ::obj($id,famille)]} {
-				if {$::obj($id,famille) == "liaison"} {
+				if {$::obj($id,famille) == {connection}} {
 						#c'est un câble
 					  xml_bloc_connection_write $f $id
 				} else {
@@ -61,8 +61,7 @@ proc xml_bloc_global_write {f} {
 ############################################
 proc xml_bloc_connection_write {f id} {
 	
-	set type [string map {pc desktop portable laptop serveur server pctexte linux routeur router droit straight croise cross passerelle nat} $::obj($id,type)]
-	
+	set type $::obj($id,type)
 	puts $f "<connection id=\"$id\">"
 	puts $f "    <type>$type</type>"
 	puts $f "    <techno>$::obj($id,techno)</techno>"
@@ -92,8 +91,8 @@ proc xml_bloc_connection_write {f id} {
 ############################################
 proc xml_bloc_equipment_write {f id} {
 	
-	set family [string map {ordinateur computer routeur router sortie output} $::obj($id,famille)]
-	set type [string map {portable laptop serveur server pctexte cli pc desktop  routeur router droit straight croise cross passerelle nat} $::obj($id,type)]
+	set family $::obj($id,famille)
+	set type $::obj($id,type)
 	
 	puts $f "<equipment id=\"$id\">"
 	puts $f "    <family>$family</family>"
@@ -309,7 +308,6 @@ proc xml_bloc_equipment_read {f id} {
 			set param {}
 			regexp -expanded {<(.+)>(.*)</.+>} $ligne res param valeur
 			set param [string map {name_from_vbox name_from_vbox family famille name nom category categorie} $param]
-			set valeur [string map {computer ordinateur router routeur output sortie laptop portable server serveur cli pctexte desktop pc router routeur straight droit cross croise nat passerelle} $valeur]
 			set ::obj($id,$param) $valeur
 		}
 		gets $f ligne
@@ -322,7 +320,7 @@ proc xml_bloc_equipment_read {f id} {
 ############################################
 proc xml_bloc_connection_read {f id} {
 	
-	set ::obj($id,famille) "liaison"
+	set ::obj($id,famille) {connection}
 	set n_con 1
 	gets $f ligne
 	while {![regexp -expanded {</connection>} $ligne res]} {
@@ -345,7 +343,6 @@ proc xml_bloc_connection_read {f id} {
 		} else {
 			#Autres balises
 			if [regexp -expanded {<(.+)>(.*)</.+>} $ligne res param valeur] {
-			set valeur [string map {straight droit cross croise} $valeur]
 			set ::obj($id,$param) $valeur
 			}
 		}

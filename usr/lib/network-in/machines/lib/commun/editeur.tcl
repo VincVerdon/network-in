@@ -47,13 +47,13 @@ namespace eval ed {
         #Nom aléatoire pour la fenêtre, afin de pouvoir en démarrer plusieurs
         set num [clock seconds]
         
-        image create photo img_editeur -file $::rep/images/editeur.gif
-        image create photo img_cut -file $::rep/images/cut.gif
-        image create photo img_copy -file $::rep/images/copy.gif
-        image create photo img_paste -file $::rep/images/paste.gif	
+        image create photo im_editeur -file $::rep/images/editor.gif
+        image create photo im_cut -file $::rep/images/cut.gif
+        image create photo im_copy -file $::rep/images/copy.gif
+        image create photo im_paste -file $::rep/images/paste.gif	
       
         toplevel .$num
-        wm iconphoto .$num img_editeur
+        wm iconphoto .$num im_editeur
         wm protocol .$num WM_DELETE_WINDOW "ed::quit $num"
         catch {positionne_fenetre .$num}
             
@@ -84,13 +84,13 @@ namespace eval ed {
 		#Barre d'icones
 		frame .$num.ic
 		pack .$num.ic -fill x
-	    button .$num.ic.cut -relief flat -compound top -text  [::msgcat::mc "Cut"] -image img_cut -command "[list event gen .$num.f.tex <<Cut>>]"
+	    button .$num.ic.cut -relief flat -compound top -text  [::msgcat::mc "Cut"] -image im_cut -command "[list event gen .$num.f.tex <<Cut>>]"
 		pack .$num.ic.cut -side left
-		button .$num.ic.copy -relief flat -image img_copy -compound top -text  [::msgcat::mc "Copy"] -command "[list event gen .$num.f.tex <<Copy>>]"
+		button .$num.ic.copy -relief flat -image im_copy -compound top -text  [::msgcat::mc "Copy"] -command "[list event gen .$num.f.tex <<Copy>>]"
 		pack .$num.ic.copy -side left
-		button .$num.ic.paste -relief flat -image img_paste -compound top -text  [::msgcat::mc "Paste"] -command "[list event gen .$num.f.tex <<Paste>>]"
+		button .$num.ic.paste -relief flat -image im_paste -compound top -text  [::msgcat::mc "Paste"] -command "[list event gen .$num.f.tex <<Paste>>]"
 		pack .$num.ic.paste -side left
-		button .$num.ic.quit -relief flat -image img_quitter -compound top -text  [::msgcat::mc "Quit"] -command "ed::quit $num"
+		button .$num.ic.quit -relief flat -image im_quitter -compound top -text  [::msgcat::mc "Quit"] -command "ed::quit $num"
 		pack .$num.ic.quit -side right
 		
 		#le widget texte d'affichage
