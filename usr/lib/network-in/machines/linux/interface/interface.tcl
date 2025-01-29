@@ -50,9 +50,10 @@ proc fenetre_principale {} {
 
 ################################################################################
 proc traite_change_panneau {} {
-  set w [.not select]
-  #On déplace le curseur sur le terminal pour avoir le focus, pas d'autre solution !
-      after 100 "event generate $w <Motion> -x 20 -y 20 -warp 1"
+    set w [.not select]
+    #On déplace le curseur sur le terminal pour avoir le focus, pas d'autre solution !
+    after 100 "event generate $w <Motion> -x 20 -y 20 -warp 1"
+    update
 }
 
 
@@ -65,8 +66,7 @@ proc creation_onglet {nb} {
 	frame $onglet.f -container 1
 	pack $onglet.f -fill both -expand 1
 	update
-	exec st -f "DejaVu Sans Mono-12" -w [scan [winfo id $onglet.f] %x] $::rep/login.sh &
-	update
+	exec st -f "DejaVu Sans Mono-12" -w [scan [winfo id $onglet.f] %x] -e $::rep/login.sh &
     
 }
 

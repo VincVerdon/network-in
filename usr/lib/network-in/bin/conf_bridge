@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20250112
+#version 20250128
 ####################################################################
 TMP=/tmp/network-in
 #REP_PROJ=/home/vincent/network-in-proj/
@@ -18,7 +18,7 @@ GATEWAY=$7
 
 case "$ACTION" in
 	
-	off) #Interface créée mais non configurée
+	host) #Interface créée mais non configurée, configuration par l'hôte
 		/usr/bin/vde_switch -d -nostdin -tap $TAP -s $TMP/vde/$ID -m 666
 		/sbin/ip link set $TAP address $MAC
 		/sbin/ip link set $TAP up

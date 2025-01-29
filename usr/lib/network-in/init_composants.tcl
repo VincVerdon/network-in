@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250111
+# Version 20250128
 # Ce fichier permet d'initialiser chaque type de composant
 
 
@@ -189,7 +189,7 @@ proc initialisation_router4 {id} {
 	set ::obj($id,nb_eth) 4
   	init_eth_mac $id
   	set ::obj($id,nom) $id
-  	set ::obj($id,mem) 128M
+  	set ::obj($id,mem) 256M
 	set ::obj($id,dd) $::img_dd
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
 	set ::obj($id,kernel) $::kernel
@@ -266,7 +266,7 @@ proc initialisation_bridge {id} {
 	set ::obj($id,ip_tap) {}
 	set ::obj($id,netmask_tap) {}
     set ::obj($id,gateway_tap) {}
-    set ::obj($id,conf_tap) {off}
+    set ::obj($id,conf_tap) {host}
 }
 
 

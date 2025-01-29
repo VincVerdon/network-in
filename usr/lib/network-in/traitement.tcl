@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250112
+# Version 20250128
 
 # Suppression d'un câble
 ################################################################################
@@ -516,7 +516,7 @@ proc boucle_scan_objet {id} {
       	#récupération de la liste des winid de la machine
       	set ::tmp($id,win_id) [lire_fichier_echange $id window_id]
 		#on relance la boucle
-    	after 1000 boucle_scan_objet $id
+    	after 2000 boucle_scan_objet $id
     		
     } else {
         
@@ -725,6 +725,8 @@ proc sauvegarder_projet {} {
 # Chargement du projet courant depuis le fichier structure.cfg
 ################################################################################
 proc restaurer_projet {} {
+	
+	set liste_types {desktop laptop server linux switch4 switch8 hub4 hub8 router2 router4 straight cross nat bridge virtualbox}
   
 	#récupération de la structure
 	xml_structure_read $::rep_proj/datas/structure.xml
@@ -745,28 +747,33 @@ proc restaurer_projet {} {
         # l'objet est inactif au démarrage
         set ::tmp($id,etat) 0
         if [info exists ::obj($id,famille)] {
-            if {$::obj($id,famille) == "connection"} {
-            	set ::tmp($id,pid) {}
-				set ::tmp($id,infos_connexion) 0
-				dessine_connexion $id
-            } else  {
-				#On commence par nettoyer le répertoire d'échange dans le rep du projet
-				file delete -force $::rep_proj/datas/$id/com
-				#Vérification configuration VM virtualbox
-				if {$::obj($id,type) == "virtualbox"} {
-					set ::tmp($id,is_present) 0
-					set name [get_vbox_name $id]
-					if {$name != {}} {
-						set ::tmp($id,is_present) 1
-						if {$::obj($id,name_from_vbox)} {
-							set ::tmp($id,name) $name
-						} else {
-							set ::tmp($id,name) $::obj($id,nom)
-						}
-					}
-				}
-				set ::tmp($id,win_id) {}
-				dessine_objet $id
+			if {[lsearch -exact $liste_types $::obj($id,type)] >= 0} {
+                if {$::obj($id,famille) == "connection"} {
+                	set ::tmp($id,pid) {}
+    				set ::tmp($id,infos_connexion) 0
+    				dessine_connexion $id
+                } else {
+    				#On commence par nettoyer le répertoire d'échange dans le rep du projet
+    				file delete -force $::rep_proj/datas/$id/com
+    				#Vérification configuration VM virtualbox
+    				if {$::obj($id,type) == "virtualbox"} {
+    					set ::tmp($id,is_present) 0
+    					set name [get_vbox_name $id]
+    					if {$name != {}} {
+    						set ::tmp($id,is_present) 1
+    						if {$::obj($id,name_from_vbox)} {
+    							set ::tmp($id,name) $name
+    						} else {
+    							set ::tmp($id,name) $::obj($id,nom)
+    						}
+    					}
+    				}
+    				set ::tmp($id,win_id) {}
+    				dessine_objet $id
+                }
+            } else {
+				#Log info type inconnu
+				puts "Type unknown for $id : $::obj($id,type). Disabled"
             }
         }
     }
@@ -1002,7 +1009,11 @@ proc get_interface_mac {interf} {
 #################################################################################
 proc get_interface_ip {interf} {
 	set ip_inf [exec /sbin/ip address show $interf]
-	set regexp {inet ([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/([0-9]{1,2}).*}
-	regexp $regexp $ip_inf res ip mask
-	return [list $ip $mask]
+	set exp {inet ([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/([0-9]{1,2}).*}
+	if {[regexp $exp $ip_inf res ip mask]} { 
+		set ret [list $ip $mask]
+	} else {
+		set ret {}
+	}
+	return $ret
 }

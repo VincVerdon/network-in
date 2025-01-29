@@ -798,7 +798,7 @@ proc fenetre_infos_bridge {id} {
     grid .inf.if.l4 -row 1 -column 1 -sticky w
     if {$::tmp($id,etat)} {
         set ip_mask [get_interface_ip $::obj($id,nom_tap)]
-        label .inf.if.l5 -text "[lindex $ip_mask 0]/[lindex $ip_mask 1]"
+        label .inf.if.l5 -text $::tmp($id,etat_tap)
         grid .inf.if.l5 -row 2 -column 1 -sticky w
     }
 

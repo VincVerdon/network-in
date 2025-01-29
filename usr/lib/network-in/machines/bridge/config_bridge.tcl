@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la bridge nat
 ####################################################################
-# Version 20250111
+# Version 20250128
 
 # Interface de configuration de base de la machine
 ################################################################################
@@ -199,11 +199,11 @@ proc fenetre_config_ip_bridge {id} {
     pack .brip$id.f0 -fill both -expand 1
     
     ttk::radiobutton .brip$id.f0.r1 -text "[::msgcat::mc "Managed by the host system"]" \
-    -value {off} -variable ::tmp($id,conf_tap) -command  "desactive_interface_conf_ip $id"
+    -value {host} -variable ::tmp($id,conf_tap) -command  "desactive_interface_conf_ip $id"
     grid .brip$id.f0.r1 -row 0 -column 0 -sticky w
     ttk::radiobutton .brip$id.f0.r2 -text "[::msgcat::mc "DHCP configuration"]" \
     -value {dhcp} -variable ::tmp($id,conf_tap) -command "desactive_interface_conf_ip $id"
-    grid .brip$id.f0.r2 -row 1 -column 0 -sticky w
+    #grid .brip$id.f0.r2 -row 1 -column 0 -sticky w
     ttk::radiobutton .brip$id.f0.r3 -text "[::msgcat::mc "Static configuration"]" \
     -value {static} -variable ::tmp($id,conf_tap) -command  "active_interface_conf_ip $id"
     grid .brip$id.f0.r3 -row 2 -column 0 -sticky w
@@ -298,12 +298,11 @@ proc applique_config_bridge {id} {
 proc exec_config_bridge {id action} {
     
     if {$action != "start"} {
-        puts "exec sudo $::rep/bin/conf_bridge $id $::obj($id,nom_tap) stop"
         catch {exec sudo $::rep/bin/conf_bridge $id $::obj($id,nom_tap) stop}
     } else {
         switch $::obj($id,conf_tap) {
-            {off} {
-                catch {exec sudo $::rep/bin/conf_bridge $id $::obj($id,nom_tap) off $::obj($id,mac_tap)}
+            {host} {
+                catch {exec sudo $::rep/bin/conf_bridge $id $::obj($id,nom_tap) host $::obj($id,mac_tap)}
             }
             {static} {
             	catch {exec sudo $::rep/bin/conf_bridge $id $::obj($id,nom_tap) static $::obj($id,mac_tap) $::obj($id,ip_tap) $::obj($id,netmask_tap) $::obj($id,gateway_tap)}
@@ -318,7 +317,7 @@ proc exec_config_bridge {id action} {
 
 # Mise à jour des étiquettes d'état de l'interface ethernet du TAP
 ################################################################################
-proc maj_infos_connexion_bridge {id} {
+proc maj_infos_connexion_bridge_anc {id} {
 	
 	set liaison $::obj($id,eth0)
 	
@@ -332,6 +331,23 @@ proc maj_infos_connexion_bridge {id} {
 	
 }
 
+
+# Mise à jour des étiquettes d'état de l'interface ethernet du TAP
+################################################################################
+proc maj_infos_connexion_bridge {id} {
+	
+	set liaison $::obj($id,eth0)
+	set infos [get_interface_ip $::obj($id,nom_tap)]
+	set ip [lindex $infos 0]
+	if { $ip  != {}} {
+		set ::tmp($id,etat_tap) "$ip/[lindex $infos 1]"
+	} else {
+		set ::tmp($id,etat_tap) {}
+	}
+	
+	maj_infos_connexion $liaison
+	
+}
 
 # Démarrage du bridge
 ################################################################################

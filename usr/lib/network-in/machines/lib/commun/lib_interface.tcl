@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions utilitaires interface bureau ordinateur et routeur
 ####################################################################
-# Version 20250103
+# Version 20250122
 
 # proc positionnant une toplevel à la position du bureau
 ###############################################################################
@@ -80,12 +80,14 @@ proc lancer {app} {
 		set app [file tail $app]
 		set app [split $app {.}]
 		set app [lindex $app 0]
+		after 1000 . configure -cursor left_ptr
 		# appel de la proc de démarrage du script
 		$app
 	} else  {
 		set pid [eval exec $app &]
-				# on récupère l'id de fenêtre
-				winid_maj [winid_from_pid $pid]
+		# on récupère l'id de fenêtre
+		winid_maj [winid_from_pid $pid]
+		after 1000 . configure -cursor left_ptr
 	}
-	after 1000 . configure -cursor left_ptr
+	
 }
