@@ -4,7 +4,8 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250113
+# Version 20250207
+set ::version(nat) 2.0
 
 # Interface de configuration de base de la machine
 ################################################################################
@@ -23,9 +24,10 @@ proc interface_passerelle {id} {
   pack .passe.f -fill both -expand 1
   button .passe.f.1 -text [::msgcat::mc "IP configuration"]  -command "fenetre_config_ip_passerelle $id" -width 20
   pack .passe.f.1 -fill x
-  
   button .passe.f.3 -text [::msgcat::mc "Name"] -command "fenetre_config_nom_passerelle $id"
   pack .passe.f.3 -fill x
+	button .passe.f.4 -text [::msgcat::mc "About"] -command "a_propos $::version(nat)"
+	pack .passe.f.4 -fill x
   
 	# boutons
 	button .passe.arret -compound left -text [::msgcat::mc "Switch off"] -image im_eteindre -relief flat -command "arrete_passerelle $id"

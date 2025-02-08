@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250128
+# Version 20250207
 
 # Suppression d'un câble
 ################################################################################
@@ -653,9 +653,7 @@ proc verif_arret {} {
 proc quit {} {
     
 	if ![verif_arret] {
-    	if [dialogue_arreter_tout] {
-    		arreter_tout
-    	}
+		dialogue_arreter_tout
 	} else {
     	# on sauvegarde les données obj
     	sauvegarder_projet

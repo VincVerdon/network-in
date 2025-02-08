@@ -4,7 +4,8 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250115
+# Version 20250207
+set ::version(vbox) 1.0
 
 # Interface de configuration de base de la machine
 ################################################################################
@@ -29,7 +30,8 @@ proc fenetre_config_vbox {id} {
 	if {! $::tmp($id,is_present)} {
 		.vbox$id.f.3 configure -state disabled
 	}
-	
+	button .vbox$id.f.4 -text [::msgcat::mc "About"] -command "a_propos $::version(vbox)"
+	pack .vbox$id.f.4 -fill x
 	# boutons
 	frame .vbox$id.fb
 	pack .vbox$id.fb

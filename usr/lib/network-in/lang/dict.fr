@@ -70,6 +70,7 @@ Dynamic  Dynamique
 Edit  Edition
 Editor Editeur
 "Equipment Category"  "Catégorie d'équipement"
+"Equipment version"  "Version de ce matériel"
 err1  "Impossible. Network-In! est déjà démarré !"
 Error  Erreur
 "Ethernet interfaces"  "Interfaces ethernet"
@@ -216,7 +217,8 @@ Terminal Terminal
 "The FTP server allows to put and to access files"  "Le serveur FTP permet le dépot et l'accès à des fichiers"
 "The HTTP server hosts Websites"  "Le serveur HTTP héberge les sites Web"
 "The SSH server offers ability to control the computer at distance "  "Le serveur SSH offre la capacité de contrôler l'ordinateur à distance"
-"This action needs to shutdown every equipment. Proceed ?"  "Cette action nécessite l'arrêt de tous les matériels. Continuer ?"
+"This action causes to stop every equipment. Proceed ?"  "Cette action provoque l'arrêt de tous les matériels. Continuer ?"
+"This action needs to shutdown every equipment"  "Cette action nécessite d'arrêter tous les matériels"
 "This file doesn't exist" "Ce fichier n'existe pas"
 Tools  Outils
 Type  Type

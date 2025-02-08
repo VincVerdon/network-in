@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250122
+# Version 20250207
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -39,9 +39,7 @@ proc fenetre_principale {} {
   $m.help add command -label [::msgcat::mc "License"] \
       -command "affiche_texte $::rep/licence.txt"
   .menubar.help add separator
-  .menubar.help add command -label [::msgcat::mc "About"] \
-      -command {tk_messageBox -icon info -title "[::msgcat::mc "About"]..." \
-        -message $::apropos}
+  .menubar.help add command -label [::msgcat::mc "About"] -command {a_propos}
   
   # zone de boutons en haut
   set comp right
@@ -56,8 +54,8 @@ proc fenetre_principale {} {
 	ttk::button .fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_eteindre \
 	-command {
 		if ![verif_arret] {
-			if [dialogue_arreter_tout] {
-			  arreter_tout
+			if {[dialogue_confirm_arreter_tout]} {
+				arreter_tout
 			}
 		}
 	}
@@ -1026,6 +1024,7 @@ proc creer_images_interface {} {
   image create photo im_carte -file $::rep/images/map.gif
   image create photo im_note -file $::rep/images/note.gif
   image create photo im_rafraichir -file $::rep/images/refresh.gif
+  image create photo im_info -file $::rep/images/info.gif
   image create photo im_note_mini
   im_note_mini copy im_note -subsample 2
 	
@@ -1286,11 +1285,11 @@ proc dialogue_ouvrir_projet {fic} {
   
 	# on vérifie si on souhaite bien arrêter les machines si ce n'est pas le cas
 	if ![verif_arret] {
-		if ![dialogue_arreter_tout] {
-		  return
-		}
+		dialogue_arreter_tout
+		return
 	}
-  set reponse [tk_messageBox -type yesno -icon warning -title [::msgcat::mc "Open a project"] -message [::msgcat::mc "Do you really want to open another project ? If you don't  save the actual project, it will be lost"]]
+	
+  set reponse [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "Open a project"] -message [::msgcat::mc "Do you really want to open another project ? If you don't  save the actual project, it will be lost"]]
   if {$reponse != "no"} {
   	if {$fic == {} } {
       set fic [tk_getOpenFile -initialdir $::rep_home -filetypes {{Network-in! .net}}]
@@ -1307,17 +1306,27 @@ proc dialogue_ouvrir_projet {fic} {
 ################################################################################
 proc dialogue_nouveau_projet {} {
   
-  	set reponse [tk_messageBox -type yesno -icon warning -title [::msgcat::mc "New project"] -message [::msgcat::mc "Do you really want to start a new project ? If you don't  save the actual project, it will be lost"]]
-  	if {$reponse == "yes"} {
-	  # on vérifie si on souhaite bien arrêter les machines si ce n'est pas le cas
-	  if ![verif_arret] {
-		  if [dialogue_arreter_tout] {
-			arreter_tout
-			after 3000 init_projet
-		  }
-	  }
-  		
-  	}
+  	if ![verif_arret] {
+	  dialogue_arreter_tout
+    } else {
+    	set reponse [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "New project"] -message [::msgcat::mc "Do you really want to start a new project ? If you don't  save the actual project, it will be lost"]]
+      	if {$reponse == "yes"} {
+      		init_projet
+      	}
+    }
+	
+}
+
+
+# Affichage de la boite Apropos avec éventuellement la version du matériel
+################################################################################
+proc a_propos {{version {}}} {
+	
+	set text $::apropos
+	if {$version != {}} {
+		set text "$text\n[::msgcat::mc "Equipment version"] : $version"
+	}
+	tk_messageBox -icon info -title "[::msgcat::mc "About"]..." -message $text
 	
 }
 
@@ -1326,13 +1335,24 @@ proc dialogue_nouveau_projet {} {
 ################################################################################
 proc dialogue_arreter_tout {} {
 	
-	set ret 0
-	set reponse [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "Warning"] -message [::msgcat::mc "This action needs to shutdown every equipment. Proceed ?"]]
-  	if {$reponse == "yes"} {
-  		set ret 1
-  	}
-	return $ret
+	set reponse [tk_messageBox -icon info -title [::msgcat::mc "Warning"] -message [::msgcat::mc "This action needs to shutdown every equipment"]]
 	
+}
+
+# Dialogue proposant de tout arreter et effacer pour créer un nouveau projet
+################################################################################
+proc dialogue_confirm_arreter_tout {} {
+	
+	set ret 0
+	if [verif_arret] {
+		set ret 1
+	} else {
+		set reponse [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "Warning"] -message [::msgcat::mc "This action causes to stop every equipment. Proceed ?"]]
+	  if {$reponse == "yes"} {
+		  set ret 1
+	  }
+	}
+	return $ret
 }
 
 
@@ -1357,29 +1377,27 @@ proc dialogue_creation_passerelle_impossible {} {
 
 ################################################################################
 proc dialogue_enregistrer_projet {} {
-  
-  # on vérifie si on souhaite bien arrêter les machines si ce n'est pas le cas
-  if ![verif_arret] {
-      if ![dialogue_arreter_tout] {
-        return
-      }
-  }
-  
-  set f [tk_getSaveFile -initialdir $::rep_home -initialfile $::tmp(file) -filetypes {{Network-in! .net} {Network-in! .NET}}]
-  if {$f == {}} {
-    return
-  }
-  # affichage barre
-  after 1 {
-    affiche_barre [::msgcat::mc "Please, be patient"]
-    update
-  }
-  after 100
-  # enregistrement
-  archiver_projet $f
-  
-  # fin affichage barre
-  detruit_barre
+    
+    # on vérifie si on souhaite bien arrêter les machines si ce n'est pas le cas
+    if ![verif_arret] {
+        dialogue_arreter_tout
+    } else {
+        set f [tk_getSaveFile -initialdir $::rep_home -initialfile $::tmp(file) -filetypes {{Network-in! .net} {Network-in! .NET}}]
+        if {$f == {}} {
+          return
+        }
+        # affichage barre
+        after 1 {
+          affiche_barre [::msgcat::mc "Please, be patient"]
+          update
+        }
+        after 100
+        # enregistrement
+        archiver_projet $f
+        # fin affichage barre
+        detruit_barre  
+    }
+	
 }
 
 ################################################################################

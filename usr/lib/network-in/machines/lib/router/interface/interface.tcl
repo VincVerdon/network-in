@@ -4,7 +4,8 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface routeur
 ####################################################################
-# Version 20250115
+# Version 20250207
+set version(equipment) {2.0}
 
 # Création de l'interface de configuration principale
 ################################################################################

@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20241011
+#Version 20250207
 #############################
 REP_INS=$(dirname $0)
 #Repertoire de l'application
@@ -77,7 +77,7 @@ chmod 0440 /etc/sudoers
 sudo -v
 
 #Création lien vers libvde
-LIBVDE=$(find /usr/lib -name 'libvdeplug.so.*' -type d 2>/dev/null | sort | tail -n 1)
+LIBVDE=$(find /usr/lib -name 'libvdeplug.so.*' -type f 2>/dev/null | sort | tail -n 1)
 ln -s $LIBVDE $(dirname $LIBVDE)/libvdeplug.so 2>/dev/null
 
 

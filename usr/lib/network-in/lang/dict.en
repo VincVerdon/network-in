@@ -70,6 +70,7 @@ Dynamic  Dynamic
 Edit  Edit
 Editor  Editor
 "Equipment Category"  "Equipment Category"
+"Equipment version"  "Equipment version"
 err1  "Impossible. Network-In! is already started !"
 Error  Error
 "Ethernet interfaces"  "Interfaces ethernet"
@@ -214,7 +215,8 @@ Terminal Terminal
 "The FTP server allows to put and to access files"  "The FTP server allows to put and to access files"
 "The HTTP server hosts Websites"  "The HTTP server hosts Websites"
 "The SSH server offers ability to control the computer at distance "  "The SSH server offers ability to control the computer at distance "
-"This action needs to shutdown every equipment. Proceed ?"  "This action needs to shutdown every equipment. Proceed ?"
+"This action causes to stop every equipment. Proceed ?"  "This action causes to stop every equipment. Proceed ?"
+"This action needs to shutdown every equipment"  "This action needs to shutdown every equipment"
 "This file doesn't exist"  "This file doesn't exist"
 Tools Tools
 Type  Type

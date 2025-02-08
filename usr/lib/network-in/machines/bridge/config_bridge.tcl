@@ -4,7 +4,8 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la bridge nat
 ####################################################################
-# Version 20250128
+# Version 20250207
+set ::version(bridge) 1.0
 
 # Interface de configuration de base de la machine
 ################################################################################
@@ -28,6 +29,8 @@ proc interface_bridge {id} {
 	pack .br$id.f.2 -fill x
 	button .br$id.f.3 -text [::msgcat::mc "Name"] -command "fenetre_config_nom_bridge $id"
 	pack .br$id.f.3 -fill x
+	button .br$id.f.4 -text [::msgcat::mc "About"] -command "a_propos $::version(bridge)"
+	pack .br$id.f.4 -fill x
     
     # boutons
     button .br$id.arret -compound left -text [::msgcat::mc "Switch off"] -image im_eteindre -relief flat -command "arrete_bridge $id"
