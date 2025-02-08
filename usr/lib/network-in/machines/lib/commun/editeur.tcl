@@ -90,7 +90,7 @@ namespace eval ed {
 		pack .$num.ic.copy -side left
 		button .$num.ic.paste -relief flat -image im_paste -compound top -text  [::msgcat::mc "Paste"] -command "[list event gen .$num.f.tex <<Paste>>]"
 		pack .$num.ic.paste -side left
-		button .$num.ic.quit -relief flat -image im_quitter -compound top -text  [::msgcat::mc "Quit"] -command "ed::quit $num"
+		button .$num.ic.quit -relief flat -image im_quitter -compound right -text  [::msgcat::mc "Quit"] -command "ed::quit $num"
 		pack .$num.ic.quit -side right
 		
 		#le widget texte d'affichage

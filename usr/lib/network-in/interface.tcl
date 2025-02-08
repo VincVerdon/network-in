@@ -200,8 +200,6 @@ proc clic_gauche_canvas {x y} {
 		
 		#On a cliqué sur un objet
 		set id [lindex $tags 0]
-		#Il passe en avant plan
-		$::c raise $id
 		
 		if {[lindex $tags 1] == "note"} {
 			#Affichage d'une note car clic sur l'icone de note
@@ -216,6 +214,8 @@ proc clic_gauche_canvas {x y} {
 		} else {
 			#on a cliqué sur un objet on veut mettre en avant ses fenêtres s'il est démarré ou le masquer
 			raise_objet $id
+			#Il passe en avant plan
+			$::c raise $id
 		}
 		
 	} else {
@@ -1335,7 +1335,7 @@ proc a_propos {{version {}}} {
 ################################################################################
 proc dialogue_arreter_tout {} {
 	
-	set reponse [tk_messageBox -icon info -title [::msgcat::mc "Warning"] -message [::msgcat::mc "This action needs to shutdown every equipment"]]
+	set reponse [tk_messageBox -icon info -title [::msgcat::mc "Information"] -message [::msgcat::mc "This action needs to shutdown every equipment"]]
 	
 }
 

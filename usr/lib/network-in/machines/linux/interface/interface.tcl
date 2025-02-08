@@ -4,9 +4,10 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface bureau
 ####################################################################
-# Version 20250121
+# Version 20250208
+set version(equipment) {1.0}
 
-# Création de l'interface principale (bureau)
+# Création de l'interface principale machine type Linux
 ################################################################################
 proc fenetre_principale {} {
     
@@ -14,7 +15,6 @@ proc fenetre_principale {} {
     wm title . $nom
     wm protocol . WM_DELETE_WINDOW {#}
     wm iconphoto . -default im_icone
-    #wm resizable . 0 0
 	
 	# zone des terminaux virtuels
 	ttk::notebook .not -width $::size(width) -height $::size(height)

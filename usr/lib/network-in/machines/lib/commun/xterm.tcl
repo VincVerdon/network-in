@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20241227
+# Version 20250208
 
 # Lanceur de l'application
 #####################################
@@ -54,7 +54,7 @@ namespace eval term {
       label $term.fb.h.h2 -text [::msgcat::mc "Keys ctrl-shift-V : paste text"]
       pack $term.fb.h.h1
       pack $term.fb.h.h2
-      button $term.fb.q -compound top -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  "term::quit $term"
+      button $term.fb.q -compound right -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  "term::quit $term"
       pack $term.fb.q -side right
       frame $term.f -container 1
       pack $term.f -fill both -expand 1

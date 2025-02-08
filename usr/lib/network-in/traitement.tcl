@@ -399,15 +399,13 @@ proc force_arrete_ordinateur {id} {
 	#Arrêt forcé par la console uml
 	catch {exec /usr/bin/uml_mconsole $id halt &}
 	
-	#Destruction fenêtre bureau
+	clean_machine_context $id
+	
+	#Destruction des fenêtres ouvertes
 	foreach wid $::tmp($id,win_id) {
 		catch {exec xkill -id $wid &}
 	}
     
-	#On supprime le répertoire d'échange dans le rep du projet
-	file delete -force $::rep_proj/datas/$id/com/on
-    file delete -force $::rep_proj/datas/$id/com/reboot
-
 }
 
 # Demande d'arrêt d'un routeur
@@ -520,32 +518,39 @@ proc boucle_scan_objet {id} {
     		
     } else {
         
-		#Machine arrêtée ou en cours d'arrêt
-        #on coupe le branchement de ses interfaces eth
-        foreach i $::tmp($id,pid_vde) {
-            kill $i
-        }
-        #mise a 0 de la configuration des interfaces
-        for {set i 0} {$i<$::obj($id,nb_eth)} {incr i} {
-            set ::tmp($id,etat_eth$i) {}
-			#on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
-			set id_liaison $::obj($id,eth$i)
-			if {$id_liaison != "" && $::tmp($id_liaison,infos_connexion)} {
-				maj_infos_connexion $id_liaison
-			}
-        }
-        # Suppression des rep inutiles désormais
-        file delete -force $::rep_proj/datas/$id/com
-        file delete $::rep_proj/datas/$id/interface/dict.actu
-         # l'objet est déclaré inactif désormais
-    	file delete -force $::rep_proj/datas/$id/com
-    	puts ">>>>MACHINE $id arrêtée"
-        after 2000 "set ::tmp($id,etat) 0 ; affiche_objet_off $id"
+		clean_machine_context $id
+		
     }
   
 }
 
+# Nettoie l'environnement d'une machine lors de son arrêt
+################################################################################
+proc clean_machine_context {id} {
+	
+	#on coupe le branchement de ses interfaces eth
+	foreach i $::tmp($id,pid_vde) {
+		kill $i
+	}
+	#mise a 0 de la configuration des interfaces
+	for {set i 0} {$i<$::obj($id,nb_eth)} {incr i} {
+		set ::tmp($id,etat_eth$i) {}
+		#on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
+		set id_liaison $::obj($id,eth$i)
+		if {$id_liaison != "" && $::tmp($id_liaison,infos_connexion)} {
+			maj_infos_connexion $id_liaison
+		}
+	}
+	# Suppression des rep inutiles désormais
+	#On supprime le répertoire d'échange dans le rep du projet
+	file delete -force $::rep_proj/datas/$id/com
+	file delete $::rep_proj/datas/$id/interface/dict.actu
+	puts ">>>>MACHINE $id arrêtée"
+	after 2000 "set ::tmp($id,etat) 0 ; affiche_objet_off $id"
+}
 
+
+# Ecriture fichier d'échange avec les machines UML
 ################################################################################
 proc ecrire_fichier_echange {id fic texte} {
   set f [open $::rep_proj/datas/$id/com/$fic w]
@@ -553,6 +558,7 @@ proc ecrire_fichier_echange {id fic texte} {
   close $f
 }
 
+# Lecture fichier d'échange avec les machines UML
 ################################################################################
 proc lire_fichier_echange {id fic} {
   if {![file exists $::rep_proj/datas/$id/com/$fic]} {return -1}

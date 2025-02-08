@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20241227
+# Version 20250208
 
 
 # Lanceur de l'application
@@ -49,7 +49,7 @@ namespace eval capt {
       # Barre de boutons
       frame .cap.fb
       pack .cap.fb -fill x
-      button .cap.fb.a -compound top -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  capt::quit
+      button .cap.fb.a -compound right -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  capt::quit
       pack .cap.fb.a -side right
 
       frame .cap.f
