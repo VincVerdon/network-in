@@ -20,6 +20,7 @@ proc fenetre_principale {} {
     wm protocol . WM_DELETE_WINDOW {#}
     wm iconphoto . -default im_icone
     ecrire_fichier_echange window_id [winfo id .]
+    wm resizable . 0 0
     
     label .ico -image im_icone
     pack .ico

@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250207
+# Version 20250208
 set ::version(vbox) 1.0
 
 # Interface de configuration de base de la machine
@@ -136,37 +136,45 @@ proc save_vbox_conf {id} {
 # Retourne la liste des VMs Virtualbox existant sur le système
 ###################################################################################
 proc get_vms_list {} {
+	
 	set vms {}
 	set res [exec vboxmanage list vms]
 	foreach {name id} $res {
 		lappend vms [list $name $id]
 	}
 	return $vms
+	
 }
 
 
 # Vérifie le nom d'une VM à partir de son id
 ###################################################################################
 proc get_vbox_name {id} {
+	
 	set ret {}
-	set liste [get_vms_list]
-	foreach m $liste {
-			if {[lindex $m 1] == $::obj($id,vbox_id)} {
-				set ret [lindex $m 0]
-			}
+	if {$::tmp(vbox_found)} {
+    	set liste [get_vms_list]
+    	foreach m $liste {
+    			if {[lindex $m 1] == $::obj($id,vbox_id)} {
+    				set ret [lindex $m 0]
+    			}
+    	}
 	}
 	return $ret
+	
 }
 
 
 # Retourne le nom de vbox à afficher (soit le nom d'équipement soit le nom de VM suivant les choix et la config)
 ###################################################################################
 proc get_vbox_current_name {id} {
+	
 	set ret $::obj($id,nom)
 	if {$::tmp($id,is_present) && $::obj($id,name_from_vbox)} {
 		set ret [get_vbox_name $id]
 	}
 	return $ret
+	
 }
 
 
