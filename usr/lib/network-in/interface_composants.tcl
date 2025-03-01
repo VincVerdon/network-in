@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-#Version du 20250109
+#Version du 20250225
 #ce fichier définit la façon dont sont présentés les différents composants dans l'interface
 
 # Définition de l'ordre d'apparition des familles de composants dans l'interface
@@ -61,8 +61,7 @@ set def(router2,voir) 1
 set def(router4,voir) 1
 set def(straight,voir) 1
 set def(cross,voir) 1
-set def(output,voir) 2
-set def(nat,voir) 2
+set def(nat,voir) 1
 set def(bridge,voir) 2
 set def(virtualbox,voir) 2
 set def(linux,voir) 2

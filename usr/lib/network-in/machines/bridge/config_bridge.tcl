@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la bridge nat
 ####################################################################
-# Version 20250207
+# Version 20250219
 set ::version(bridge) 1.0
 
 # Interface de configuration de base de la machine
@@ -356,7 +356,7 @@ proc maj_infos_connexion_bridge {id} {
 ################################################################################
 proc demarre_bridge {id} {
 	
-	puts ">>>>Démarrage BRIDGE $id"
+	puts ">>>>STARTING BRIDGE $id"
     
 	# Configuration de l'interface réseau
     exec_config_bridge $id start
@@ -398,6 +398,6 @@ proc arrete_bridge {id} {
 	set ::tmp($id,etat) 0
 	affiche_objet_off $id
     maj_infos_connexion_bridge $id
-	puts ">>>>BRIDGE $id arrêté"
+	puts ">>>>BRIDGE $id STOPPED"
 	
 }

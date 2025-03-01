@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250207
+# Version 20250213
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -32,7 +32,7 @@ proc fenetre_principale {} {
 	creation_menu_niveau $m.tools.niv
 	$m.tools add separator
   $m.tools add command -label [::msgcat::mc "Messages"] -command affiche_logs
-  $m.tools add command -label [::msgcat::mc "Console"] -command affiche_console
+  $m.tools add command -label [::msgcat::mc "Terminal"] -command affiche_term
   # menu aide
   $m add cascade -menu $m.help -label [::msgcat::mc "Help"]
   menu $m.help -tearoff 0
@@ -113,8 +113,8 @@ proc efface_infos_connexion {} {
 proc change_niveau_detail {n} {
 	foreach famille $::def(liste_familles) {
   	#on affiche l'onglet de la famille si le niveau de détail de l'interface est ok
-  	if {$::def($famille,voir) <= $n} {
-  		.fc add .fc.$famille
+      	if {$::def($famille,voir) <= $n} {
+      		.fc add .fc.$famille
 			#On affiche à l'intérieur de l'onglet uniquement les composants qui doivent l'être
 			foreach type $::def($famille,liste) {
 				if {$::def($type,voir) <= $n} {
@@ -123,28 +123,30 @@ proc change_niveau_detail {n} {
 					pack forget .fc.$famille.$type
 				}
 			}
-  	} else {
-  		.fc hide .fc.$famille
-  	}
+      	} else {
+      		.fc hide .fc.$famille
+      	}
 	}
-	#on sauvegarde le niveau actuel
-	set ::tmp(niveau) $n
+	
 }
+
 
 # Création du menu d'affichage/sélection du niveau de détail de l'interface
 ################################################################################
 proc creation_menu_niveau {m} {
+	
 	menu $m -tearoff 0
 	#on cherche le nombre de niveaux définis
 	set nb [llength [array names ::def niveau*,label]]
 	
 	for {set i 1} {$i<=$nb} {incr i} { 
 		if {$i <= $::niveau(max)} {
-			$m add radiobutton -label [::msgcat::mc "$::def(niveau$i,label)"] -variable ::tmp(niveau) -value $i -command "change_niveau_detail $i"
+			$m add radiobutton -label [::msgcat::mc "$::def(niveau$i,label)"] -variable ::tmp(details) -value $i -command "change_niveau_detail $i"
 		} else {
-			$m add radiobutton -label [::msgcat::mc "$::def(niveau$i,label)"] -variable ::tmp(niveau) -value $i -state disable
+			$m add radiobutton -label [::msgcat::mc "$::def(niveau$i,label)"] -variable ::tmp(details) -value $i -state disable
 		}
 	}
+	
 }
 
 ################################################################################
@@ -358,7 +360,7 @@ proc menu_contextuel_objet {id x y} {
     set type $::obj($id,type)
     
     #prise en compte du niveau de fonctionnalités autorisées en fonction du niveau de détails
-    	if {$::def($type,voir) <= $::tmp(niveau)} {
+    	if {$::def($type,voir) <= $::} {
     		set etat normal
     	} else {
     		set etat disabled
@@ -543,7 +545,7 @@ proc menu_contextuel_gestion_cartes {id} {
 	
 	#prise en compte du niveau de fonctionnalités autorisées en fonction du niveau de détails
 	set type $::obj($id,type)
-	if {$::def($type,voir) <= $::tmp(niveau)} {
+	if {$::def($type,voir) <= $::} {
 		set etat normal
 	} else {
 		set etat disabled
@@ -1446,7 +1448,7 @@ proc ouvrir_fichier_texte {fichier} {
 
 #Affichage d'une console xterm
 ################################################################################
-proc affiche_console {} {
+proc affiche_term {} {
   exec xterm +ai -title "Network-In! - xterm" -bg $::coul(fond) -fg $::coul(texte) -fn 10x20 &
 }
 
@@ -1459,7 +1461,8 @@ proc affiche_logs {} {
 		.t_mess.f.tex delete 1.0 end
 		 #Appel commande tail Unix
 		 set fic $::rep_proj/network-in.log
-		 set txt [exec tail -n 200 $fic]
+		 #set txt [exec tail -n 200 $fic]
+		 set txt [exec cat $fic]
 		 .t_mess.f.tex insert end "$txt\n"
 		 .t_mess.f.tex configure -state disabled
 		 .t_mess.f.tex yview moveto 1

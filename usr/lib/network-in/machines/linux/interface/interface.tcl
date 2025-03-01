@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface bureau
 ####################################################################
-# Version 20250208
+# Version 20250214
 set version(equipment) {1.0}
 
 # Création de l'interface principale machine type Linux
@@ -23,6 +23,8 @@ proc fenetre_principale {} {
 	for {set i 1} {$i<=$::term_number} {incr i} {
 		creation_onglet $i
 	}
+    set ::tmp(tab) .not.1
+    traite_change_panneau
 	
     # zone de boutons
     frame .fb
@@ -50,10 +52,15 @@ proc fenetre_principale {} {
 
 ################################################################################
 proc traite_change_panneau {} {
+
+    .not tab $::tmp(tab) -text [string tolower [.not tab $::tmp(tab) -text]]
     set w [.not select]
+    set ::tmp(tab) $w
+    .not tab $w -text [string toupper [.not tab $w -text]]
     #On déplace le curseur sur le terminal pour avoir le focus, pas d'autre solution !
     after 100 "event generate $w <Motion> -x 20 -y 20 -warp 1"
     update
+    
 }
 
 
@@ -62,7 +69,7 @@ proc creation_onglet {nb} {
   
 	set onglet .not.$nb
 	frame $onglet
-	.not add $onglet -text term$nb
+	.not add $onglet -text term$nb -padding {0 5 0 0}
 	frame $onglet.f -container 1
 	pack $onglet.f -fill both -expand 1
 	update

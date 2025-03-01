@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250109
+# Version 20250225
 
 #Lecture de ::obj et ::tmp et enregistrement de la structure en XML
 ####################################
@@ -37,21 +37,20 @@ proc xml_structure_write {file} {
 #Enregistrement du bloc global
 ############################################
 proc xml_bloc_global_write {f} {
-	set date_time [clock seconds]
-	set date_time [clock format $date_time -format "%Y-%m-%d %H:%M:%S"]
 	
 	puts $f "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>"
 	puts $f "<structure version=\"1.0\">"
-	puts $f "<!-- Definition of the network structure and components for Network-In! Simulator -->"
+	puts $f "<!-- Definition of network structure and components for Network-In! Simulator -->"
 	puts $f "<global>"
 	puts $f "    <version>$::version(network-in)</version>"
 	puts $f "    <file>$::tmp(file)</file>"
-	puts $f "    <date>$date_time</date>"
-	puts $f "    <author></author>"
-	puts $f "    <description></description>"
+	puts $f "    <cdate>$::tmp(cdate)</cdate>"
+	puts $f "    <date>$::tmp(date)</date>"
+	puts $f "    <author>$::tmp(author)</author>"
+	puts $f "    <description>$::tmp(description)</description>"
 	puts $f "    <width>$::tmp(width)</width>"
 	puts $f "    <height>$::tmp(height)</height>"
-	puts $f "    <details>$::tmp(niveau)</details>"
+	puts $f "    <details>$::tmp(details)</details>"
 	puts $f "</global>"
 
 }
@@ -226,7 +225,6 @@ proc xml_bloc_global_read {f} {
 	while {![regexp -expanded {</global>} $ligne res]} {
 		set param {}
 		regexp -expanded {<(.+)>(.*)</.+>} $ligne res param valeur
-		set param [string map {details niveau} $param]
 		set ::tmp($param) $valeur
 		gets $f ligne
 	}

@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250207
+# Version 20250219
 set ::version(nat) 2.0
 
 # Interface de configuration de base de la machine
@@ -209,7 +209,7 @@ proc exec_config_passerelle {id ip masque action} {
 ################################################################################
 proc demarre_passerelle {id} {
 	
-	puts ">>>>Démarrage PASSERELLE $id"
+	puts ">>>>STARTING PASSERELLE $id"
 	
 	set famille $::obj($id,famille)
 	set type $::obj($id,type)
@@ -259,6 +259,6 @@ proc arrete_passerelle {id} {
 	# Déconfiguration de l'interface NAT
 	exec_config_passerelle $id $::obj($id,ip_eth0) $::obj($id,netmask_eth0) stop
 	
-	puts ">>>>PASSERELLE $id arrêtée"
+	puts ">>>>PASSERELLE $id STOPPED"
 	
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20250207
+#Version 20250213
 #############################
 REP_INS=$(dirname $0)
 #Repertoire de l'application
@@ -26,6 +26,7 @@ sudo;sudo
 lsof;lsof
 wmctrl;wmctrl
 xwininfo;x11-utils
+iptables;iptables
 "
 
 ARRET=false

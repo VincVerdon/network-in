@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250207
+# Version 20250221
 
 # Suppression d'un câble
 ################################################################################
@@ -60,7 +60,7 @@ proc demarre_ordinateur {id} {
 	if {$::obj($id,dd) == "new.img"} {
 		#Cas de la création d'un nouveau disque système
 		set disk $::rep_conf/disks/new.img
-		set opts "con0=fd:0,fd:1"
+		set opts "con0=fd:0,fd:1 con1=xterm"
 		if ![file exists $disk] {
   		dialogue_system_disk_missing new.img
   		return
@@ -79,7 +79,7 @@ proc demarre_ordinateur {id} {
 		}
 	}
 	
-  puts ">>>>Démarrage MACHINE $id"
+  puts ">>>>STARTING MACHINE $id"
   set famille $::obj($id,famille)
   set type $::obj($id,type)
   
@@ -190,7 +190,7 @@ proc demarre_routeur {id} {
 ################################################################################
 proc demarre_switch {id} {
 	
-	puts ">>>>démarrage SWITCH $id"
+	puts ">>>>STARTING SWITCH $id"
 	
   set famille $::obj($id,famille)
   set type $::obj($id,type)
@@ -545,7 +545,7 @@ proc clean_machine_context {id} {
 	#On supprime le répertoire d'échange dans le rep du projet
 	file delete -force $::rep_proj/datas/$id/com
 	file delete $::rep_proj/datas/$id/interface/dict.actu
-	puts ">>>>MACHINE $id arrêtée"
+	puts ">>>>MACHINE $id STOPPED"
 	after 2000 "set ::tmp($id,etat) 0 ; affiche_objet_off $id"
 }
 
@@ -710,18 +710,18 @@ proc sauvegarder_projet {} {
 	update
 	set ::tmp(width) [winfo width .]
 	set ::tmp(height) [winfo height .]
-
-	#on sauvegarde le niveau de détail actuel
-	#set ::tmp(niveau,defaut) $::tmp(niveau)
+	
+	set date_time [clock seconds]
+	set ::tmp(date) [clock format $date_time -format "%Y-%m-%d %H:%M:%S"]
 	
 	#puts [array get ::tmp]
 	#puts [array get ::obj]
 	
-  if {[file exists $::rep_proj/datas/structure.xml]} {
-    file rename -force $::rep_proj/datas/structure.xml $::rep_proj/datas/structure.sav
+  if {[file exists $::rep_proj/structure.xml]} {
+    file rename -force $::rep_proj/structure.xml $::rep_proj/structure.sav
   }
 	
-	xml_structure_write $::rep_proj/datas/structure.xml
+	xml_structure_write $::rep_proj/structure.xml
 	
 }
 
@@ -733,7 +733,7 @@ proc restaurer_projet {} {
 	set liste_types {desktop laptop server linux switch4 switch8 hub4 hub8 router2 router4 straight cross nat bridge virtualbox}
   
 	#récupération de la structure
-	xml_structure_read $::rep_proj/datas/structure.xml
+	xml_structure_read $::rep_proj/structure.xml
 	#puts [array get ::tmp]
 	#puts [array get ::obj]
 	
@@ -741,7 +741,7 @@ proc restaurer_projet {} {
 	maj_titre
 	
 	#prise en compte du niveau de détail
-	change_niveau_detail $::tmp(niveau)
+	change_niveau_detail $::tmp(details)
 	
 	# mise à la taille du canvas
 	wm geometry . $::tmp(width)x$::tmp(height)
@@ -790,31 +790,38 @@ proc restaurer_projet {} {
 ################################################################################
 proc init_projet {} {
   
-  # on initialise quelques variables
-  array unset ::obj
-  set ::tmp(lastid) 0
+  	# on initialise quelques variables
+  	array unset ::obj
+	set ::tmp(author) $::tcl_platform(user)
+	set ::tmp(description) ""
+  	set ::tmp(lastid) 0
 	set ::tmp(width) $::taille(l)
 	set ::tmp(height) $::taille(h)
 	set ::tmp(file) "[::msgcat::mc "unnamed"].net"
+	set date_time [clock seconds]
+	set ::tmp(cdate) [clock format $date_time -format "%Y-%m-%d %H:%M:%S"]
+	set ::tmp(date) $::tmp(cdate)
 	
-  # mise à jour du titre
-  set :: "[::msgcat::mc "unnamed"].net"
-  maj_titre
+	# mise à jour du titre
+	set :: "[::msgcat::mc "unnamed"].net"
+	maj_titre
 	
 	#prise en compte du niveau de détail
-	set ::tmp(niveau) $::niveau(defaut)
-	change_niveau_detail $::tmp(niveau)
-  
-  # effacement des objets sur le canvas
-  $::c delete all
+	set ::tmp(details) $::niveau(defaut)
+	change_niveau_detail $::niveau(defaut)
+	
+	# effacement des objets sur le canvas
+	$::c delete all
 	
 	# mise à la taille du canvas
 	wm geometry . $::tmp(width)x$::tmp(height)
-  
-  # creation du nouveau répertoire de projet
-  catch {file delete -force $::rep_proj/datas}
-  catch {file mkdir $::rep_proj/datas}
-  
+	
+	# nettoyage et creation du nouveau répertoire de projet
+	catch {file delete -force $::rep_proj/datas}
+	catch {file delete -force $::rep_proj/structure.xml}
+	catch {file delete -force $::rep_proj/structure.sav}
+	catch {file mkdir $::rep_proj/datas}
+	
 }
 
 # Appel de la commande kill
@@ -841,7 +848,7 @@ proc archiver_projet {f} {
   sauvegarder_projet
   
   # Création de l'archive contenant les machines virtuelles
-  exec tar -C $::rep_proj -cf $f datas/structure.xml
+  exec tar -C $::rep_proj -cf $f structure.xml
   update
   # Sauvegarde de chaque machine UML
 	cd $::rep_proj
@@ -871,31 +878,20 @@ proc archiver_projet {f} {
 #se charge de l'initialisation
 ################################################################################
 proc desarchiver_projet {f} {
-  
-  init_projet
-  
-  # désarchivage dans le rep de projet
-  exec tar -C $::rep_proj -xf $f
-  
-  # ouverture
-  restaurer_projet
-  
-}
-
-
-#renvoie le nom à afficher pour l'interface numéro n de l'objet id
-#################################################################################
-proc nom_interface_anc {id n} {
-    
-	set liaison $::obj($id,$n)
-	if {$::obj($id,categorie) == "dce"} {
-		set type "port"
-		set n [expr $i + 1]
-	} else  {
-		set type "eth"
-		set n $i
+  	
+	#Nettoyage et réinitialisation espace projet
+	init_projet
+	
+	# désarchivage dans le rep de projet
+	exec tar -C $::rep_proj -xf $f
+	if {[file exists $::rep_proj/datas/structure.xml]} {
+		# Prise en compte version avant 2.0beta6 : déplacement fichier structure
+		file rename $::rep_proj/datas/structure.xml $::rep_proj/structure.xml
+		set ::tmp(cdate) $::tmp(date)
 	}
-	return $type$n
+	
+	# ouverture du projet
+	restaurer_projet
 	
 }
 
@@ -1008,6 +1004,7 @@ proc get_interface_mac {interf} {
 	regexp $regexp $ip_inf res mac
 	return $mac
 }
+
 
 # Renvoie l'adresse IP et masque d'une interface sur machine hôte
 #################################################################################

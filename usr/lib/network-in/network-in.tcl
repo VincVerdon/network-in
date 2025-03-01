@@ -4,8 +4,8 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-#version 20250107
-set version(network-in) 2.0-beta5
+#version 20250221
+set version(network-in) 2.0-beta6
 
 # Démarrage de Network-in!
 ################################################################################
@@ -112,8 +112,9 @@ creer_images_interface
 creer_fontes_interface
 fenetre_principale
 
-if {[file exists $::rep_proj/datas/structure.xml]} {
-	# restauration du projet en cours
+
+# restauration du projet en cours
+if {[file exists $::rep_proj/structure.xml]} {
     restaurer_projet
 	if {$argc != 0} {
 		#Cas où un nom de fichier est passé au démarrage

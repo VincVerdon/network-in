@@ -4,8 +4,7 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-#version 20231013
-
+#version 20250222
 
 # Démarrage de Network-in!
 ################################################################################
@@ -17,7 +16,7 @@ set rep [file dirname [file normalize [info script]]]
 # on source le fichier de config
 source /etc/network-in.cfg
 if {[file exists ~/.network-in.cfg]} {
-  source ~/.network-in.cfg
+  source ~/.network-in/network-in.cfg
 }
 
 puts [file normalize $rep_proj]

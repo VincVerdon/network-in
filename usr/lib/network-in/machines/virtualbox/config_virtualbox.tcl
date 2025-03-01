@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250208
+# Version 20250219
 set ::version(vbox) 1.0
 
 # Interface de configuration de base de la machine
@@ -352,7 +352,7 @@ proc maj_affichage_nom_vbox {id} {
 ################################################################################
 proc demarre_virtualbox {id} {
 	
-	puts ">>>>Démarrage VM Virtualbox $id"
+	puts ">>>>STARTING VM Virtualbox $id"
 	
 	set famille $::obj($id,famille)
 	set type $::obj($id,type)
@@ -382,7 +382,7 @@ proc arrete_virtualbox {id} {
 	# l'objet est déclaré inactif désormais
 	set ::tmp($id,etat) 0
 	affiche_objet_off $id
-	puts ">>>>VM Virtualbox $id arrêtée"
+	puts ">>>>VM Virtualbox $id STOPPED"
 }
 
 # Arrêt hard de la VM VirtualBox
