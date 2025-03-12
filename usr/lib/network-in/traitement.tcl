@@ -745,6 +745,11 @@ proc restaurer_projet {} {
 	
 	# mise à la taille du canvas
 	wm geometry . $::tmp(width)x$::tmp(height)
+	
+	# on initialise quelques variables
+	set ::tmp(id1) {}
+	set ::tmp(id2) {}
+	
 	# dessin de la structure
 	for  {set i 1} {$i <= $::tmp(lastid)} {incr i} {
         set id m$i
@@ -781,7 +786,7 @@ proc restaurer_projet {} {
             }
         }
     }
-    
+	
 }
 
 
@@ -801,6 +806,8 @@ proc init_projet {} {
 	set date_time [clock seconds]
 	set ::tmp(cdate) [clock format $date_time -format "%Y-%m-%d %H:%M:%S"]
 	set ::tmp(date) $::tmp(cdate)
+	set ::tmp(id1) {}
+	set ::tmp(id2) {}
 	
 	# mise à jour du titre
 	set :: "[::msgcat::mc "unnamed"].net"

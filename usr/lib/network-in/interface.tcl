@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250213
+# Version 20250302
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -86,6 +86,7 @@ proc fenetre_principale {} {
   bind $::c <B1-Motion> {clic_gauche_canvas_bouge %x %y}
   bind $::c <ButtonPress-1> {clic_gauche_canvas %x %y}
   bind $::c <ButtonPress-3> {clic_droit_canvas %x %y}
+  bind $::c <Motion> {canvas_bouge %x %y}
 	
   # zone des outils de conception reseau
   ttk::notebook .fc
@@ -176,6 +177,7 @@ proc detruit_barre {} {
   destroy .barre
 }
 
+# Mise à jour du titre de la fenêtre principale
 ################################################################################
 proc maj_titre {} {
   set proj [split $::tmp(file) .]
@@ -186,11 +188,7 @@ proc maj_titre {} {
 # Gestion du clic simple gauche sur le canvas
 ################################################################################
 proc clic_gauche_canvas {x y} {
-	
-	#set X [lindex [.hscroll get ] 0]
-	#set tx [$::c cget -width]
-	#set tx [winfo width $::c]
-	
+
 	#destruction de certains éléments s'ils existent
 	destroy .note
 	destroy $::c.mc
@@ -205,12 +203,12 @@ proc clic_gauche_canvas {x y} {
 		
 		if {[lindex $tags 1] == "note"} {
 			#Affichage d'une note car clic sur l'icone de note
-			affiche_note $id
+			affiche_note $idset ::tmp(id1) {}
 		} elseif {$::obj($id,famille) == {connection}} {
 			#On a cliqué sur une connexion, on affiche les infos sur cette connexion
 			set ::tmp($id,infos_connexion) 1
 			maj_infos_connexion $id
-		} elseif {$::tmp(sel,type) != {0} && $::tmp(sel,famille) == {connection}} {
+		} elseif {$::tmp(sel,type) != {} && $::tmp(sel,famille) == {connection}} {
 			#On est en mode création de liaison
 			creation_liaison $id
 		} else {
@@ -223,11 +221,11 @@ proc clic_gauche_canvas {x y} {
 	} else {
 		
 		#On a cliqué dans le vide (aucun objet sélectionné)
-		if {$::tmp(sel,type) != {0} && $::tmp(sel,famille) != {connection}} {
+		if {$::tmp(sel,type) != {} && $::tmp(sel,famille) != {connection}} {
 			# on veut créer un objet (pas une liaison)
 			creation_objet $::tmp(sel,famille) $::tmp(sel,type) $x $y
 			# on repasse en mode sélection
-			set ::tmp(sel,type) 0
+			set ::tmp(sel,type) {}
 			$::c configure -cursor hand2
 		}
 	}
@@ -303,16 +301,20 @@ proc creation_liaison {id} {
 		if {$::tmp(sel,interface) != {}} {
 			set ::tmp(id1) $id
 			set ::tmp(id1,eth) $::tmp(sel,interface)
-		} else  {
+		} else {
+			# on repasse en mode sélection
+			set ::tmp(sel,type) {}
+			$::c configure -cursor hand2
 			set ::tmp(id1) {}
 			set ::tmp(id1,eth) {}
 			set ::tmp(id2) {}
 			set ::tmp(id2,eth) {}
 		}
-	} else  {
+	} else {
 		# on vient de sélectionner le 2ème objet
 		set ::tmp(sel,interface) {}
 		menu_choix_connexion $id
+		# On a bien sélectionné une interface dans le menu
 		if {$::tmp(sel,interface) != {}} {
 			set ::tmp(id2) $id
 			set ::tmp(id2,eth) $::tmp(sel,interface)
@@ -323,15 +325,17 @@ proc creation_liaison {id} {
 				creation_connexion $::tmp(id1) $::tmp(id2) $::tmp(id1,eth) $::tmp(id2,eth) $::tmp(sel,type)
 			}
 			# on repasse en mode sélection
-			set ::tmp(sel,type) 0
+			set ::tmp(sel,type) {}
 			$::c configure -cursor hand2
 		}
+		$::c delete tmp_connection
 		set ::tmp(id1) {}
 		set ::tmp(id1,eth) {}
 		set ::tmp(id2) {}
 		set ::tmp(id2,eth) {}
 	}
 }
+
 
 ################################################################################
 proc clic_droit_canvas {x y} {
@@ -360,7 +364,7 @@ proc menu_contextuel_objet {id x y} {
     set type $::obj($id,type)
     
     #prise en compte du niveau de fonctionnalités autorisées en fonction du niveau de détails
-    	if {$::def($type,voir) <= $::} {
+    	if {$::def($type,voir) <= $::tmp(details)} {
     		set etat normal
     	} else {
     		set etat disabled
@@ -379,7 +383,7 @@ proc menu_contextuel_objet {id x y} {
     switch $famille {
         
         {connection} {
-    			#rien de particulier
+			
     		# infos sur l'objet sélectionné
     		$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
     		#$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
@@ -545,7 +549,7 @@ proc menu_contextuel_gestion_cartes {id} {
 	
 	#prise en compte du niveau de fonctionnalités autorisées en fonction du niveau de détails
 	set type $::obj($id,type)
-	if {$::def($type,voir) <= $::} {
+	if {$::def($type,voir) <= $::tmp(details)} {
 		set etat normal
 	} else {
 		set etat disabled
@@ -863,6 +867,7 @@ proc fenetre_infos_switch {id} {
             if {$m == $id} {
                 set m $::obj($::obj($id,eth$i),id2)
             }
+			set m $::obj($m,nom)
         } else {
             set m "-"
         }
@@ -880,10 +885,28 @@ proc fenetre_infos_cable {id} {
 }
 
 
+# Comportement quand la souris bouge au dessus du canvas, sans aucun bouton appuyé
+###############################################################################
+proc canvas_bouge {x y} {
+	
+	#Cas où on est en train de créer un nouveau câble : affichage câble en rouge en direct
+	if {$::tmp(id1) != {}} {
+			$::c delete tmp_connection
+			set x1 $::obj($::tmp(id1),x)
+			set y1 $::obj($::tmp(id1),y)
+			set x [expr $x - 5]
+			set y [expr $y -5]
+			set l [$::c create line $x1 $y1 $x $y -tag "0 tmp_connection" \
+			   -width 2 -fill red]
+		}
+	
+}
+
+
 ################################################################################
 proc clic_gauche_canvas_bouge {x y} {
-    
-  if {$::tmp(sel,type) != {0}} {
+	
+  if {$::tmp(sel,type) != {}} {
     # cas où on est en mode ajout, on sort
     return
   }
@@ -975,7 +998,7 @@ proc creation_onglet {famille} {
   .fc add $pal_m -text $::def($famille,label)
 	
   # Bouton de sélection
-  ttk::radiobutton $pal_m.sel -image im_select -width 80 -variable ::tmp(sel,type) -value 0 -command {$::c configure -cursor hand2}
+  ttk::radiobutton $pal_m.sel -image im_select -width 80 -variable ::tmp(sel,type) -value {} -command {$::c configure -cursor hand2}
   pack  $pal_m.sel -side left -fill y
   
   frame $pal_m.blanc -width 20
@@ -1003,7 +1026,7 @@ proc traite_changement_panneau {} {
   set w [.fc select]
   set ::tmp(sel,famille) [file extension $w]
   set ::tmp(sel,famille) [string range $::tmp(sel,famille) 1 end]
-  set ::tmp(sel,type) 0
+  set ::tmp(sel,type) {}
 }
 
 # creation des images utilisees

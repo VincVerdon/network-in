@@ -52,7 +52,7 @@ set def(output,voir) 1
 #éléments
 set def(desktop,voir) 1
 set def(laptop,voir) 1
-set def(server,voir) 2
+set def(server,voir) 1
 set def(switch4,voir) 1
 set def(switch8,voir) 1
 set def(hub4,voir) 1
