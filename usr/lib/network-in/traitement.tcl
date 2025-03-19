@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250221
+# Version 20250319
 
 # Suppression d'un câble
 ################################################################################
@@ -697,6 +697,35 @@ proc arreter_tout {} {
         }
       }
     }
+  }
+	
+}
+
+
+# Provoque le démarrage de tout le matériel de la simulation
+################################################################################
+proc demarrer_tout {} {
+	
+  for  {set i 1} {$i <= $::tmp(lastid)} {incr i} {
+	set id m$i
+	if {[array name ::obj $id,*] != {}} {
+	  if {! $::tmp($id,etat)} {
+		switch $::obj($id,famille) {
+			{computer} {demarre_ordinateur $id}
+			{router} {demarre_ordinateur $id}
+			{switch} {demarre_switch $id}
+			{hub} {demarre_switch $id}
+			{output} {
+				if {$::obj($id,type) == {nat}} {demarre_passerelle $id}
+				if {$::obj($id,type) == {bridge}} {demarre_bridge $id}
+			}
+			{vm} {
+				if {$::obj($id,type) == {virtualbox}} {demarre_virtualbox $id}
+			}
+			{default} {}
+		}
+	  }
+	}
   }
 	
 }

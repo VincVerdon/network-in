@@ -192,6 +192,7 @@ Shutdown  Shutdown
 "SSH server"  "SSH server"
 "SSH server configuration"  "SSH service configuration"
 Start  Start
+"Start all"  "Start all"
 Static Static
 "Static configuration"  "Static configuration"
 "Static routing" "Static routing"

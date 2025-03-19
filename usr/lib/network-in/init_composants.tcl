@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250128
+# Version 20250313
 # Ce fichier permet d'initialiser chaque type de composant
 
 
@@ -19,7 +19,7 @@ proc initialisation_desktop {id} {
   set ::obj($id,nom) $id
   set ::obj($id,mem) 512M
 	set ::obj($id,dd) $::img_dd
-	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
+	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null"
 	set ::obj($id,kernel) $::kernel
 	# création du rep de la machine et copie des fichiers nécessaires au fonctionnement
 	file mkdir $::rep_proj/datas/$id/interface
@@ -43,7 +43,7 @@ proc initialisation_laptop {id} {
   set ::obj($id,nom) $id
   set ::obj($id,mem) 512M
 	set ::obj($id,dd) $::img_dd
-	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
+	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null"
 	set ::obj($id,kernel) $::kernel
 	# création du rep de la machine et copie des fichiers nécessaires au fonctionnement
 	file mkdir $::rep_proj/datas/$id/interface
@@ -67,7 +67,7 @@ proc initialisation_server {id} {
   set ::obj($id,nom) $id
   set ::obj($id,mem) 512M
 	set ::obj($id,dd) $::img_dd
-	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
+	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null"
 	set ::obj($id,kernel) $::kernel
 	# création du rep de la machine et copie des fichiers nécessaires au fonctionnement
 	file mkdir $::rep_proj/datas/$id/interface
@@ -91,7 +91,7 @@ proc initialisation_linux {id} {
   set ::obj($id,nom) $id
   set ::obj($id,mem) 256M
 	set ::obj($id,dd) $::img_dd
-	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
+	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null"
 	set ::obj($id,kernel) $::kernel
 	# création du rep de la machine et copie des fichiers nécessaires au fonctionnement
 	file mkdir $::rep_proj/datas/$id/interface
@@ -167,7 +167,7 @@ proc initialisation_router2 {id} {
 	set ::obj($id,nom) $id
 	set ::obj($id,mem) 128M
 	set ::obj($id,dd) $::img_dd
-	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
+	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null"
 	set ::obj($id,kernel) $::kernel
 	# création du rep de la machine et copie des fichiers nécessaires au fonctionnement
 	file mkdir $::rep_proj/datas/$id/interface
@@ -191,7 +191,7 @@ proc initialisation_router4 {id} {
   	set ::obj($id,nom) $id
   	set ::obj($id,mem) 256M
 	set ::obj($id,dd) $::img_dd
-	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null con=pts"
+	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null"
 	set ::obj($id,kernel) $::kernel
 	# création du rep de la machine et copie des fichiers nécessaires au fonctionnement
 	file mkdir $::rep_proj/datas/$id/interface

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250302
+# Version 20250319
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -51,7 +51,12 @@ proc fenetre_principale {} {
   #pack .fb.zm -side left
 	ttk::button .fb.si -compound $comp -text [::msgcat::mc "Delete info labels"] -image im_del_infos -command {efface_infos_connexion}
 	pack .fb.si -side left
-	ttk::button .fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_eteindre \
+	ttk::button .fb.startall -compound $comp -text [::msgcat::mc "Start all"] -image im_start_all \
+	-command {
+		demarrer_tout
+	}
+	pack .fb.startall -side left
+	ttk::button .fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_stop_all \
 	-command {
 		if ![verif_arret] {
 			if {[dialogue_confirm_arreter_tout]} {
@@ -59,7 +64,7 @@ proc fenetre_principale {} {
 			}
 		}
 	}
-	pack .fb.stopall -side left	
+	pack .fb.stopall -side left
   ttk::button .fb.quit -compound $comp -text [::msgcat::mc "Quit"] -image im_quitter -command quit
   pack .fb.quit -side right
   ttk::frame .f -relief sunken
@@ -200,7 +205,6 @@ proc clic_gauche_canvas {x y} {
 		
 		#On a cliqué sur un objet
 		set id [lindex $tags 0]
-		
 		if {[lindex $tags 1] == "note"} {
 			#Affichage d'une note car clic sur l'icone de note
 			affiche_note $idset ::tmp(id1) {}
@@ -216,8 +220,8 @@ proc clic_gauche_canvas {x y} {
 			raise_objet $id
 			#Il passe en avant plan
 			$::c raise $id
+			
 		}
-		
 	} else {
 		
 		#On a cliqué dans le vide (aucun objet sélectionné)
@@ -227,6 +231,11 @@ proc clic_gauche_canvas {x y} {
 			# on repasse en mode sélection
 			set ::tmp(sel,type) {}
 			$::c configure -cursor hand2
+		} elseif {$::tmp(sel,type) != {} && $::tmp(sel,famille) == {connection}} {
+			# on est en mode création de liaison mais on a cliqué dans le vide > on sort du mode
+			annule_creation_liaison
+			$::c configure -cursor hand2
+			
 		}
 	}
 	
@@ -293,22 +302,18 @@ proc masque_objet {id} {
 # proc de gestion des clics de création d'une liaison entre 2 éléments
 ################################################################################
 proc creation_liaison {id} {
-	# cas où on veut créer une connexion
+	
 	if {$::tmp(id1) == {}} {
 		# on vient de sélectionner le 1er objet
 		set ::tmp(sel,interface) {}
 		menu_choix_connexion $id
 		if {$::tmp(sel,interface) != {}} {
+			# on a sélectionné l'interface à laquelle on veut attacher le câble
 			set ::tmp(id1) $id
 			set ::tmp(id1,eth) $::tmp(sel,interface)
 		} else {
-			# on repasse en mode sélection
-			set ::tmp(sel,type) {}
-			$::c configure -cursor hand2
-			set ::tmp(id1) {}
-			set ::tmp(id1,eth) {}
-			set ::tmp(id2) {}
-			set ::tmp(id2,eth) {}
+			# on repasse en mode sélection car on a annulé
+			annule_creation_liaison
 		}
 	} else {
 		# on vient de sélectionner le 2ème objet
@@ -316,26 +321,37 @@ proc creation_liaison {id} {
 		menu_choix_connexion $id
 		# On a bien sélectionné une interface dans le menu
 		if {$::tmp(sel,interface) != {}} {
+			# on a bien sélectionné la 2ème interface à connecter
 			set ::tmp(id2) $id
 			set ::tmp(id2,eth) $::tmp(sel,interface)
-			# on crée la connexion
 			if {$::tmp(id1)==$::tmp(id2)} {
 				tk_messageBox -icon warning -title [::msgcat::mc "Impossible"] -message [::msgcat::mc "Cannot connect on itself !"]
 			} else {
 				creation_connexion $::tmp(id1) $::tmp(id2) $::tmp(id1,eth) $::tmp(id2,eth) $::tmp(sel,type)
 			}
-			# on repasse en mode sélection
-			set ::tmp(sel,type) {}
-			$::c configure -cursor hand2
 		}
-		$::c delete tmp_connection
-		set ::tmp(id1) {}
-		set ::tmp(id1,eth) {}
-		set ::tmp(id2) {}
-		set ::tmp(id2,eth) {}
+		# on repasse en mode sélection
+		annule_creation_liaison
 	}
+	
 }
 
+
+# Sortie du mode de création de liaison
+#############################################€
+proc annule_creation_liaison {} {
+	
+	# on repasse en mode sélection
+	set ::tmp(sel,type) {}
+	set ::tmp(id1) {}
+	set ::tmp(id1,eth) {}
+	set ::tmp(id2) {}
+	set ::tmp(id2,eth) {}
+	$::c delete tmp_connection
+	$::c configure -cursor hand2
+	
+	
+}
 
 ################################################################################
 proc clic_droit_canvas {x y} {
@@ -889,9 +905,9 @@ proc fenetre_infos_cable {id} {
 ###############################################################################
 proc canvas_bouge {x y} {
 	
+	$::c delete tmp_connection
 	#Cas où on est en train de créer un nouveau câble : affichage câble en rouge en direct
-	if {$::tmp(id1) != {}} {
-			$::c delete tmp_connection
+	if {$::tmp(sel,type) != {} && $::tmp(id1) != {}} {
 			set x1 $::obj($::tmp(id1),x)
 			set y1 $::obj($::tmp(id1),y)
 			set x [expr $x - 5]
@@ -948,7 +964,9 @@ proc clic_gauche_canvas_bouge {x y} {
   
 }
 
-################################################################################
+# création d'un menu contextuel pour sélectionner une interface réseau sur un matériel
+# (création d'une connexion)
+#######################################################################################
 proc menu_choix_connexion {id} {
   
   set ::tmp(sel,interface) {}
@@ -1044,6 +1062,8 @@ proc creer_images_interface {} {
   image create photo im_config -file $::rep/images/configure.gif
   image create photo im_annuler -file $::rep/images/cancel.gif
   image create photo im_valider -file $::rep/images/apply.gif
+  image create photo im_start_all -file $::rep/images/start_all.gif
+  image create photo im_stop_all -file $::rep/images/stop_all.gif
   image create photo im_eteindre -file $::rep/images/shutdown.gif
   image create photo im_del_infos -file $::rep/images/delete_infos.gif
   image create photo im_carte -file $::rep/images/map.gif
@@ -1122,24 +1142,43 @@ proc dessine_objet {id} {
 ################################################################################
 proc dessine_connexion {id} {
 	
-  $::c delete $id
-  set type $::obj($id,type)
-  #Infos des 2 objets connectés par cette connexion
-  set id1 $::obj($id,id1)
-  set id2 $::obj($id,id2)
-  set x1 $::obj($id1,x)
-  set y1 $::obj($id1,y)
-  set x2 $::obj($id2,x)
-  set y2 $::obj($id2,y)
-  set l [$::c create line $x1 $y1 $x2 $y2 -tag "$id connectique $type" \
-   -dash $::def($type,trait) -width 2 -fill $::def($type,coul)] 
-  # le trait de connexion passe en dessous des autres objets
-  $::c lower $l
+  	$::c delete $id
+  	set type $::obj($id,type)
+  	#Infos des 2 objets connectés par cette connexion
+  	set id1 $::obj($id,id1)
+  	set id2 $::obj($id,id2)
+	
+	set offset 0
+	set i 0
+	set m m$i
+	while {$i <= $::tmp(lastid) && $m != $id} {
+			set m m$i
+		if {[info exists ::obj($m,famille)] &&  $::obj($m,famille) == "connection"} {
+    		if {$id1 == $::obj($m,id1) && $id2 == $::obj($m,id2) || $id1 == $::obj($m,id2) && $id2 == $::obj($m,id1)} {
+				set offset [expr $offset + 5]
+    		}
+		}
+		incr i
+	}
+	set x1 $::obj($id1,x)
+	set y1 $::obj($id1,y)
+	set x2 $::obj($id2,x)
+	set y2 $::obj($id2,y)
+  	set x1 [expr $x1 + $offset]
+	set y1 [expr $y1 + $offset]
+	set x2 [expr $x2 + $offset]
+	set y2 [expr $y2 + $offset]
+	
+	set l [$::c create line $x1 $y1 $x2 $y2 -tag "$id connectique $type" \
+		-dash $::def($type,trait) -width 2 -fill $::def($type,coul)] 
+	# le trait de connexion passe en dessous des autres objets
+	$::c lower $l
 	
 	#Mise à jour étiquettes infos
 	maj_infos_connexion $id
   
 }
+
 
 # Dessine ou met à jour les étiquettes d'infos des interfaces sur les connexions
 ################################################################################

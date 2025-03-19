@@ -194,6 +194,7 @@ Shutdown  Arrêter
 "SSH server"  "Serveur SSH"
 "SSH server configuration"  "Configuration du service SSH"
 Start  Démarrer
+"Start all"  "Tout démarrer"
 Static Statique
 "Static configuration"  "Configuration statique"
 "Static routing" "Routage statique"
