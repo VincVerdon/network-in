@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250319
+# Version 20250324
 
 # Suppression d'un câble
 ################################################################################
@@ -198,10 +198,11 @@ proc demarre_switch {id} {
   # démarrage du vde_switch
   if {$famille == {hub}} {
     # cas d'un hub
-    eval exec vde_switch -d -nostdin -n $::obj($id,nb_eth) -hub -s $::rep_tmp/vde/$id
+    eval exec vde_switch -d -nostdin --fstp -n $::obj($id,nb_eth) -hub -s $::rep_tmp/vde/$id
   } else  {
-		eval exec vde_switch -d -nostdin -n $::obj($id,nb_eth) -M $::rep_tmp/terminal/$id -s $::rep_tmp/vde/$id
+	  eval exec vde_switch -d -nostdin --fstp -n $::obj($id,nb_eth) -M $::rep_tmp/terminal/$id -s $::rep_tmp/vde/$id
   }
+	#set ::tmp($id,pid_vde) {}
 	set ::tmp($id,pid_vde) [string range [eval exec lsof -Fp $::rep_tmp/vde/$id/ctl 2>/dev/null] 1 end]
   # l'objet est déclaré actif désormais
   set ::tmp($id,etat) 1
