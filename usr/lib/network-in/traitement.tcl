@@ -889,7 +889,7 @@ proc archiver_projet {f} {
   update
   # Sauvegarde de chaque machine UML
 	cd $::rep_proj
-  set l_rep_c [glob -nocomplain "datas/m\[0-9\]*"]
+  set l_rep_c [glob -nocomplain {datas/m[0-9]*}]
   foreach rep_c $l_rep_c {
     set rep [file tail $rep_c]
     # on vérifie si l'archive existe déjà ou non

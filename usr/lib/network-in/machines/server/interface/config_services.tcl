@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20250103
+# Version 202500404
 # Ce module a besoin des libs réseau
 source [file join $::rep lib_reseau.tcl]
 
@@ -243,6 +243,25 @@ proc applique_config_dns {} {
     puts $f "file \"/etc/bind/db.inverse\";"
     puts $f "\};"
     close $f
+	
+	# ecriture du fichier de config named.options
+	set f [open /etc/bind/named.conf.options w]
+	puts $f "// Automatic configuration by Network-In interface"
+	puts $f ""
+	puts $f "options \{"
+	puts $f "directory \"/var/cache/bind\";"
+	puts $f "// forwarders \{"
+	puts $f "//      0.0.0.0;"
+	puts $f "// \};"
+    puts $f ""
+	puts $f "dnssec-validation auto;"
+	puts $f "listen-on-v6 \{ any; \};"
+	puts $f "recursion yes;"
+	puts $f "allow-query \{ any; \};"
+	puts $f "allow-query-cache \{ any; \};"
+	puts $f "allow-recursion \{ any; \};"
+	puts $f "\};"
+	close $f
 
     # ecriture du fichier de zone directe
     set fd [open /etc/bind/db.direct w]
