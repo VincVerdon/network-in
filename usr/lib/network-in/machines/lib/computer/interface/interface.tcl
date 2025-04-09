@@ -4,15 +4,16 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface bureau
 ####################################################################
-# Version 20250207
+# Version 20250407
 set version(equipment) {2.0}
 
 # Création de l'interface principale (bureau)
 ################################################################################
 proc fenetre_principale {} {
     
-    set nom [exec hostname] 
-    wm title . $nom
+    #set nom [exec hostname] 
+    #wm title . $nom
+    boucle_scan_hostname
     wm protocol . WM_DELETE_WINDOW {#}
     wm iconphoto . -default im_icone
     wm resizable . 0 0
@@ -57,8 +58,9 @@ proc fenetre_principale {} {
 
     update
     winid_maj [winid_parent [winfo id .]]
-	
+    
 }
+
 
 
 

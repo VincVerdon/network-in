@@ -4,15 +4,16 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface bureau
 ####################################################################
-# Version 20250214
+# Version 20250414
 set version(equipment) {1.0}
 
 # Création de l'interface principale machine type Linux
 ################################################################################
 proc fenetre_principale {} {
     
-    set nom [exec hostname] 
-    wm title . $nom
+    #set nom [exec hostname] 
+    #wm title . $nom
+    boucle_scan_hostname
     wm protocol . WM_DELETE_WINDOW {#}
     wm iconphoto . -default im_icone
 	

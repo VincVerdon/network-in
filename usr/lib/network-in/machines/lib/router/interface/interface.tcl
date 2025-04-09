@@ -4,19 +4,17 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface routeur
 ####################################################################
-# Version 20250207
+# Version 20250407
 set version(equipment) {2.0}
 
 # Création de l'interface de configuration principale
 ################################################################################
 proc fenetre_principale {} {
 
-    set nom [exec hostname]
-    if {$nom == "unnamed"} {
-    wm title . [::msgcat::mc "unnamed"]
-    } else  {
-        wm title . $nom
-    }
+    #set nom [exec hostname]
+    #wm title . $nom
+	boucle_scan_hostname
+		
     wm protocol . WM_DELETE_WINDOW {#}
     wm iconphoto . -default im_icone
     ecrire_fichier_echange window_id [winfo id .]

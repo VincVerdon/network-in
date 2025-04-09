@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250324
+# Version 20250408
 
 # Suppression d'un câble
 ################################################################################
@@ -78,6 +78,8 @@ proc demarre_ordinateur {id} {
 			return
 		}
 	}
+	
+	set opts "con0=fd:0,fd:1 con1=xterm"
 	
   puts ">>>>STARTING MACHINE $id"
   set famille $::obj($id,famille)
@@ -175,7 +177,7 @@ proc demarre_ordinateur {id} {
 	set exe [concat $exe eth99=vde,$::rep_tmp/vde/switch_com]
 	
 	# démarrage du pc
-	set ::tmp($id,pid) [eval exec $exe &]
+	set ::tmp($id,pid) [eval exec $exe > $::rep_tmp/$id.log 2>&1 &]
 
   # démarrage de la boucle de surveillance de machine
   boucle_demarre_objet $id
@@ -254,7 +256,7 @@ proc demarre_connexion {id} {
     return
   }
 	
-	puts "DEMARRAGE CONNEXION $id1 : $::tmp($id1,etat) ; $id2 : $::tmp($id2,etat)"
+	puts "Starting connection $id1 : $::tmp($id1,etat) ; $id2 : $::tmp($id2,etat)"
   if {$::tmp($id1,etat) && $::tmp($id2,etat)} {
     set n 0
     foreach i "$id1 $id2" {
@@ -279,7 +281,7 @@ proc demarre_connexion {id} {
     }
     # On branche !
     set ::tmp($id,pid) [exec dpipe vde_plug $rep1 = vde_plug $rep2 &]
-		puts "CONNEXION OK $id1 - $id2"
+		puts "Connection $id1 - $id2 established"
 		#Mise à jour étiquettes infos
 		maj_infos_connexion $id
   }
@@ -359,7 +361,7 @@ proc arrete_connexion {id} {
 
 	set id1 $::obj($id,id1)
 	set id2 $::obj($id,id2)
-	puts "ARRET CONNEXION $id1 - $id2"
+	puts "Connection $id1 - $id2 stopped"
     kill $::tmp($id,pid)
     set ::tmp($id,pid) {}
   

@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions utilitaires interface bureau ordinateur et routeur
 ####################################################################
-# Version 20250122
+# Version 20250414
 
 # proc positionnant une toplevel à la position du bureau
 ###############################################################################
@@ -45,12 +45,14 @@ proc winid_parent {winid} {
     return $res2
 }
 
+
 # met à jour la liste des id de fenêtres en ajoutant le nouvel id
 ################################################################################
 proc winid_maj {winid} {
     append ::window_id "$winid "
     ecrire_fichier_echange window_id $::window_id
 }
+
 
 # récupère l'id de fenêtre d'un exe à partir de son PID
 ################################################################################
@@ -69,6 +71,7 @@ proc winid_from_pid {pid} {
     }
     return $winid
 }
+
 
 # Lancement d'une application et récupération de son winid
 ################################################################################
@@ -90,4 +93,13 @@ proc lancer {app} {
 		after 1000 . configure -cursor left_ptr
 	}
 	
+}
+
+
+# Permet la mise à jour du nom sur l'interface graphique
+################################################################################
+proc boucle_scan_hostname {} {
+    set nom [exec hostname] 
+    wm title . $nom
+    after 5000 boucle_scan_hostname
 }

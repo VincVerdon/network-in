@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250319
+# Version 20250408
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -76,7 +76,7 @@ proc fenetre_principale {} {
   
   # Creation du canvas de dessin
   set ::c .f.c
-  canvas $::c -background $::coul(fond) -cursor hand2 -scrollregion {0 0 1500 1000} \
+  canvas $::c -background $::coul(fond) -closeenough 2 -cursor hand2 -scrollregion {0 0 1500 1000} \
 		-xscrollcommand ".hscroll set" \
 		-yscrollcommand ".f.vscroll set"
   pack $::c -expand 1 -fill both -side left
@@ -188,57 +188,6 @@ proc maj_titre {} {
   set proj [split $::tmp(file) .]
   set proj [lindex $proj 0]
   wm title . "[::msgcat::mc "Network-In! simulator"] - $proj"
-}
-
-# Gestion du clic simple gauche sur le canvas
-################################################################################
-proc clic_gauche_canvas {x y} {
-
-	#destruction de certains éléments s'ils existent
-	destroy .note
-	destroy $::c.mc
-	
-	set tags [$::c find closest $x $y 0]
-	set tags [$::c gettags $tags]
-	
-	if {[lindex $tags end] == {current}} {
-		
-		#On a cliqué sur un objet
-		set id [lindex $tags 0]
-		if {[lindex $tags 1] == "note"} {
-			#Affichage d'une note car clic sur l'icone de note
-			affiche_note $idset ::tmp(id1) {}
-		} elseif {$::obj($id,famille) == {connection}} {
-			#On a cliqué sur une connexion, on affiche les infos sur cette connexion
-			set ::tmp($id,infos_connexion) 1
-			maj_infos_connexion $id
-		} elseif {$::tmp(sel,type) != {} && $::tmp(sel,famille) == {connection}} {
-			#On est en mode création de liaison
-			creation_liaison $id
-		} else {
-			#on a cliqué sur un objet on veut mettre en avant ses fenêtres s'il est démarré ou le masquer
-			raise_objet $id
-			#Il passe en avant plan
-			$::c raise $id
-			
-		}
-	} else {
-		
-		#On a cliqué dans le vide (aucun objet sélectionné)
-		if {$::tmp(sel,type) != {} && $::tmp(sel,famille) != {connection}} {
-			# on veut créer un objet (pas une liaison)
-			creation_objet $::tmp(sel,famille) $::tmp(sel,type) $x $y
-			# on repasse en mode sélection
-			set ::tmp(sel,type) {}
-			$::c configure -cursor hand2
-		} elseif {$::tmp(sel,type) != {} && $::tmp(sel,famille) == {connection}} {
-			# on est en mode création de liaison mais on a cliqué dans le vide > on sort du mode
-			annule_creation_liaison
-			$::c configure -cursor hand2
-			
-		}
-	}
-	
 }
 
 
@@ -353,15 +302,74 @@ proc annule_creation_liaison {} {
 	
 }
 
+
+# Gestion du clic simple gauche sur le canvas
+################################################################################
+proc clic_gauche_canvas {x y} {
+
+	#destruction de certains éléments s'ils existent
+	destroy .note
+	destroy $::c.mc
+	
+	set tags [$::c find closest $x $y 0]
+	set tags [$::c gettags $tags]
+	if {[lindex $tags end] == {current}} {
+		
+		#On a cliqué sur un objet
+		set id [lindex $tags 0]
+		if {$id == 0} {
+			# On a cliqué sur le trait rouge de création on sélectionne l'id suivant
+			set id [lindex $tags 1]
+		}
+		if {[lindex $tags 1] == "note"} {
+			#Affichage d'une note car clic sur l'icone de note
+			affiche_note $id
+		} elseif {$::obj($id,famille) == {connection}} {
+			#On a cliqué sur une connexion, on affiche les infos sur cette connexion
+			set ::tmp($id,infos_connexion) 1
+			maj_infos_connexion $id
+		} elseif {$::tmp(sel,type) != {} && $::tmp(sel,famille) == {connection}} {
+			#On est en mode création de liaison
+			creation_liaison $id
+		} else {
+			#on a cliqué sur un objet on veut mettre en avant ses fenêtres s'il est démarré ou le masquer
+			raise_objet $id
+			#Il passe en avant plan
+			$::c raise $id
+			
+		}
+	} else {
+		
+		#On a cliqué dans le vide (aucun objet sélectionné)
+		if {$::tmp(sel,type) != {} && $::tmp(sel,famille) != {connection}} {
+			# on veut créer un objet (pas une liaison)
+			creation_objet $::tmp(sel,famille) $::tmp(sel,type) $x $y
+			# on repasse en mode sélection
+			set ::tmp(sel,type) {}
+			$::c configure -cursor hand2
+		} elseif {$::tmp(sel,type) != {} && $::tmp(sel,famille) == {connection}} {
+			# on est en mode création de liaison mais on a cliqué dans le vide > on sort du mode
+			annule_creation_liaison
+			$::c configure -cursor hand2
+			
+		}
+	}
+	
+}
+
+
 ################################################################################
 proc clic_droit_canvas {x y} {
   
-  set tags [$::c find closest $x $y 0]
+  set tags [$::c find closest $x $y 0] 
   set tags [$::c gettags $tags]
-  
   if {[lindex $tags end] == {current}} {
     # cas où on a cliqué sur un objet
     set id [lindex $tags 0]
+	  if {$id == 0} {
+			  # On a cliqué sur le trait rouge de création on sélectionne l'id suivant
+			  set id [lindex $tags 1]
+		  }
     # coordonnées dans le repère écran
     set X [winfo pointerx .]
     set Y [winfo pointery .]
@@ -369,6 +377,7 @@ proc clic_droit_canvas {x y} {
   }
   
 }
+
 
 # Création menu contextuel pour un matériel
 ################################################################################
@@ -529,6 +538,7 @@ proc menu_contextuel_objet {id x y} {
     $::c.mc post $X $Y
     
 }
+
 
 # Dialogue appelé lors de la demande de suppression d'un composant
 ###############################################################
@@ -910,15 +920,23 @@ proc canvas_bouge {x y} {
 	if {$::tmp(sel,type) != {} && $::tmp(id1) != {}} {
 			set x1 $::obj($::tmp(id1),x)
 			set y1 $::obj($::tmp(id1),y)
-			set x [expr $x - 5]
-			set y [expr $y -5]
-			set l [$::c create line $x1 $y1 $x $y -tag "0 tmp_connection" \
+		if {$x1 < $x} {
+			set x [expr $x - 10]
+		} else {
+			set x [expr $x + 10]
+		}
+		if {$y1 < $y} {
+			set y [expr $y - 10]
+		} else {
+			set y [expr $y + 10]
+		}
+		set l [$::c create line $x1 $y1 $x $y -tag "0 tmp_connection" \
 			   -width 2 -fill red]
 		}
 	
 }
 
-
+# Comportement si on bouge un objet en maintenant le clic
 ################################################################################
 proc clic_gauche_canvas_bouge {x y} {
 	
@@ -936,6 +954,10 @@ proc clic_gauche_canvas_bouge {x y} {
   }
   
   set id [lindex $tags 0]
+	if {$id == 0} {
+		# On a cliqué sur le trait rouge de création on sélectionne l'id suivant
+		set id [lindex $tags 1]
+	}
 	
   if {$::obj($id,famille) == {connection}} {
     # cas où on a cliqué sur une connexion : rien à faire alors
