@@ -108,6 +108,11 @@ creer_images_interface
 creer_fontes_interface
 fenetre_principale
 
+# Démarrage affichage Xephyr
+#exec Xephyr -resizeable -listen tcp -ac $::screen &
+exec Xephyr -listen tcp -listen local -screen 1024x768 $::screen &
+exec xfwm4 --display $::screen &
+
 
 # restauration du projet en cours
 if {[file exists $::rep_proj/structure.xml]} {

@@ -11,9 +11,9 @@ set ::version(nat) 2.0
 ################################################################################
 proc interface_passerelle {id} {
   
-  toplevel .passe
+  toplevel .passe -screen $::screen
   maj_nom_passerelle $id
-  wm protocol .passe WM_DELETE_WINDOW {#}
+  wm protocol .passe WM_DELETE_WINDOW {hide_passerelle}
   wm iconphoto .passe -default im_nat
   wm resizable .passe 0 0
   
@@ -40,6 +40,7 @@ proc interface_passerelle {id} {
 ################################################################################
 proc raise_passerelle {} {
 	if [winfo exists .passe] {
+		wm deiconify .passe
 		raise .passe
 	}
 }
@@ -48,7 +49,8 @@ proc raise_passerelle {} {
 ################################################################################
 proc hide_passerelle {} {
 	if [winfo exists .passe] {
-		lower .passe
+		#lower .passe
+		wm withdraw .passe
 	}
 }
 
