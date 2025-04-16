@@ -16,6 +16,8 @@ proc fenetre_config_vbox {id} {
 	wm title .vbox$id [get_vbox_current_name $id]
 	wm protocol .vbox$id WM_DELETE_WINDOW "supprime_fenetre_config_vbox $id"
 	wm iconphoto .vbox$id -default im_virtualbox
+	wm resizable .vbox$id 0 0
+	
 	label .vbox$id.ico -image im_virtualbox
 	pack .vbox$id.ico
 	
@@ -30,7 +32,7 @@ proc fenetre_config_vbox {id} {
 	if {! $::tmp($id,is_present)} {
 		.vbox$id.f.3 configure -state disabled
 	}
-	button .vbox$id.f.4 -text [::msgcat::mc "About"] -command "a_propos $::version(vbox)"
+	button .vbox$id.f.4 -text [::msgcat::mc "About"] -command "a_propos $::version(vbox) .vbox$id"
 	pack .vbox$id.f.4 -fill x
 	# boutons
 	frame .vbox$id.fb

@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la bridge nat
 ####################################################################
-# Version 20250219
+# Version 20250414
 set ::version(bridge) 1.0
 
 # Interface de configuration de base de la machine
@@ -12,7 +12,7 @@ set ::version(bridge) 1.0
 proc interface_bridge {id} {
   
 	destroy .br$id
-	toplevel .br$id
+	toplevel .br$id -screen $::screen
 	maj_nom_bridge $id
 	wm protocol .br$id WM_DELETE_WINDOW {#}
 	wm iconphoto .br$id -default im_bridge
@@ -29,7 +29,7 @@ proc interface_bridge {id} {
 	pack .br$id.f.2 -fill x
 	button .br$id.f.3 -text [::msgcat::mc "Name"] -command "fenetre_config_nom_bridge $id"
 	pack .br$id.f.3 -fill x
-	button .br$id.f.4 -text [::msgcat::mc "About"] -command "a_propos $::version(bridge)"
+	button .br$id.f.4 -text [::msgcat::mc "About"] -command "a_propos $::version(bridge) .br$id"
 	pack .br$id.f.4 -fill x
     
     # boutons
@@ -94,7 +94,7 @@ proc fenetre_config_nom_bridge {id} {
     
   set ::tmp($id,nom) $::obj($id,nom)
     
-  toplevel .brnom$id
+  toplevel .brnom$id -screen $::screen
   wm title .brnom$id [::msgcat::mc "Name configuration"]
   wm transient .brnom$id .br$id
   positionne_fenetre .brnom$id .br$id
@@ -131,7 +131,7 @@ proc fenetre_config_nom_tap_bridge {id} {
     
     set ::tmp($id,nom_tap) $::obj($id,nom_tap)
     
-	toplevel .brnom$id
+	toplevel .brnom$id -screen $::screen
 	wm title .brnom$id [::msgcat::mc "Interface configuration"]
 	wm transient .brnom$id .br$id
     positionne_fenetre .brnom$id .br$id
@@ -181,7 +181,7 @@ proc fenetre_config_ip_bridge {id} {
     set ::tmp($id,gateway) $::obj($id,gateway_tap)
     set ::tmp($id,conf_tap) $::obj($id,conf_tap)
 
-    toplevel .brip$id
+    toplevel .brip$id -screen $::screen
     wm title .brip$id [::msgcat::mc "Host side IP configuration"]
     wm transient .brip$id .br$id
     positionne_fenetre .brip$id .br$id

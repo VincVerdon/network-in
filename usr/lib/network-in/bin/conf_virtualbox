@@ -22,7 +22,7 @@ case "$ACTION" in
 		vboxmanage modifyvm $VM --nicgenericdrv${NIC} VDE
 		vboxmanage modifyvm $VM --nicproperty${NIC} network=$TMP/vde/$ID
 		#Démarrage VM
-		vboxmanage startvm $VM
+		DISPLAY=:0 vboxmanage startvm $VM
 		;;
 	    
 	stop) 

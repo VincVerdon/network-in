@@ -13,6 +13,8 @@ set version(network-in) 2.0-beta9
 
 encoding system utf-8
 
+wm withdraw .
+
 # on determine le repertoire de demarrage
 #set rep [info nameofexecutable]
 set rep [file dirname [file normalize [info script]]]
@@ -29,6 +31,8 @@ if {[file exists $::rep_conf/network-in.cfg]} {
 #Création du rep de projet s'il n'existe pas
 if ![file exists $::rep_proj] {
 	file mkdir $::rep_proj
+	file mkdir $::rep_proj/logs
+	file mkdir $::rep_proj/datas
 }
 
 #Création des rep de config et de stockage d'images disque s'il n'existent pas
@@ -109,10 +113,17 @@ creer_fontes_interface
 fenetre_principale
 
 # Démarrage affichage Xephyr
-#exec Xephyr -resizeable -listen tcp -ac $::screen &
-exec Xephyr -listen tcp -listen local -screen 1024x768 $::screen &
-exec xfwm4 --display $::screen &
-
+#toplevel .x -screen :0
+#wm geometry .x 1600x900
+#frame .x.f -container 1
+#pack .x.f -fill both -expand 1
+#update
+#exec Xephyr -parent [scan [winfo id .x.f] %x] -listen tcp -listen local -screen 1600x900 -resizeable $::screen &
+#after 1000
+#exec st -f "DejaVu Sans Mono-12"  -w [scan [winfo id .x.f] %x] &
+update
+#exec xfwm4 --display $::screen &
+#wm deiconify .x
 
 # restauration du projet en cours
 if {[file exists $::rep_proj/structure.xml]} {

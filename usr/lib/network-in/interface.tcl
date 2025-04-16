@@ -10,12 +10,13 @@
 proc fenetre_principale {} {
   
   # paramètres généraux de la fenêtre
-  wm protocol . WM_DELETE_WINDOW {quit}
-  wm iconphoto . -default im_network-in
+	toplevel .main
+  wm protocol .main WM_DELETE_WINDOW {quit}
+  wm iconphoto .main -default im_network-in
   
   # création barre de menus
-  set m .menubar
-  . configure -menu $m
+  set m .main.menubar
+  .main configure -menu $m
   menu $m
   # menu fichier
   $m add cascade -menu $m.file -label [::msgcat::mc "File"]
@@ -28,9 +29,9 @@ proc fenetre_principale {} {
   # menu outils
   $m add cascade -menu $m.tools -label [::msgcat::mc "Options"]
   menu $m.tools -tearoff 0
-	$m.tools add cascade -label [::msgcat::mc "Type of interface"] -menu $m.tools.niv
-	creation_menu_niveau $m.tools.niv
-	$m.tools add separator
+  $m.tools add cascade -label [::msgcat::mc "Type of interface"] -menu $m.tools.niv
+  creation_menu_niveau $m.tools.niv
+  $m.tools add separator
   $m.tools add command -label [::msgcat::mc "Messages"] -command affiche_logs
   $m.tools add command -label [::msgcat::mc "Terminal"] -command affiche_term
   # menu aide
@@ -38,25 +39,25 @@ proc fenetre_principale {} {
   menu $m.help -tearoff 0
   $m.help add command -label [::msgcat::mc "License"] \
       -command "affiche_texte $::rep/licence.txt"
-  .menubar.help add separator
-  .menubar.help add command -label [::msgcat::mc "About"] -command {a_propos}
+  $m.help add separator
+  $m.help add command -label [::msgcat::mc "About"] -command {a_propos}
   
   # zone de boutons en haut
   set comp right
-  ttk::frame .fb
-  pack .fb -fill x
-  #ttk::button .fb.zp -image im_zoom+ -command {$::c scale all 0 0 2 2}
-  #pack .fb.zp -side left
-  #ttk::button .fb.zm -image im_zoom- -command {$::c scale all 0 0 0.5 0.5}
-  #pack .fb.zm -side left
-	ttk::button .fb.si -compound $comp -text [::msgcat::mc "Delete info labels"] -image im_del_infos -command {efface_infos_connexion}
-	pack .fb.si -side left
-	ttk::button .fb.startall -compound $comp -text [::msgcat::mc "Start all"] -image im_start_all \
+  ttk::frame .main.fb
+  pack .main.fb -fill x
+  #ttk::button .main.fb.zp -image im_zoom+ -command {$::c scale all 0 0 2 2}
+  #pack .main.fb.zp -side left
+  #ttk::button .main.fb.zm -image im_zoom- -command {$::c scale all 0 0 0.5 0.5}
+  #pack .main.fb.zm -side left
+	ttk::button .main.fb.si -compound $comp -text [::msgcat::mc "Delete info labels"] -image im_del_infos -command {efface_infos_connexion}
+	pack .main.fb.si -side left
+	ttk::button .main.fb.startall -compound $comp -text [::msgcat::mc "Start all"] -image im_start_all \
 	-command {
 		demarrer_tout
 	}
-	pack .fb.startall -side left
-	ttk::button .fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_stop_all \
+	pack .main.fb.startall -side left
+	ttk::button .main.fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_stop_all \
 	-command {
 		if ![verif_arret] {
 			if {[dialogue_confirm_arreter_tout]} {
@@ -64,28 +65,28 @@ proc fenetre_principale {} {
 			}
 		}
 	}
-	pack .fb.stopall -side left
-  ttk::button .fb.quit -compound $comp -text [::msgcat::mc "Quit"] -image im_quitter -command quit
-  pack .fb.quit -side right
-  ttk::frame .f -relief sunken
-  pack .f -fill both -expand 1
+	pack .main.fb.stopall -side left
+  ttk::button .main.fb.quit -compound $comp -text [::msgcat::mc "Quit"] -image im_quitter -command quit
+  pack .main.fb.quit -side right
+  ttk::frame .main.f -relief sunken
+  pack .main.f -fill both -expand 1
   
   # zone de boutons à gauche
-  frame .f.bg
-  pack .f.bg -side left
+  frame .main.f.bg
+  pack .main.f.bg -side left
   
   # Creation du canvas de dessin
-  set ::c .f.c
+  set ::c .main.f.c
   canvas $::c -background $::coul(fond) -closeenough 2 -cursor hand2 -scrollregion {0 0 1500 1000} \
-		-xscrollcommand ".hscroll set" \
-		-yscrollcommand ".f.vscroll set"
+		-xscrollcommand ".main.hscroll set" \
+		-yscrollcommand ".main.f.vscroll set"
   pack $::c -expand 1 -fill both -side left
 	
 	# Scroll barres
-	scrollbar .f.vscroll -command "$::c yview"
-  scrollbar .hscroll -orient horiz -command "$::c xview"
-  #pack .f.vscroll -side left -fill y
-	#pack .hscroll -fill x
+	scrollbar .main.f.vscroll -command "$::c yview"
+  scrollbar .main.hscroll -orient horiz -command "$::c xview"
+  #pack .main.f.vscroll -side left -fill y
+	#pack .main.hscroll -fill x
 	
   # événements canvas
   bind $::c <B1-Motion> {clic_gauche_canvas_bouge %x %y}
@@ -94,9 +95,9 @@ proc fenetre_principale {} {
   bind $::c <Motion> {canvas_bouge %x %y}
 	
   # zone des outils de conception reseau
-  ttk::notebook .fc
-  pack .fc -side left
-  bind .fc  <<NotebookTabChanged>> {traite_changement_panneau}
+  ttk::notebook .main.fc
+  pack .main.fc -side left
+  bind .main.fc  <<NotebookTabChanged>> {traite_changement_panneau}
   # creation des onglets
   foreach famille $::def(liste_familles) {
 		creation_onglet $famille
@@ -120,17 +121,17 @@ proc change_niveau_detail {n} {
 	foreach famille $::def(liste_familles) {
   	#on affiche l'onglet de la famille si le niveau de détail de l'interface est ok
       	if {$::def($famille,voir) <= $n} {
-      		.fc add .fc.$famille
+      		.main.fc add .main.fc.$famille
 			#On affiche à l'intérieur de l'onglet uniquement les composants qui doivent l'être
 			foreach type $::def($famille,liste) {
 				if {$::def($type,voir) <= $n} {
-					pack .fc.$famille.$type -fill x -side left -fill y
+					pack .main.fc.$famille.$type -fill x -side left -fill y
 				} else {
-					pack forget .fc.$famille.$type
+					pack forget .main.fc.$famille.$type
 				}
 			}
       	} else {
-      		.fc hide .fc.$famille
+      		.main.fc hide .main.fc.$famille
       	}
 	}
 	
@@ -158,13 +159,13 @@ proc creation_menu_niveau {m} {
 ################################################################################
 proc affiche_barre {message} {
   # on récupère la taille de l'écran
-  set l  [winfo screenwidth .]
-  set h [winfo screenheight .]
-  set t .barre
+  set l  [winfo screenwidth .main]
+  set h [winfo screenheight .main]
+  set t .main.barre
   destroy $t
   toplevel $t
   wm title $t "[::msgcat::mc "Please, be patient"]"
-  wm transient $t .
+  wm transient $t .main
   wm geometry $t 100x40+[expr $l / 2 - 50]+[expr $h / 2 - 50]
   label $t.l -text $message
   pack $t.l
@@ -179,7 +180,7 @@ proc affiche_barre {message} {
 
 ################################################################################
 proc detruit_barre {} {
-  destroy .barre
+  destroy .main.barre
 }
 
 # Mise à jour du titre de la fenêtre principale
@@ -187,7 +188,7 @@ proc detruit_barre {} {
 proc maj_titre {} {
   set proj [split $::tmp(file) .]
   set proj [lindex $proj 0]
-  wm title . "[::msgcat::mc "Network-In! simulator"] - $proj"
+  wm title .main "[::msgcat::mc "Network-In! simulator"] - $proj"
 }
 
 
@@ -371,7 +372,7 @@ proc clic_droit_canvas {x y} {
 			  set id [lindex $tags 1]
 		  }
     # coordonnées dans le repère écran
-    set X [winfo pointerx .]
+    set X [winfo pointerx .main]
     set Y [winfo pointery .]
     menu_contextuel_objet $id $X $Y
   }
@@ -532,8 +533,8 @@ proc menu_contextuel_objet {id x y} {
     }
     
     # coordonnées dans le repère écran
-    set X [winfo pointerx .]
-    set Y [winfo pointery .]
+    set X [winfo pointerx .main]
+    set Y [winfo pointery .main]
     # affichage
     $::c.mc post $X $Y
     
@@ -607,7 +608,7 @@ proc fenetre_modif_note {id} {
 	
 	destroy .com
 	toplevel .com
-	wm transient .com .
+	wm transient .com .main
 	wm title .com [::msgcat::mc "Add or change comment"]
 	ttk::label .com.ico -image im_note
 	pack .com.ico
@@ -655,8 +656,8 @@ proc maj_note {id} {
 proc affiche_note {id} {
 	
 	# coordonnées dans le repère écran
-	set X [winfo pointerx .]
-	set Y [winfo pointery .]
+	set X [winfo pointerx .main]
+	set Y [winfo pointery .main]
 	destroy .note
 	toplevel .note
 	wm overrideredirect .note 1
@@ -1033,9 +1034,9 @@ proc menu_choix_connexion {id} {
 ################################################################################
 proc creation_onglet {famille} {
   
-  set pal_m .fc.$famille
+  set pal_m .main.fc.$famille
   frame $pal_m
-  .fc add $pal_m -text $::def($famille,label)
+  .main.fc add $pal_m -text $::def($famille,label)
 	
   # Bouton de sélection
   ttk::radiobutton $pal_m.sel -image im_select -width 80 -variable ::tmp(sel,type) -value {} -command {$::c configure -cursor hand2}
@@ -1063,7 +1064,7 @@ proc creation_onglet {famille} {
 
 ################################################################################
 proc traite_changement_panneau {} {
-  set w [.fc select]
+  set w [.main.fc select]
   set ::tmp(sel,famille) [file extension $w]
   set ::tmp(sel,famille) [string range $::tmp(sel,famille) 1 end]
   set ::tmp(sel,type) {}
@@ -1406,13 +1407,13 @@ proc dialogue_nouveau_projet {} {
 
 # Affichage de la boite Apropos avec éventuellement la version du matériel
 ################################################################################
-proc a_propos {{version {}}} {
+proc a_propos {{version {}} {parent .}} {
 	
 	set text $::apropos
 	if {$version != {}} {
 		set text "$text\n[::msgcat::mc "Equipment version"] : $version"
 	}
-	tk_messageBox -icon info -title "[::msgcat::mc "About"]..." -message $text
+	tk_messageBox -icon info -title "[::msgcat::mc "About"]..." -message $text -parent $parent
 	
 }
 

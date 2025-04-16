@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250219
+# Version 20250414
 set ::version(nat) 2.0
 
 # Interface de configuration de base de la machine
@@ -26,7 +26,7 @@ proc interface_passerelle {id} {
   pack .passe.f.1 -fill x
   button .passe.f.3 -text [::msgcat::mc "Name"] -command "fenetre_config_nom_passerelle $id"
   pack .passe.f.3 -fill x
-	button .passe.f.4 -text [::msgcat::mc "About"] -command "a_propos $::version(nat)"
+	button .passe.f.4 -text [::msgcat::mc "About"] -command "a_propos $::version(nat) .passe"
 	pack .passe.f.4 -fill x
   
 	# boutons
@@ -71,7 +71,7 @@ proc change_nom_passerelle {id} {
 proc maj_nom_passerelle {id} {
     
   if {$::obj($id,nom) == {}} {
-    wm title .passe [::msgcat::mc "unnamed"]
+    wm title .passe $id
   } else  {
     wm title .passe $::obj($id,nom)
   }
@@ -90,7 +90,7 @@ proc fenetre_config_nom_passerelle {id} {
     
     set ::tmp($id,nom) $::obj($id,nom)
     
-  toplevel .passe2
+  toplevel .passe2 -screen $::screen
   wm title .passe2 [::msgcat::mc "Name configuration"]
   wm transient .passe2 .passe
   positionne_fenetre .passe2 .passe
@@ -130,7 +130,7 @@ proc fenetre_config_ip_passerelle {id} {
   set ::tmp($id,ip_anc) $::obj($id,ip_eth0)
   set ::tmp($id,netmask_anc)  $::obj($id,netmask_eth0)
   
-  toplevel .passe3
+  toplevel .passe3 -screen $::screen
   wm title .passe3 [::msgcat::mc "IP configuration"]
   wm transient .passe3 .passe
   positionne_fenetre .passe3 .passe

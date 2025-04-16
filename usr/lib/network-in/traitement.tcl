@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250408
+# Version 20250414
 
 # Suppression d'un câble
 ################################################################################
@@ -177,7 +177,7 @@ proc demarre_ordinateur {id} {
 	set exe [concat $exe eth99=vde,$::rep_tmp/vde/switch_com]
 	
 	# démarrage du pc
-	set ::tmp($id,pid) [eval exec $exe > $::rep_tmp/$id.log 2>&1 &]
+	set ::tmp($id,pid) [eval exec $exe > $::rep_proj/logs/$id.log 2>&1 &]
 
   # démarrage de la boucle de surveillance de machine
   boucle_demarre_objet $id
@@ -200,9 +200,9 @@ proc demarre_switch {id} {
   # démarrage du vde_switch
   if {$famille == {hub}} {
     # cas d'un hub
-    eval exec vde_switch -d -nostdin --fstp -n $::obj($id,nb_eth) -hub -s $::rep_tmp/vde/$id
+    eval exec vde_switch -d -nostdin --fstp -n $::obj($id,nb_eth) -hub -s $::rep_tmp/vde/$id > $::rep_proj/logs/$id.log 2>&1
   } else  {
-	  eval exec vde_switch -d -nostdin --fstp -n $::obj($id,nb_eth) -M $::rep_tmp/terminal/$id -s $::rep_tmp/vde/$id
+	eval exec vde_switch -d -nostdin --fstp -n $::obj($id,nb_eth) -M $::rep_tmp/terminal/$id -s $::rep_tmp/vde/$id > $::rep_proj/logs/$id.log 2>&1
   }
 	#set ::tmp($id,pid_vde) {}
 	set ::tmp($id,pid_vde) [string range [eval exec lsof -Fp $::rep_tmp/vde/$id/ctl 2>/dev/null] 1 end]
@@ -740,8 +740,8 @@ proc sauvegarder_projet {} {
   
 	#on récupère la taille actuelle du canvas
 	update
-	set ::tmp(width) [winfo width .]
-	set ::tmp(height) [winfo height .]
+	set ::tmp(width) [winfo width .main]
+	set ::tmp(height) [winfo height .main]
 	
 	set date_time [clock seconds]
 	set ::tmp(date) [clock format $date_time -format "%Y-%m-%d %H:%M:%S"]
@@ -776,7 +776,7 @@ proc restaurer_projet {} {
 	change_niveau_detail $::tmp(details)
 	
 	# mise à la taille du canvas
-	wm geometry . $::tmp(width)x$::tmp(height)
+	wm geometry .main $::tmp(width)x$::tmp(height)
 	
 	# on initialise quelques variables
 	set ::tmp(id1) {}
@@ -853,13 +853,15 @@ proc init_projet {} {
 	$::c delete all
 	
 	# mise à la taille du canvas
-	wm geometry . $::tmp(width)x$::tmp(height)
+	wm geometry .main $::tmp(width)x$::tmp(height)
 	
 	# nettoyage et creation du nouveau répertoire de projet
 	catch {file delete -force $::rep_proj/datas}
+	catch {file delete -force $::rep_proj/logs}
 	catch {file delete -force $::rep_proj/structure.xml}
 	catch {file delete -force $::rep_proj/structure.sav}
 	catch {file mkdir $::rep_proj/datas}
+	catch {file mkdir $::rep_proj/logs}
 	
 }
 
