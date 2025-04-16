@@ -79,8 +79,6 @@ proc demarre_ordinateur {id} {
 		}
 	}
 	
-	set opts "con0=fd:0,fd:1 con1=xterm"
-	
   puts ">>>>STARTING MACHINE $id"
   set famille $::obj($id,famille)
   set type $::obj($id,type)
