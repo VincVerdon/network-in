@@ -9,55 +9,59 @@
 ################################################################################
 proc fenetre_principale {} {
   
-  # paramètres généraux de la fenêtre
+  	# paramètres généraux de la fenêtre
 	toplevel .main
-  wm protocol .main WM_DELETE_WINDOW {quit}
-  wm iconphoto .main -default im_network-in
-  
-  # création barre de menus
-  set m .main.menubar
-  .main configure -menu $m
-  menu $m
-  # menu fichier
-  $m add cascade -menu $m.file -label [::msgcat::mc "File"]
-  menu $m.file -tearoff 0
-  $m.file add command -label [::msgcat::mc "New project"] -command "dialogue_nouveau_projet"
-  $m.file add command -label [::msgcat::mc "Open an existing project"] -command "dialogue_ouvrir_projet {}"
-  $m.file add command -label [::msgcat::mc "Save the actual project"] -command "dialogue_enregistrer_projet"
+	wm protocol .main WM_DELETE_WINDOW {quit}
+	wm iconphoto .main -default im_network-in
+	
+	# création barre de menus
+	set m .main.menubar
+	.main configure -menu $m
+	menu $m
+	# menu fichier
+	$m add cascade -menu $m.file -label [::msgcat::mc "File"]
+	menu $m.file -tearoff 0
+	$m.file add command -label [::msgcat::mc "New project"] -command "dialogue_nouveau_projet"
+	$m.file add command -label [::msgcat::mc "Open an existing project"] -command "dialogue_ouvrir_projet {}"
+	$m.file add command -label [::msgcat::mc "Save the actual project"] -command "dialogue_enregistrer_projet"
 	$m.file add separator
-  $m.file add command -label [::msgcat::mc "Quit"] -command quit
-  # menu outils
-  $m add cascade -menu $m.tools -label [::msgcat::mc "Options"]
-  menu $m.tools -tearoff 0
-  $m.tools add cascade -label [::msgcat::mc "Type of interface"] -menu $m.tools.niv
-  creation_menu_niveau $m.tools.niv
-  $m.tools add separator
-  $m.tools add command -label [::msgcat::mc "Messages"] -command affiche_logs
-  $m.tools add command -label [::msgcat::mc "Terminal"] -command affiche_term
-  # menu aide
-  $m add cascade -menu $m.help -label [::msgcat::mc "Help"]
-  menu $m.help -tearoff 0
-  $m.help add command -label [::msgcat::mc "License"] \
+	$m.file add command -label [::msgcat::mc "Quit"] -command quit
+	# menu outils
+	$m add cascade -menu $m.tools -label [::msgcat::mc "Options"]
+	menu $m.tools -tearoff 0
+	$m.tools add cascade -label [::msgcat::mc "Type of interface"] -menu $m.tools.niv
+	creation_menu_niveau $m.tools.niv
+	$m.tools add separator
+	$m.tools add command -label [::msgcat::mc "Messages"] -command affiche_logs
+	$m.tools add command -label [::msgcat::mc "Terminal"] -command affiche_term
+	# menu aide
+	$m add cascade -menu $m.help -label [::msgcat::mc "Help"]
+	menu $m.help -tearoff 0
+	$m.help add command -label [::msgcat::mc "License"] \
       -command "affiche_texte $::rep/licence.txt"
-  $m.help add separator
-  $m.help add command -label [::msgcat::mc "About"] -command {a_propos}
-  
-  # zone de boutons en haut
-  set comp right
-  ttk::frame .main.fb
-  pack .main.fb -fill x
-  #ttk::button .main.fb.zp -image im_zoom+ -command {$::c scale all 0 0 2 2}
-  #pack .main.fb.zp -side left
-  #ttk::button .main.fb.zm -image im_zoom- -command {$::c scale all 0 0 0.5 0.5}
-  #pack .main.fb.zm -side left
-	ttk::button .main.fb.si -compound $comp -text [::msgcat::mc "Delete info labels"] -image im_del_infos -command {efface_infos_connexion}
-	pack .main.fb.si -side left
-	ttk::button .main.fb.startall -compound $comp -text [::msgcat::mc "Start all"] -image im_start_all \
+    $m.help add separator
+    $m.help add command -label [::msgcat::mc "About"] -command {a_propos}
+    
+	# Frame conteneur zone de schéma
+	ttk::frame .main.sch -relief sunken
+	pack .main.sch -fill y -expand 1 -side left
+	
+	# zone de boutons en haut
+	set comp right
+	ttk::frame .main.sch.fb
+	pack .main.sch.fb -fill x
+	#ttk::button .main.sch.fb.zp -image im_zoom+ -command {$::c scale all 0 0 2 2}
+	#pack .main.schb.f.zp -side left
+	#ttk::button .main.sch.fb.zm -image im_zoom- -command {$::c scale all 0 0 0.5 0.5}
+	#pack .main.sch.fb.zm -side left
+	ttk::button .main.sch.fb.si -compound $comp -text [::msgcat::mc "Delete info labels"] -image im_del_infos -command {efface_infos_connexion}
+	pack .main.sch.fb.si -side left
+	ttk::button .main.sch.fb.startall -compound $comp -text [::msgcat::mc "Start all"] -image im_start_all \
 	-command {
-		demarrer_tout
+	demarrer_tout
 	}
-	pack .main.fb.startall -side left
-	ttk::button .main.fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_stop_all \
+	pack .main.sch.fb.startall -side left
+	ttk::button .main.sch.fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_stop_all \
 	-command {
 		if ![verif_arret] {
 			if {[dialogue_confirm_arreter_tout]} {
@@ -65,45 +69,52 @@ proc fenetre_principale {} {
 			}
 		}
 	}
-	pack .main.fb.stopall -side left
-  ttk::button .main.fb.quit -compound $comp -text [::msgcat::mc "Quit"] -image im_quitter -command quit
-  pack .main.fb.quit -side right
-  ttk::frame .main.f -relief sunken
-  pack .main.f -fill both -expand 1
-  
-  # zone de boutons à gauche
-  frame .main.f.bg
-  pack .main.f.bg -side left
-  
-  # Creation du canvas de dessin
-  set ::c .main.f.c
-  canvas $::c -background $::coul(fond) -closeenough 2 -cursor hand2 -scrollregion {0 0 1500 1000} \
-		-xscrollcommand ".main.hscroll set" \
-		-yscrollcommand ".main.f.vscroll set"
-  pack $::c -expand 1 -fill both -side left
+	pack .main.sch.fb.stopall -side left
+	ttk::button .main.sch.fb.quit -compound $comp -text [::msgcat::mc "Quit"] -image im_quitter -command quit
+	pack .main.sch.fb.quit -side right
+	
+	# Creation du canvas de dessin avec scroll
+	frame .main.sch.f
+	pack .main.sch.f -fill both -expand 1
+	set ::c .main.sch.f.c
+	canvas $::c -background $::coul(fond) -closeenough 2 -cursor hand2 \
+  		-scrollregion {0 0 1500 1000} \
+		-xscrollcommand ".main.sch.hscroll set" -yscrollcommand ".main.sch.f.vscroll set"
+	pack $::c -fill both -expand 1 -side left
 	
 	# Scroll barres
-	scrollbar .main.f.vscroll -command "$::c yview"
-  scrollbar .main.hscroll -orient horiz -command "$::c xview"
-  #pack .main.f.vscroll -side left -fill y
-	#pack .main.hscroll -fill x
+	scrollbar .main.sch.f.vscroll -command "$::c yview"
+	scrollbar .main.sch.hscroll -orient horiz -command "$::c xview"
+	pack .main.sch.f.vscroll -side left -fill y
+	pack .main.sch.hscroll -fill x
 	
-  # événements canvas
-  bind $::c <B1-Motion> {clic_gauche_canvas_bouge %x %y}
-  bind $::c <ButtonPress-1> {clic_gauche_canvas %x %y}
-  bind $::c <ButtonPress-3> {clic_droit_canvas %x %y}
-  bind $::c <Motion> {canvas_bouge %x %y}
+	# Frame conteneur zone d'affichage de la simulation
+	ttk::frame .main.sim -relief sunken
+	pack .main.sim -fill both -side left
+	#frame .main.sch.sim -container 1
+	#pack .main.sch.sim -side right -fill both -expand 1
+	#update
+	#exec Xephyr -parent [scan [winfo id .main.sch.sim] %x] -listen tcp -listen local -screen 800x600 -resizeable $::screen &
+	#after 1000
+	#update
+	#exec xfwm4 --display $::screen &
 	
-  # zone des outils de conception reseau
-  ttk::notebook .main.fc
-  pack .main.fc -side left
-  bind .main.fc  <<NotebookTabChanged>> {traite_changement_panneau}
-  # creation des onglets
-  foreach famille $::def(liste_familles) {
+	# zone des outils de conception reseau
+	ttk::notebook .main.sch.fc
+	pack .main.sch.fc
+	# creation des onglets
+	foreach famille $::def(liste_familles) {
 		creation_onglet $famille
-  }
+	}
 	
+	# Gestion des événements
+	bind $::c <B1-Motion> {clic_gauche_canvas_bouge %x %y}
+	bind $::c <ButtonPress-1> {clic_gauche_canvas %x %y}
+	bind $::c <ButtonPress-3> {clic_droit_canvas %x %y}
+	bind $::c <Motion> {canvas_bouge %x %y}
+	bind .main.sch.fc  <<NotebookTabChanged>> {traite_changement_panneau}
 }
+
 
 #Effacement de toutes les infos connexion affichées
 #############################################################################
@@ -121,17 +132,17 @@ proc change_niveau_detail {n} {
 	foreach famille $::def(liste_familles) {
   	#on affiche l'onglet de la famille si le niveau de détail de l'interface est ok
       	if {$::def($famille,voir) <= $n} {
-      		.main.fc add .main.fc.$famille
+      		.main.sch.fc add .main.sch.fc.$famille
 			#On affiche à l'intérieur de l'onglet uniquement les composants qui doivent l'être
 			foreach type $::def($famille,liste) {
 				if {$::def($type,voir) <= $n} {
-					pack .main.fc.$famille.$type -fill x -side left -fill y
+					pack .main.sch.fc.$famille.$type -fill x -side left -fill y
 				} else {
-					pack forget .main.fc.$famille.$type
+					pack forget .main.sch.fc.$famille.$type
 				}
 			}
       	} else {
-      		.main.fc hide .main.fc.$famille
+      		.main.sch.fc hide .main.sch.fc.$famille
       	}
 	}
 	
@@ -1034,9 +1045,9 @@ proc menu_choix_connexion {id} {
 ################################################################################
 proc creation_onglet {famille} {
   
-  set pal_m .main.fc.$famille
+  set pal_m .main.sch.fc.$famille
   frame $pal_m
-  .main.fc add $pal_m -text $::def($famille,label)
+  .main.sch.fc add $pal_m -text $::def($famille,label)
 	
   # Bouton de sélection
   ttk::radiobutton $pal_m.sel -image im_select -width 80 -variable ::tmp(sel,type) -value {} -command {$::c configure -cursor hand2}
@@ -1064,7 +1075,7 @@ proc creation_onglet {famille} {
 
 ################################################################################
 proc traite_changement_panneau {} {
-  set w [.main.fc select]
+  set w [.main.sch.fc select]
   set ::tmp(sel,famille) [file extension $w]
   set ::tmp(sel,famille) [string range $::tmp(sel,famille) 1 end]
   set ::tmp(sel,type) {}
@@ -1637,3 +1648,29 @@ proc positionne_fenetre {top {parent {.}}} {
     set y [winfo y $parent]
     wm geometry $top +$x+$y
 }
+
+# Mise à jour taille du schéma en fonction des valeurs de tmp
+###############################################################################
+proc set_schema_size {} {
+	#$::c configure -width $::tmp(width)
+	#$::c configure -height $::tmp(height)
+	wm geometry .main $::tmp(width)x$::tmp(height)
+	update
+}
+
+# On récupère la taille du schéma dans tmp
+###############################################################################
+proc get_schema_size {} {
+	update
+	#set ::tmp(width) [winfo width $::c]
+	#set ::tmp(height) [winfo height $::c]
+	set ::tmp(width) [winfo width .main]
+	set ::tmp(height) [winfo height .main]
+}
+
+# On supprime un ou des objets du schéma
+###############################################################################
+proc canvas_delete {val} {
+	$::c delete $val
+}
+

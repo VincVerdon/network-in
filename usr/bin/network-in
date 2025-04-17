@@ -55,12 +55,13 @@ echo Start at $(date) &>$LOG_FILE
 sudo $REP/bin/network-in-start &>>$LOG_FILE
 
 #démarrage screen
-wish $REP/screen.tcl & &>>$LOG_FILE
-xfwm4 --display :10 &
-sleep 2
+#wish $REP/screen.tcl & &>>$LOG_FILE
+#sleep 1
+#xfwm4 --display :10 &
+#sleep 1
 #démarrage de Network-in
-wish $REP/network-in.tcl $SIM_FILE -display :10 &>>$LOG_FILE
-
+#wish $REP/network-in.tcl $SIM_FILE -display :10 &>>$LOG_FILE
+wish $REP/network-in.tcl $SIM_FILE &>>$LOG_FILE
 
 #Arrêt des interfaces et déparamétrage du parefeu
 sudo $REP/bin/network-in-stop &>>$LOG_FILE

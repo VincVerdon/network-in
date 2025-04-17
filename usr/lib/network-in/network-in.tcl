@@ -112,19 +112,6 @@ creer_images_interface
 creer_fontes_interface
 fenetre_principale
 
-# Démarrage affichage Xephyr
-#toplevel .x -screen :0
-#wm geometry .x 1600x900
-#frame .x.f -container 1
-#pack .x.f -fill both -expand 1
-#update
-#exec Xephyr -parent [scan [winfo id .x.f] %x] -listen tcp -listen local -screen 1600x900 -resizeable $::screen &
-#after 1000
-#exec st -f "DejaVu Sans Mono-12"  -w [scan [winfo id .x.f] %x] &
-update
-#exec xfwm4 --display $::screen &
-#wm deiconify .x
-
 # restauration du projet en cours
 if {[file exists $::rep_proj/structure.xml]} {
     restaurer_projet

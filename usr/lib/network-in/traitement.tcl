@@ -13,7 +13,7 @@ proc supprimer_connexion {id} {
   arrete_connexion $id
   
   # on efface le câble
-  $::c delete $id
+  canvas_ delete $id
   # on supprime le câble
   set id1 $::obj($id,id1)
   set id2 $::obj($id,id2)
@@ -45,7 +45,7 @@ proc supprimer_objet {id} {
   # suppression de l'objet
   array unset ::obj $id,*
   # on efface l'objet
-  $::c delete $id
+  canvas_delete $id
   # on sauvegarde les données obj
   sauvegarder_projet
   
@@ -737,9 +737,7 @@ proc demarrer_tout {} {
 proc sauvegarder_projet {} {
   
 	#on récupère la taille actuelle du canvas
-	update
-	set ::tmp(width) [winfo width .main]
-	set ::tmp(height) [winfo height .main]
+	get_schema_size
 	
 	set date_time [clock seconds]
 	set ::tmp(date) [clock format $date_time -format "%Y-%m-%d %H:%M:%S"]
@@ -774,7 +772,7 @@ proc restaurer_projet {} {
 	change_niveau_detail $::tmp(details)
 	
 	# mise à la taille du canvas
-	wm geometry .main $::tmp(width)x$::tmp(height)
+	set_schema_size
 	
 	# on initialise quelques variables
 	set ::tmp(id1) {}
@@ -848,10 +846,11 @@ proc init_projet {} {
 	change_niveau_detail $::niveau(defaut)
 	
 	# effacement des objets sur le canvas
-	$::c delete all
+	canvas_delete all
 	
 	# mise à la taille du canvas
-	wm geometry .main $::tmp(width)x$::tmp(height)
+	set_schema_size
+	
 	
 	# nettoyage et creation du nouveau répertoire de projet
 	catch {file delete -force $::rep_proj/datas}
