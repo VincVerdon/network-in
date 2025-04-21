@@ -188,6 +188,7 @@ Server  Serveur
 serveur  "Ordinateur serveur"
 "Server state"  "Etat du serveur"
 "Services configuration"  "Configuration des services"
+Simulation  Simulation
 "Simulator side"  "Côté simulateur"
 Shutdown  Arrêter
 "Shutdown all"  "Tout arrêter"

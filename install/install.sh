@@ -27,6 +27,7 @@ lsof;lsof
 wmctrl;wmctrl
 xwininfo;x11-utils
 iptables;iptables
+xfwm4;xfwm4
 "
 
 ARRET=false

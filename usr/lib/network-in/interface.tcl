@@ -13,6 +13,12 @@ proc fenetre_principale {} {
 	toplevel .main
 	wm protocol .main WM_DELETE_WINDOW {quit}
 	wm iconphoto .main -default im_network-in
+	wm attributes .main -zoomed true
+	update
+	set l [winfo width .main]
+	set h [winfo height .main]
+	set l_2 [expr $l / 2]
+	set h_2 [expr $h / 2]
 	
 	# création barre de menus
 	set m .main.menubar
@@ -42,10 +48,18 @@ proc fenetre_principale {} {
     $m.help add separator
     $m.help add command -label [::msgcat::mc "About"] -command {a_propos}
     
+	#Création des panneaux : schéma + simulation
+	############################################
+	ttk::panedwindow .main.pan -orient horizontal
+	pack .main.pan -fill both -expand 1
 	# Frame conteneur zone de schéma
-	ttk::frame .main.sch -relief sunken
-	pack .main.sch -fill y -expand 1 -side left
+	frame .main.sch -width $l_2 -height $h
+	frame .main.sim -width $l_2 -height $h
+	.main.pan add .main.sch
+	.main.pan add .main.sim
 	
+	# Zone de dessin du schéma
+	##########################
 	# zone de boutons en haut
 	set comp right
 	ttk::frame .main.sch.fb
@@ -73,31 +87,48 @@ proc fenetre_principale {} {
 	ttk::button .main.sch.fb.quit -compound $comp -text [::msgcat::mc "Quit"] -image im_quitter -command quit
 	pack .main.sch.fb.quit -side right
 	
-	# Creation du canvas de dessin avec scroll
+	# Creation du canvas de dessin
 	frame .main.sch.f
 	pack .main.sch.f -fill both -expand 1
 	set ::c .main.sch.f.c
-	canvas $::c -background $::coul(fond) -closeenough 2 -cursor hand2 \
-  		-scrollregion {0 0 1500 1000} \
+	canvas $::c -background $::coul(fond) -closeenough 10 -cursor hand2 \
+  		-scrollregion {0 0 1600 1000} \
 		-xscrollcommand ".main.sch.hscroll set" -yscrollcommand ".main.sch.f.vscroll set"
-	pack $::c -fill both -expand 1 -side left
-	
-	# Scroll barres
+	pack $::c -fill both  -side left -expand 1
 	scrollbar .main.sch.f.vscroll -command "$::c yview"
 	scrollbar .main.sch.hscroll -orient horiz -command "$::c xview"
 	pack .main.sch.f.vscroll -side left -fill y
 	pack .main.sch.hscroll -fill x
 	
-	# Frame conteneur zone d'affichage de la simulation
-	ttk::frame .main.sim -relief sunken
-	pack .main.sim -fill both -side left
-	#frame .main.sch.sim -container 1
-	#pack .main.sch.sim -side right -fill both -expand 1
-	#update
-	#exec Xephyr -parent [scan [winfo id .main.sch.sim] %x] -listen tcp -listen local -screen 800x600 -resizeable $::screen &
-	#after 1000
-	#update
-	#exec xfwm4 --display $::screen &
+	# Zone d'affichage de la simulation
+	###################################
+	frame .main.sim.f0
+	pack .main.sim.f0 -fill both -expand 1
+	scrollbar .main.sim.f0.vbar -command {.main.sim.f0.t yview} -orient vertical
+	pack .main.sim.f0.vbar -fill y -side left
+	scrollbar .main.sim.hbar -command {.main.sim.f0.t xview} -orient horizontal
+	
+	canvas .main.sim.f0.t -background $::coul(fond) -scrollregion "0 0 $l $h" \
+	-yscrollcommand {.main.sim.f0.vbar set} -xscrollcommand {.main.sim.hbar set}
+	pack .main.sim.f0.t -side right -fill both -expand 1
+	pack .main.sim.hbar -fill x
+	update
+	frame .main.sim.f0.f -width $l -height $h -container 1
+	update
+	.main.sim.f0.t create window $l_2 $h_2 -window .main.sim.f0.f
+	
+	update
+	# Démarrage serveur d'affichage Xephyr et le WM associé
+	set size "${l}x${h}"
+	puts $size
+	set ::tmp(x_pid) [exec Xephyr -background none -ac -no-host-grab -parent [scan [winfo id .main.sim.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]	
+	#set ::tmp(x_pid) [exec Xephyr -background none -ac -no-host-grab -parent [scan [winfo id .main.sim.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]
+	update
+	after 1000 {
+		exec $::x_wm --display $::screen &
+		#Initialisation des IP utilisées pour l'affichage des machines virtuelles
+		#init_x_com 20
+	}
 	
 	# zone des outils de conception reseau
 	ttk::notebook .main.sch.fc
@@ -108,11 +139,13 @@ proc fenetre_principale {} {
 	}
 	
 	# Gestion des événements
+	########################
+	bind .main.sch.fc  <<NotebookTabChanged>> {traite_changement_panneau}
 	bind $::c <B1-Motion> {clic_gauche_canvas_bouge %x %y}
 	bind $::c <ButtonPress-1> {clic_gauche_canvas %x %y}
 	bind $::c <ButtonPress-3> {clic_droit_canvas %x %y}
 	bind $::c <Motion> {canvas_bouge %x %y}
-	bind .main.sch.fc  <<NotebookTabChanged>> {traite_changement_panneau}
+	
 }
 
 
@@ -205,41 +238,63 @@ proc maj_titre {} {
 
 # met en avant les fenêtres de l'objet
 ################################################################################
-proc raise_objet {id} {
+proc show_object {id} {
     
 	switch $::obj($id,type) {
 		{nat} {
-			raise_passerelle
+			show_passerelle
 		}
 		{virtualbox} {
-			raise_vbox $id
+			show_vbox $id
 		}
 		{bridge} {
-			raise_bridge $id
+			show_bridge $id
 		}
-		
 		default {
-			
-			set cpt 1
-			foreach wid $::tmp($id,win_id) {
-				if {$cpt != 1} {
-					catch {exec wmctrl -i -a $wid}
-				} else {
-					set desk_wid $wid
-				}
-				incr cpt
-		}
-			#On met le bureau au premier plan
-			catch {exec wmctrl -i -a $desk_wid}
-		}
+			#Rien
+    	}
 	}
+	
+	switch $::obj($id,famille) {
+			{computer} {
+				show_computer $id
+			}
+			{router} {
+				show_computer $id
+			}
+			default {
+				#Rien
+			}
+		}
     
+}
+
+#Mise en avant machine type ordinateur
+#############################################################################
+proc show_computer {id} {
+	
+	set cpt 1
+	set desk_wid {}
+	foreach wid $::tmp($id,win_id) {
+		if {$cpt != 1} {
+			#catch {env DISPLAY=:5 exec wmctrl -i -a $wid}
+			raise_x_window $wid
+		} else {
+			set desk_wid $wid
+		}
+		incr cpt
+	}
+	#On met le bureau au premier plan
+	#catch {exec wmctrl -i -a $desk_wid}
+	if {$desk_wid != {}} {
+	raise_x_window $desk_wid
+	}
 }
 
 
 # réduit les fenêtres de l'objet
 ################################################################################
-proc masque_objet {id} {
+proc hide_object {id} {
     
 	switch $::obj($id,type) {
 		{nat} {
@@ -345,7 +400,7 @@ proc clic_gauche_canvas {x y} {
 			creation_liaison $id
 		} else {
 			#on a cliqué sur un objet on veut mettre en avant ses fenêtres s'il est démarré ou le masquer
-			raise_objet $id
+			show_object $id
 			#Il passe en avant plan
 			$::c raise $id
 			
@@ -736,10 +791,10 @@ proc fenetre_infos_objet {id} {
 	}
 	
 	#création du bouton fermer
-	ttk::button .inf.bou -compound right -text [::msgcat::mc "Close"] -image im_valider -command {destroy .inf}
+	ttk::button .inf.bou -compound left -text [::msgcat::mc "Close"] -image im_valider -command {destroy .inf}
 	pack .inf.bou
 	focus .inf.bou
-    positionne_fenetre .inf
+    positionne_fenetre .inf .main
   
 }
 
@@ -1416,25 +1471,55 @@ proc dialogue_nouveau_projet {} {
 }
 
 
+# Création d'une boite type messageBox adaptée à tout display
+################################################################################
+proc msg_box {path {title {}} {message {}} {parent .main} {screen {}}} {
+	
+	destroy $path
+	if {$screen == {}} {
+		toplevel $path
+	} else {
+		toplevel $path -screen $::screen
+	}
+	
+	wm title $path $title
+	wm resizable $path 0 0
+	#wm transient $path $parent
+	positionne_fenetre $path $parent
+	
+	label $path.ico -image im_info
+	pack $path.ico
+	label $path.l -text $message
+	pack $path.l
+	
+	button $path.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider \
+	-command "destroy $path"
+	pack $path.v
+	focus $path.v
+	
+}
+
+
 # Affichage de la boite Apropos avec éventuellement la version du matériel
 ################################################################################
-proc a_propos {{version {}} {parent .}} {
-	
+proc a_propos {{version {}} {parent .main} {screen {}}} {
+    
 	set text $::apropos
 	if {$version != {}} {
 		set text "$text\n[::msgcat::mc "Equipment version"] : $version"
 	}
-	tk_messageBox -icon info -title "[::msgcat::mc "About"]..." -message $text -parent $parent
+	#tk_messageBox -icon info -title "[::msgcat::mc "About"]..." -message $text -parent $parent
+	msg_box .apropos "[::msgcat::mc "About"]..." $text $parent $screen
 	
 }
 
 
 # Dialogue proposant de tout arreter et effacer pour créer un nouveau projet
 ################################################################################
-proc dialogue_arreter_tout {} {
+proc dialogue_arreter_tout {{parent {.main}} {screen {}}} {
 	
-	set reponse [tk_messageBox -icon info -title [::msgcat::mc "Information"] -message [::msgcat::mc "This action needs to shutdown every equipment"]]
-	
+	#set reponse [tk_messageBox -icon info -title [::msgcat::mc "Information"] -message [::msgcat::mc "This action needs to shutdown every equipment"]]
+	msg_box .apropos [::msgcat::mc "Information"] [::msgcat::mc "This action needs to shutdown every equipment"] $parent $screen
 }
 
 # Dialogue proposant de tout arreter et effacer pour créer un nouveau projet
@@ -1445,7 +1530,7 @@ proc dialogue_confirm_arreter_tout {} {
 	if [verif_arret] {
 		set ret 1
 	} else {
-		set reponse [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "Warning"] -message [::msgcat::mc "This action causes to stop every equipment. Proceed ?"]]
+		set reponse [tk_messageBox -type yesno -default no -parent .main -icon warning -title [::msgcat::mc "Warning"] -message [::msgcat::mc "This action causes to stop every equipment. Proceed ?"]]
 	  if {$reponse == "yes"} {
 		  set ret 1
 	  }
@@ -1556,7 +1641,7 @@ proc affiche_logs {} {
 		.t_mess.f.tex configure -state normal
 		.t_mess.f.tex delete 1.0 end
 		 #Appel commande tail Unix
-		 set fic $::rep_proj/network-in.log
+		 set fic $::rep_proj/logs/network-in.log
 		 #set txt [exec tail -n 200 $fic]
 		 set txt [exec cat $fic]
 		 .t_mess.f.tex insert end "$txt\n"
@@ -1643,7 +1728,7 @@ proc applique_change_mac {id type n} {
 
 # proc positionnant une toplevel à la position du bureau
 ###############################################################################
-proc positionne_fenetre {top {parent {.}}} {
+proc positionne_fenetre {top {parent {.main}}} {
     set x [winfo x $parent]
     set y [winfo y $parent]
     wm geometry $top +$x+$y
@@ -1673,4 +1758,53 @@ proc get_schema_size {} {
 proc canvas_delete {val} {
 	$::c delete $val
 }
+
+
+# Fenêtre d'affichage des matériels en cours de simulation
+###############################################################################
+proc fenetre_simulation_anc {} {
+	
+	toplevel .x
+	wm protocol .x WM_DELETE_WINDOW "quit .x $::screen"
+	wm iconphoto .x -default im_network-in
+	wm title .x "[::msgcat::mc "Network-In! simulator"] - [::msgcat::mc "Simulation"]"
+	wm attributes .x -zoomed true
+	update
+	set l [winfo width .x]
+	set h [winfo height .x]
+	set l_2 [expr $l / 2]
+	set h_2 [expr $h / 2]
+	
+	set size ${l_2}x$h
+	wm attributes .x -zoomed false
+	wm geometry .x $size
+	update
+	frame .x.f0 -width $l_2 -height $h
+	pack .x.f0 -fill both -expand 1
+	scrollbar .x.f0.vbar -command {.x.f0.t yview} -orient vertical
+	pack .x.f0.vbar -fill y -side right
+	scrollbar .x.hbar -command {.x.f0.t xview} -orient horizontal
+	text .x.f0.t -relief flat -background $::coul(fond) -state disable \
+	-yscrollcommand {.x.f0.vbar set} -xscrollcommand {.x.hbar set}
+	pack .x.f0.t -side left -fill both -expand 1
+	pack .x.hbar -fill x
+	
+	set size ${l}x${h} 
+	set size [expr $l / 2 - 50]x$h
+	frame .x.f0.f -container 1 -width [expr $l / 2 - 20] -height $h
+	update
+	.x.f0.t window create end -window .x.f0.f
+	
+	# Démarrage serveur d'affichage Xephyr et le WM associé
+	#-resizeable
+	set ::tmp(x_pid) [exec Xephyr -resizeable -background none -ac -no-host-grab -parent [scan [winfo id .x.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]
+	update
+	after 1000 {
+		exec $::x_wm --display $::screen &
+		#Initialisation des IP utilisées pour l'affichage des machines virtuelles
+		#init_x_com 20
+	}
+	
+}
+
 

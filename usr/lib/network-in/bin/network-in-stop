@@ -3,17 +3,20 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20250111
+#version 20250419
 ####################################################################
 TMP=/tmp/network-in
+N_SCREEN=$(grep -E  '^[^#]*set screen' /etc/network-in.cfg | grep -o '[0-9]')
+X_PORT=$((6000 + $N_SCREEN))
 
 #Effacement des règles de parefeu
-/sbin/iptables -D INPUT -i networkin_com -p tcp --dport 6000 -j ACCEPT 2>/dev/null
+/sbin/iptables -D INPUT -i networkin_com -p tcp --dport $X_PORT -j ACCEPT 2>/dev/null
 /sbin/iptables -D INPUT -i networkin_com -j DROP 2>/dev/null
 /sbin/iptables -D FORWARD -i networkin_com -j DROP 2>/dev/null
 
 #Arrêt des switchs
-kill $(pidof vde_switch)
+#kill $(pidof vde_switch)
+killall vde_switch
 
 #Désactivation des interfaces
 /sbin/ip link set networkin_com down

@@ -17,6 +17,7 @@ proc fenetre_config_vbox {id} {
 	wm protocol .vbox$id WM_DELETE_WINDOW "supprime_fenetre_config_vbox $id"
 	wm iconphoto .vbox$id -default im_virtualbox
 	wm resizable .vbox$id 0 0
+	positionne_fenetre .vbox$id
 	
 	label .vbox$id.ico -image im_virtualbox
 	pack .vbox$id.ico
@@ -53,7 +54,7 @@ proc supprime_fenetre_config_vbox {id} {
 
 # Fait passer la fenêtre de la passerelle en avant-plan
 ################################################################################
-proc raise_vbox {id} {
+proc show_vbox {id} {
 	if [winfo exists .vbox$id] {
 		raise .vbox$id
 	}
@@ -65,6 +66,7 @@ proc raise_vbox {id} {
 proc hide_vbox {} {
 	if [winfo exists .vbox$id] {
 		lower .vbox$id
+		wm withdraw .vbox$id
 	}
 }
 
@@ -76,8 +78,9 @@ proc fenetre_select_vbox {id} {
 	toplevel .vbox2$id
 	wm title .vbox2$id [::msgcat::mc "VM selection"]
 	wm transient .vbox2$id .vbox$id
+	positionne_fenetre .vbox2$id .vbox$id
 	
-  label .vbox2$id.ico -image im_config
+	label .vbox2$id.ico -image im_config
 	pack .vbox2$id.ico
 	
 	# zone de saisie
@@ -233,6 +236,7 @@ proc fenetre_config_nom_vbox {id} {
 	toplevel .vbox2$id
 	wm title .vbox2$id [::msgcat::mc "Name configuration"]
 	wm transient .vbox2$id .vbox$id
+	positionne_fenetre .vbox2$id .vbox$id
 	
 	label .vbox2$id.ico -image im_config
 	pack .vbox2$id.ico
@@ -281,6 +285,7 @@ proc fenetre_select_interf_vbox {id} {
 	toplevel .vbox2$id
 	wm title .vbox2$id [::msgcat::mc "Connected interface"]
 	wm transient .vbox2$id .vbox$id
+	positionne_fenetre .vbox2$id .vbox$id
 	
 	label .vbox2$id.ico -image im_config
 	pack .vbox2$id.ico

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20250208
+# Version 20250419
 
 # Lanceur de l'application
 #####################################
@@ -59,9 +59,11 @@ namespace eval term {
       frame $term.f -container 1
       pack $term.f -fill both -expand 1
       if {$exe != {}} {
-          exec st -f "DejaVu Sans Mono-12"  -w [scan [winfo id $term.f] %x] -e $exe &
+          # -f "DejaVu Sans Mono-12" 
+          exec st -w [scan [winfo id $term.f] %x] -e $exe &
+          
       } else {
-          exec st -f "DejaVu Sans Mono-12"  -w [scan [winfo id $term.f] %x] &
+          exec st -w [scan [winfo id $term.f] %x] &
       }
       wm deiconify $term
       winid_maj [winid_parent [winfo id $term]]
@@ -79,7 +81,7 @@ namespace eval term {
     #######################################################
     proc apropos {term} {
         set mess [::msgcat::mc "A terminal for Network-In!"]
-        set mess "$mess\nVersion 20241227\nV. Verdon Corp. !"
+        set mess "$mess\nVersion 20250419\nV. Verdon Corp. !"
         tk_messageBox -icon info -title "[::msgcat::mc "About"]..." \
                 -message $mess -parent $term
     }

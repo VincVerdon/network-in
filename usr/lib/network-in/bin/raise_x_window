@@ -1,0 +1,12 @@
+#!/bin/bash
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
+#version 20250419
+####################################################################
+TMP=/tmp/network-in
+WIN=$1		#WIN is the window identifier
+DISP=$2		#DIS is virtual X screen to use
+
+DISPLAY=$DISP wmctrl -i -a $WIN

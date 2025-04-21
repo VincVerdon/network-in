@@ -186,6 +186,7 @@ Server  Server
 serveur "Server computer"
 "Server state"  "Server state"
 "Services configuration"  "Services configuration"
+Simulation  Simulation
 "Simulator side"  "Simulator side"
 Shutdown  Shutdown
 "Shutdown all"  "Shutdown all"

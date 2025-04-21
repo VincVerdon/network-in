@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20250414
+#version 20250419
 ####################################################################
 
 #Rep d'installation
@@ -31,14 +31,14 @@ Look at /usr/share/doc/network-in for help'
         	'-v') echo $MES4 ;;
 		*) echo $MES3 ;;
 	esac
-	exit
+	exit 0
 fi
 
 #On refuse le démarrage si le simulateur est déjà démarré. Avec le pipe, le compte est bien 3 !
 if [ $(ps -C network-in -o pid= | wc -l) = 3 ]
 then
 	wish $REP/error.tcl err1
-	exit
+	exit 1
 fi
 
 # On interroge la config pour connaître l'emplacement du rep de projet
@@ -47,20 +47,15 @@ LOG_FILE=$REP_PROJ/logs/network-in.log
 if [ ! -e $REP_PROJ/logs ]
 then
   mkdir -p $REP_PROJ/logs
+  mkdir $REP_PROJ/datas
 fi
 
 echo Start at $(date) &>$LOG_FILE
 
-#démarrage des interfaces et paramétrages du parefeu
+#démarrage des interfaces et paramétrage du parefeu
 sudo $REP/bin/network-in-start &>>$LOG_FILE
 
-#démarrage screen
-#wish $REP/screen.tcl & &>>$LOG_FILE
-#sleep 1
-#xfwm4 --display :10 &
-#sleep 1
 #démarrage de Network-in
-#wish $REP/network-in.tcl $SIM_FILE -display :10 &>>$LOG_FILE
 wish $REP/network-in.tcl $SIM_FILE &>>$LOG_FILE
 
 #Arrêt des interfaces et déparamétrage du parefeu

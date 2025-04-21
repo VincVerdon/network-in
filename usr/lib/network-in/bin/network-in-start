@@ -7,12 +7,17 @@
 ####################################################################
 
 TMP=/tmp/network-in
-IP_HOST=172.31.255.1
-MASK_HOST=255.255.255.0
+IP_HOST=$(grep -E  '^[^#]*set ip_hote' /etc/network-in.cfg | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]')
+MASK_HOST=$(grep -E  '^[^#]*set masque_hote' /etc/network-in.cfg | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]')
+N_SCREEN=$(grep -E  '^[^#]*set screen' /etc/network-in.cfg | grep -o '[0-9]')
+X_PORT=$((6000 + $N_SCREEN))
 
 #Création du répertoire temporaire pour les sockets
 mkdir -p $TMP/vde $TMP/terminal
 chmod -R 777 $TMP
+
+#Nettoyage
+killall vde_switch 2> /dev/null
 
 #Création de l'interface et du switch de communication avec les machines virtuelles
 vde_tunctl -t networkin_com
@@ -21,12 +26,13 @@ vde_tunctl -t networkin_com
 vde_switch -d -nostdin -tap networkin_com -s $TMP/vde/switch_com -m 666
 
 #On vide les regles du pare-feu (encore actives en cas de crash)
-/sbin/iptables -D INPUT -i networkin_com -p tcp --dport 6000 -j ACCEPT 2>/dev/null
-/sbin/iptables -D INPUT -i networkin_com -j DROP 2>/dev/null
-/sbin/iptables -D FORWARD -i networkin_com -j DROP 2>/dev/null
+#/sbin/iptables -D INPUT -i networkin_com -p tcp --dport $X_PORT -j ACCEPT 2>/dev/null
+#/sbin/iptables -D INPUT -i networkin_com -j DROP 2>/dev/null
+#/sbin/iptables -D FORWARD -i networkin_com -j DROP 2>/dev/null
 
-#on empèche les machines virtuelles UML de sortir par l'interface de com, sauf X11 pour l'affichage
-/sbin/iptables -A INPUT -i networkin_com -p tcp --dport 6000 -j ACCEPT
+#On empèche les machines virtuelles UML de sortir par l'interface de com, sauf X11 pour l'affichage
+
+/sbin/iptables -A INPUT -i networkin_com -p tcp --dport $X_PORT -j ACCEPT
 /sbin/iptables -A INPUT -i networkin_com -j DROP
 /sbin/iptables -A FORWARD -i networkin_com -j DROP
 

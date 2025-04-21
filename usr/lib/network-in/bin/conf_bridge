@@ -3,11 +3,9 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20250128
+#version 20250419
 ####################################################################
 TMP=/tmp/network-in
-#REP_PROJ=/home/vincent/network-in-proj/
-#LOG_FILE=$REP_PROJ/network-in.log
 ID=$1
 TAP=$2
 ACTION=$3

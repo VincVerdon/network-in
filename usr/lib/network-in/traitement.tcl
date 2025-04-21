@@ -13,7 +13,7 @@ proc supprimer_connexion {id} {
   arrete_connexion $id
   
   # on efface le câble
-  canvas_ delete $id
+  canvas_delete $id
   # on supprime le câble
   set id1 $::obj($id,id1)
   set id2 $::obj($id,id2)
@@ -117,7 +117,7 @@ proc demarre_ordinateur {id} {
   # on écrit un fichier qui indique l'ip de communication de l'uml
   ecrire_fichier_echange $id ip_com $::tmp($id,ip_com)
   # on écrit un fichier qui indique le display de l'hôte
-  ecrire_fichier_echange $id display $::env(DISPLAY)
+  ecrire_fichier_echange $id display $::screen
   
   # On initialise les interfaces réseau et on écrit un fichier de com
 	set interf ""
@@ -657,10 +657,10 @@ proc verif_arret {} {
 
 # sortie du logiciel - une confirmation est demandée si machines pas arrêtées
 ################################################################################
-proc quit {} {
+proc quit {{parent .main} {screen {}}} {
     
 	if ![verif_arret] {
-		dialogue_arreter_tout
+		dialogue_arreter_tout $parent $screen
 	} else {
     	# on sauvegarde les données obj
     	sauvegarder_projet
@@ -669,6 +669,10 @@ proc quit {} {
         foreach i $liste {
             file delete -force $i
         }
+		
+		# Arrêt serveur X Xephyr
+		catch {kill $::tmp(x_pid)}
+		
         exit
 	}
 	
@@ -1056,3 +1060,22 @@ proc get_interface_ip {interf} {
 	}
 	return $ret
 }
+
+# Configuration accès fenetre affichage simulation pour les VM
+#################################################################################
+proc init_x_com {nb} {
+	
+	exec $::rep/bin/init_x_com $::tmp(reseau) $::tmp(n_ip_com) $nb $::screen
+	
+}
+
+
+# Mise en avant fenêtre machine
+#################################################################################
+proc raise_x_window {win_id} {
+	
+	catch {exec $::rep/bin/raise_x_window $win_id $::screen}
+	
+}
+
+

@@ -4,14 +4,13 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la bridge nat
 ####################################################################
-# Version 20250414
+# Version 20250419
 set ::version(bridge) 1.0
 
 # Interface de configuration de base de la machine
 ################################################################################
 proc interface_bridge {id} {
-  
-	destroy .br$id
+  	
 	toplevel .br$id -screen $::screen
 	maj_nom_bridge $id
 	wm protocol .br$id WM_DELETE_WINDOW {#}
@@ -23,13 +22,13 @@ proc interface_bridge {id} {
   
 	labelframe .br$id.f -text [::msgcat::mc "Configuration"]
 	pack .br$id.f -fill both -expand 1
-	#button .br$id.f.1 -text [::msgcat::mc "Bridge interface name"]  -command "fenetre_config_nom_tap_bridge $id" -width 20
+	#button .br$id.f.1 -text [::msgcat::mc "Bridge interface name"]  -command "fenetre_config_nom_tap_bridge $id"
 	#pack .br$id.f.1 -fill x
-	button .br$id.f.2 -text [::msgcat::mc "Host side IP configuration"]  -command "fenetre_config_ip_bridge $id" -width 20
+	button .br$id.f.2 -text [::msgcat::mc "Host side IP configuration"]  -command "fenetre_config_ip_bridge $id"
 	pack .br$id.f.2 -fill x
 	button .br$id.f.3 -text [::msgcat::mc "Name"] -command "fenetre_config_nom_bridge $id"
 	pack .br$id.f.3 -fill x
-	button .br$id.f.4 -text [::msgcat::mc "About"] -command "a_propos $::version(bridge) .br$id"
+	button .br$id.f.4 -text [::msgcat::mc "About"] -command "a_propos $::version(bridge) .br$id $::screen"
 	pack .br$id.f.4 -fill x
     
     # boutons
@@ -41,8 +40,9 @@ proc interface_bridge {id} {
 
 # Fait passer la fenêtre de la bridge en avant-plan
 ################################################################################
-proc raise_bridge {id} {
+proc show_bridge {id} {
 	if [winfo exists .br$id] {
+		wm deiconify .br$id
 		raise .br$id
 	}
 }
@@ -52,7 +52,8 @@ proc raise_bridge {id} {
 ################################################################################
 proc hide_bridge {id} {
 	if [winfo exists .br$id] {
-		lower .br$id
+		#lower .br$id
+		wm withdraw .br$id
 	}
 }
 
@@ -88,7 +89,7 @@ proc maj_nom_bridge {id} {
 proc fenetre_config_nom_bridge {id} {
   
     if [winfo exists .brnom$id] {
-        raise .brnom$id
+        show_bridge .brnom$id
         return
     }
     
@@ -125,7 +126,7 @@ proc fenetre_config_nom_bridge {id} {
 proc fenetre_config_nom_tap_bridge {id} {
 	
     if [winfo exists .brnom$id] {
-        raise .brnom$id
+        show_bridge .brnom$id
         return
     }
     
@@ -172,7 +173,7 @@ proc change_nom_tap_bridge {id} {
 proc fenetre_config_ip_bridge {id} {
     
     if [winfo exists .brip$id] {
-        raise .brip$id
+        show_bridge .brip$id
         return
     }
     
@@ -201,13 +202,13 @@ proc fenetre_config_ip_bridge {id} {
     labelframe .brip$id.f0 -text [::msgcat::mc "Configuration method"]
     pack .brip$id.f0 -fill both -expand 1
     
-    ttk::radiobutton .brip$id.f0.r1 -text "[::msgcat::mc "Managed by the host system"]" \
+    radiobutton .brip$id.f0.r1 -text "[::msgcat::mc "Managed by the host system"]" \
     -value {host} -variable ::tmp($id,conf_tap) -command  "desactive_interface_conf_ip $id"
     grid .brip$id.f0.r1 -row 0 -column 0 -sticky w
-    ttk::radiobutton .brip$id.f0.r2 -text "[::msgcat::mc "DHCP configuration"]" \
+    radiobutton .brip$id.f0.r2 -text "[::msgcat::mc "DHCP configuration"]" \
     -value {dhcp} -variable ::tmp($id,conf_tap) -command "desactive_interface_conf_ip $id"
     #grid .brip$id.f0.r2 -row 1 -column 0 -sticky w
-    ttk::radiobutton .brip$id.f0.r3 -text "[::msgcat::mc "Static configuration"]" \
+    radiobutton .brip$id.f0.r3 -text "[::msgcat::mc "Static configuration"]" \
     -value {static} -variable ::tmp($id,conf_tap) -command  "active_interface_conf_ip $id"
     grid .brip$id.f0.r3 -row 2 -column 0 -sticky w
     
