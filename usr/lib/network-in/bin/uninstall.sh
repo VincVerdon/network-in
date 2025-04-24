@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20240922
+#Version 20250425
 #############################
 REP_INS=$(dirname $0)
 #Repertoire de l'application
@@ -21,15 +21,7 @@ chmod 0440 /etc/sudoers
 sudo -v
 #rm -f /etc/sudoers.d/network-in
 
-#Modification of X server configuration to reject TCP connexions
-#With lightdm
-if [ -e /etc/lightdm/lightdm.conf ]
-then
-	sed -i 's/^xserver-allow-tcp=true$/#xserver-allow-tcp=false/' /etc/lightdm/lightdm.conf
-fi
-
 #files suppression
-rm /etc/lightdm/lightdm.conf.d/90-network-in.conf
 rm -rf $REP
 rm -f /etc/network-in.cfg
 rm -f /usr/bin/network-in

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250408
+# Version 20250422
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -17,8 +17,6 @@ proc fenetre_principale {} {
 	update
 	set l [winfo width .main]
 	set h [winfo height .main]
-	set l_2 [expr $l / 2]
-	set h_2 [expr $h / 2]
 	
 	# création barre de menus
 	set m .main.menubar
@@ -47,35 +45,24 @@ proc fenetre_principale {} {
       -command "affiche_texte $::rep/licence.txt"
     $m.help add separator
     $m.help add command -label [::msgcat::mc "About"] -command {a_propos}
-    
-	#Création des panneaux : schéma + simulation
-	############################################
-	ttk::panedwindow .main.pan -orient horizontal
-	pack .main.pan -fill both -expand 1
-	# Frame conteneur zone de schéma
-	frame .main.sch -width $l_2 -height $h
-	frame .main.sim -width $l_2 -height $h
-	.main.pan add .main.sch
-	.main.pan add .main.sim
 	
-	# Zone de dessin du schéma
+	# Zone de boutons en haut
 	##########################
-	# zone de boutons en haut
 	set comp right
-	ttk::frame .main.sch.fb
-	pack .main.sch.fb -fill x
-	#ttk::button .main.sch.fb.zp -image im_zoom+ -command {$::c scale all 0 0 2 2}
+	ttk::frame .main.fb
+	pack .main.fb -fill x
+	#ttk::button .main.fb.zp -image im_zoom+ -command {$::c scale all 0 0 2 2}
 	#pack .main.schb.f.zp -side left
-	#ttk::button .main.sch.fb.zm -image im_zoom- -command {$::c scale all 0 0 0.5 0.5}
-	#pack .main.sch.fb.zm -side left
-	ttk::button .main.sch.fb.si -compound $comp -text [::msgcat::mc "Delete info labels"] -image im_del_infos -command {efface_infos_connexion}
-	pack .main.sch.fb.si -side left
-	ttk::button .main.sch.fb.startall -compound $comp -text [::msgcat::mc "Start all"] -image im_start_all \
+	#ttk::button .main.fb.zm -image im_zoom- -command {$::c scale all 0 0 0.5 0.5}
+	#pack .main.fb.zm -side left
+	ttk::button .main.fb.si -compound $comp -text [::msgcat::mc "Delete info labels"] -image im_del_infos -command {efface_infos_connexion}
+	pack .main.fb.si -side left
+	ttk::button .main.fb.startall -compound $comp -text [::msgcat::mc "Start all"] -image im_start_all \
 	-command {
-	demarrer_tout
+		demarrer_tout
 	}
-	pack .main.sch.fb.startall -side left
-	ttk::button .main.sch.fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_stop_all \
+	pack .main.fb.startall -side left
+	ttk::button .main.fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_stop_all \
 	-command {
 		if ![verif_arret] {
 			if {[dialogue_confirm_arreter_tout]} {
@@ -83,52 +70,42 @@ proc fenetre_principale {} {
 			}
 		}
 	}
-	pack .main.sch.fb.stopall -side left
-	ttk::button .main.sch.fb.quit -compound $comp -text [::msgcat::mc "Quit"] -image im_quitter -command quit
-	pack .main.sch.fb.quit -side right
+	pack .main.fb.stopall -side left
+	ttk::button .main.fb.quit -compound $comp -text [::msgcat::mc "Quit"] -image im_quitter -command quit
+	pack .main.fb.quit -side right
+    
+	#Création des panneaux : schéma + simulation
+	############################################
+	ttk::panedwindow .main.pan -orient $::orientation
+	pack .main.pan -fill both -expand 1
+	# Frame conteneur zone de schéma
+	frame .main.sch
+	frame .main.sim
+	.main.pan add .main.sch -weight 1
+	.main.pan add .main.sim -weight 1
+	update
 	
-	# Creation du canvas de dessin
+	panel_simulation $l $h
+	panel_schema $l $h
+	
+}
+
+
+# Zone de dessin du schéma
+############################################################################
+proc panel_schema {l h} {
+	
 	frame .main.sch.f
 	pack .main.sch.f -fill both -expand 1
 	set ::c .main.sch.f.c
-	canvas $::c -background $::coul(fond) -closeenough 10 -cursor hand2 \
-  		-scrollregion {0 0 1600 1000} \
+	canvas $::c -background $::coul(fond) -closeenough 5 -cursor hand2 \
+		  -scrollregion {0 0 1600 1000} \
 		-xscrollcommand ".main.sch.hscroll set" -yscrollcommand ".main.sch.f.vscroll set"
 	pack $::c -fill both  -side left -expand 1
-	scrollbar .main.sch.f.vscroll -command "$::c yview"
-	scrollbar .main.sch.hscroll -orient horiz -command "$::c xview"
+	ttk::scrollbar .main.sch.f.vscroll -command "$::c yview"
+	ttk::scrollbar .main.sch.hscroll -orient horiz -command "$::c xview"
 	pack .main.sch.f.vscroll -side left -fill y
 	pack .main.sch.hscroll -fill x
-	
-	# Zone d'affichage de la simulation
-	###################################
-	frame .main.sim.f0
-	pack .main.sim.f0 -fill both -expand 1
-	scrollbar .main.sim.f0.vbar -command {.main.sim.f0.t yview} -orient vertical
-	pack .main.sim.f0.vbar -fill y -side left
-	scrollbar .main.sim.hbar -command {.main.sim.f0.t xview} -orient horizontal
-	
-	canvas .main.sim.f0.t -background $::coul(fond) -scrollregion "0 0 $l $h" \
-	-yscrollcommand {.main.sim.f0.vbar set} -xscrollcommand {.main.sim.hbar set}
-	pack .main.sim.f0.t -side right -fill both -expand 1
-	pack .main.sim.hbar -fill x
-	update
-	frame .main.sim.f0.f -width $l -height $h -container 1
-	update
-	.main.sim.f0.t create window $l_2 $h_2 -window .main.sim.f0.f
-	
-	update
-	# Démarrage serveur d'affichage Xephyr et le WM associé
-	set size "${l}x${h}"
-	puts $size
-	set ::tmp(x_pid) [exec Xephyr -background none -ac -no-host-grab -parent [scan [winfo id .main.sim.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]	
-	#set ::tmp(x_pid) [exec Xephyr -background none -ac -no-host-grab -parent [scan [winfo id .main.sim.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]
-	update
-	after 1000 {
-		exec $::x_wm --display $::screen &
-		#Initialisation des IP utilisées pour l'affichage des machines virtuelles
-		#init_x_com 20
-	}
 	
 	# zone des outils de conception reseau
 	ttk::notebook .main.sch.fc
@@ -145,6 +122,41 @@ proc fenetre_principale {} {
 	bind $::c <ButtonPress-1> {clic_gauche_canvas %x %y}
 	bind $::c <ButtonPress-3> {clic_droit_canvas %x %y}
 	bind $::c <Motion> {canvas_bouge %x %y}
+	
+}
+
+
+# Zone d'affichage de la simulation
+###########################################################################
+proc panel_simulation {l h} {
+	
+	frame .main.sim.f0
+	pack .main.sim.f0 -fill both -expand 1
+	ttk::scrollbar .main.sim.f0.vbar -command {.main.sim.f0.t yview} -orient vertical
+	pack .main.sim.f0.vbar -fill y -side left
+	ttk::scrollbar .main.sim.hbar -command {.main.sim.f0.t xview} -orient horizontal
+	
+	canvas .main.sim.f0.t -background $::coul(fond) -scrollregion "0 0 $l $h" \
+	-yscrollcommand {.main.sim.f0.vbar set} -xscrollcommand {.main.sim.hbar set}
+	pack .main.sim.f0.t -side right -fill both -expand 1
+	pack .main.sim.hbar -fill x
+	update
+	frame .main.sim.f0.f -width $l -height $h -container 1
+	update
+	.main.sim.f0.t create window [expr $l / 2] [expr $h / 2] -window .main.sim.f0.f
+	
+	update
+	# Démarrage serveur d'affichage Xephyr et le WM associé
+	set size "${l}x${h}"
+	set ::tmp(x_pid) [exec Xephyr -background none -ac -no-host-grab -parent [scan [winfo id .main.sim.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]	
+	#set ::tmp(x_pid) [exec Xephyr -background none -ac -no-host-grab -parent [scan [winfo id .main.sim.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]
+	update
+	after 1000 {
+		eval exec $::x_wm &
+		after 1000 {exec $::rep/bin/conf_wm $::screen}
+		#Initialisation des IP utilisées pour l'affichage des machines virtuelles
+		#init_x_com 20
+	}
 	
 }
 
@@ -1595,7 +1607,7 @@ proc affiche_texte {fichier} {
   pack .t_texte.f.tex -expand 1 -fill both -side left
   
   #création scrollbar verticale
-  scrollbar .t_texte.f.scrolv -orient vert -command {.t_texte.f.tex yview}
+  ttk::scrollbar .t_texte.f.scrolv -orient vert -command {.t_texte.f.tex yview}
   pack .t_texte.f.scrolv -side right -fill y
   
   #création du bouton fermer
@@ -1642,8 +1654,9 @@ proc affiche_logs {} {
 		.t_mess.f.tex delete 1.0 end
 		 #Appel commande tail Unix
 		 set fic $::rep_proj/logs/network-in.log
-		 #set txt [exec tail -n 200 $fic]
-		 set txt [exec cat $fic]
+		 set f [open $fic r]
+		 set txt [read $f]
+		 close $f
 		 .t_mess.f.tex insert end "$txt\n"
 		 .t_mess.f.tex configure -state disabled
 		 .t_mess.f.tex yview moveto 1
@@ -1662,7 +1675,7 @@ proc affiche_logs {} {
   pack .t_mess.f.tex -expand 1 -fill both -side left
   
   #création scrollbar verticale
-  scrollbar .t_mess.f.scrolv -orient vert -command {.t_mess.f.tex yview}
+  ttk::scrollbar .t_mess.f.scrolv -orient vert -command {.t_mess.f.tex yview}
   pack .t_mess.f.scrolv -side right -fill y
 
   #création zone boutons
@@ -1734,77 +1747,10 @@ proc positionne_fenetre {top {parent {.main}}} {
     wm geometry $top +$x+$y
 }
 
-# Mise à jour taille du schéma en fonction des valeurs de tmp
-###############################################################################
-proc set_schema_size {} {
-	#$::c configure -width $::tmp(width)
-	#$::c configure -height $::tmp(height)
-	wm geometry .main $::tmp(width)x$::tmp(height)
-	update
-}
-
-# On récupère la taille du schéma dans tmp
-###############################################################################
-proc get_schema_size {} {
-	update
-	#set ::tmp(width) [winfo width $::c]
-	#set ::tmp(height) [winfo height $::c]
-	set ::tmp(width) [winfo width .main]
-	set ::tmp(height) [winfo height .main]
-}
 
 # On supprime un ou des objets du schéma
 ###############################################################################
 proc canvas_delete {val} {
 	$::c delete $val
 }
-
-
-# Fenêtre d'affichage des matériels en cours de simulation
-###############################################################################
-proc fenetre_simulation_anc {} {
-	
-	toplevel .x
-	wm protocol .x WM_DELETE_WINDOW "quit .x $::screen"
-	wm iconphoto .x -default im_network-in
-	wm title .x "[::msgcat::mc "Network-In! simulator"] - [::msgcat::mc "Simulation"]"
-	wm attributes .x -zoomed true
-	update
-	set l [winfo width .x]
-	set h [winfo height .x]
-	set l_2 [expr $l / 2]
-	set h_2 [expr $h / 2]
-	
-	set size ${l_2}x$h
-	wm attributes .x -zoomed false
-	wm geometry .x $size
-	update
-	frame .x.f0 -width $l_2 -height $h
-	pack .x.f0 -fill both -expand 1
-	scrollbar .x.f0.vbar -command {.x.f0.t yview} -orient vertical
-	pack .x.f0.vbar -fill y -side right
-	scrollbar .x.hbar -command {.x.f0.t xview} -orient horizontal
-	text .x.f0.t -relief flat -background $::coul(fond) -state disable \
-	-yscrollcommand {.x.f0.vbar set} -xscrollcommand {.x.hbar set}
-	pack .x.f0.t -side left -fill both -expand 1
-	pack .x.hbar -fill x
-	
-	set size ${l}x${h} 
-	set size [expr $l / 2 - 50]x$h
-	frame .x.f0.f -container 1 -width [expr $l / 2 - 20] -height $h
-	update
-	.x.f0.t window create end -window .x.f0.f
-	
-	# Démarrage serveur d'affichage Xephyr et le WM associé
-	#-resizeable
-	set ::tmp(x_pid) [exec Xephyr -resizeable -background none -ac -no-host-grab -parent [scan [winfo id .x.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]
-	update
-	after 1000 {
-		exec $::x_wm --display $::screen &
-		#Initialisation des IP utilisées pour l'affichage des machines virtuelles
-		#init_x_com 20
-	}
-	
-}
-
 

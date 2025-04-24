@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250225
+# Version 20250422
 
 #Lecture de ::obj et ::tmp et enregistrement de la structure en XML
 ####################################
@@ -48,8 +48,6 @@ proc xml_bloc_global_write {f} {
 	puts $f "    <date>$::tmp(date)</date>"
 	puts $f "    <author>$::tmp(author)</author>"
 	puts $f "    <description>$::tmp(description)</description>"
-	puts $f "    <width>$::tmp(width)</width>"
-	puts $f "    <height>$::tmp(height)</height>"
 	puts $f "    <details>$::tmp(details)</details>"
 	puts $f "</global>"
 

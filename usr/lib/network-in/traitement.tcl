@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250414
+# Version 20250422
 
 # Suppression d'un câble
 ################################################################################
@@ -175,7 +175,7 @@ proc demarre_ordinateur {id} {
 	set exe [concat $exe eth99=vde,$::rep_tmp/vde/switch_com]
 	
 	# démarrage du pc
-	set ::tmp($id,pid) [eval exec $exe > $::rep_proj/logs/$id.log 2>&1 &]
+	set ::tmp($id,pid) [eval exec $exe >& $::rep_proj/logs/$id.log &]
 
   # démarrage de la boucle de surveillance de machine
   boucle_demarre_objet $id
@@ -404,7 +404,7 @@ proc force_arrete_ordinateur {id} {
 	
 	#Destruction des fenêtres ouvertes
 	foreach wid $::tmp($id,win_id) {
-		catch {exec xkill -id $wid &}
+		catch {exec xkill -display $::screen -id $wid &}
 	}
     
 }
@@ -739,9 +739,6 @@ proc demarrer_tout {} {
 # Sauvegarde du projet courant dans le fichier structure.xml
 ################################################################################
 proc sauvegarder_projet {} {
-  
-	#on récupère la taille actuelle du canvas
-	get_schema_size
 	
 	set date_time [clock seconds]
 	set ::tmp(date) [clock format $date_time -format "%Y-%m-%d %H:%M:%S"]
@@ -774,9 +771,6 @@ proc restaurer_projet {} {
 	
 	#prise en compte du niveau de détail
 	change_niveau_detail $::tmp(details)
-	
-	# mise à la taille du canvas
-	set_schema_size
 	
 	# on initialise quelques variables
 	set ::tmp(id1) {}
@@ -832,8 +826,6 @@ proc init_projet {} {
 	set ::tmp(author) $::tcl_platform(user)
 	set ::tmp(description) ""
   	set ::tmp(lastid) 0
-	set ::tmp(width) $::taille(l)
-	set ::tmp(height) $::taille(h)
 	set ::tmp(file) "[::msgcat::mc "unnamed"].net"
 	set date_time [clock seconds]
 	set ::tmp(cdate) [clock format $date_time -format "%Y-%m-%d %H:%M:%S"]
@@ -851,10 +843,6 @@ proc init_projet {} {
 	
 	# effacement des objets sur le canvas
 	canvas_delete all
-	
-	# mise à la taille du canvas
-	set_schema_size
-	
 	
 	# nettoyage et creation du nouveau répertoire de projet
 	catch {file delete -force $::rep_proj/datas}

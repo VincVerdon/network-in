@@ -13,7 +13,7 @@ proc interface_passerelle {id} {
   
   toplevel .passe -screen $::screen
   maj_nom_passerelle $id
-  wm protocol .passe WM_DELETE_WINDOW {hide_passerelle}
+  wm protocol .passe WM_DELETE_WINDOW {#}
   wm iconphoto .passe -default im_nat
   wm resizable .passe 0 0
   positionne_fenetre .passe

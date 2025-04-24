@@ -4,7 +4,7 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-#version 20250409
+#version 20250422
 set version(network-in) 2.0-beta9
 
 # Démarrage de Network-in!
@@ -21,6 +21,9 @@ set rep [file dirname [file normalize [info script]]]
 
 # on définit le répertoire temporaire
 set rep_tmp /tmp/network-in
+
+#Valeur de l'orientation par défaut de la fenêtre principale
+set ::orientation horizontal
 
 # on source le fichier de config général et personnel s'il existe
 source /etc/network-in.cfg
@@ -96,9 +99,6 @@ set ::tmp(vbox_found) [is_vbox_software_installed]
 creer_images_interface
 creer_fontes_interface
 fenetre_principale
-
-#Construction fenêtre d'affichage de la simulation
-#after 1000 {fenetre_simulation}
 
 # restauration du projet en cours
 if {[file exists $::rep_proj/structure.xml]} {

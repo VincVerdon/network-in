@@ -48,6 +48,8 @@ if [ ! -e $REP_PROJ/logs ]
 then
   mkdir -p $REP_PROJ/logs
   mkdir $REP_PROJ/datas
+else
+  rm $REP_PROJ/logs/*.log
 fi
 
 echo Start at $(date) &>$LOG_FILE

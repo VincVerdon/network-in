@@ -1,9 +1,9 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20250213
+#Version 20250424
 #############################
 REP_INS=$(dirname $0)
-#Repertoire de l'application
+#Software directory
 REP=/usr/lib/network-in
 
 
@@ -14,7 +14,7 @@ then
 	exit 1
 fi
 
-#dependencies verification stage
+#Dependencies verification stage
 ##############################################
 #exe_name;software_package_name
 LISTE_DEP="
@@ -25,7 +25,6 @@ uml_mconsole;uml-utilities
 sudo;sudo
 lsof;lsof
 wmctrl;wmctrl
-xwininfo;x11-utils
 iptables;iptables
 xfwm4;xfwm4
 "
@@ -82,58 +81,11 @@ sudo -v
 LIBVDE=$(find /usr/lib -name 'libvdeplug.so.*' -type f 2>/dev/null | sort | tail -n 1)
 ln -s $LIBVDE $(dirname $LIBVDE)/libvdeplug.so 2>/dev/null
 
-
-#Modification de la config serveur X pour accepter les connexion TCP
-#avec gdm3
-if [ -e /etc/gdm3/daemon.conf ]
-then
-	echo "[security]" >> /etc/gdm3/daemon.conf
-	echo "DisallowTCP=false" >> /etc/gdm3/daemon.conf
-fi
-
-#avec gdm
-if [ -e /etc/gdm/gdm.conf ]
-then
-	echo "[security]" >> /etc/gdm/gdm.conf
-	echo "DisallowTCP=false" >> /etc/gdm/gdm.conf
-fi
-
-#avec xdm
-if [ -e /etc/X11/xdm/Xservers ]
-then
-	grep -v "^[^#].*-nolisten tcp" /etc/X11/xdm/Xservers > /etc/X11/xdm/Xservers.new
-	grep "^[^#].*-nolisten tcp" /etc/X11/xdm/Xservers | sed "s|-nolisten tcp| |" >> /etc/X11/xdm/Xservers.new
-	mv /etc/X11/xdm/Xservers /etc/X11/xdm/Xservers.anc
-	mv /etc/X11/xdm/Xservers.new /etc/X11/xdm/Xservers
-fi
-
-#avec lightdm
-if [ -e /etc/lightdm/lightdm.conf ]
-then
-		sed -i s/^#xserver-allow-tcp=false$/xserver-allow-tcp=true/ /etc/lightdm/lightdm.conf
-fi
-#avec lightdm sous Ubuntu
-if [ -d /etc/lightdm/lightdm.conf.d/ ]
-then
-	cat <EOF>> /etc/lightdm/lightdm.conf.d/90-network-in.conf
-	[Seat:*]
-	xserver-allow-tcp=true
-	EOF
-fi
-
-#avec gdm3 sous Ubuntu
-if [ -e /etc/gdm3/custom.conf ]
-then
-    sed -i 's/^DisallowTCP=true/DisallowTCP=false/' /etc/gdm3/custom.conf
-    sed -i '/\[security\]/a DisallowTCP=false' /etc/gdm3/custom.conf
-fi
-
 #root devient propriétaire des fichiers
-chown -R root:root $REP
-chown root:root /etc/network-in.cfg
-chown root:root /usr/bin/network-in
+#chown -R root:root $REP
+#chown root:root /etc/network-in.cfg
+#chown root:root /usr/bin/network-in
 ln -s /usr/bin/network-in /usr/bin/networkin
 chmod +x $REP/bin/*
 
-echo 'You must leave your X session and restart X server (or reboot) before using Network-In!'
 exit 0
