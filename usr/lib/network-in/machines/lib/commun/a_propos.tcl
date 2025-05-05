@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20250419
+# Version 20250427
 
 proc a_propos {} {
     set apropos "[lire_fichier_echange apropos]\n[::msgcat::mc "Equipment version"] : $::version(equipment)"
@@ -13,6 +13,7 @@ proc a_propos {} {
 	wm title .apropos "[::msgcat::mc "About"]..."
 	wm resizable .apropos 0 0
 	positionne_fenetre .apropos
+	wm transient .apropos .
 	
 	label .apropos.ico -image im_info
 	pack .apropos.ico

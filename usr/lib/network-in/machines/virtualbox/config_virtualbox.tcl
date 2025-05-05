@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250319
+# Version 20250427
 set ::version(vbox) 1.0
 
 # Interface de configuration de base de la machine
@@ -15,9 +15,10 @@ proc fenetre_config_vbox {id} {
 	toplevel .vbox$id
 	wm title .vbox$id [get_vbox_current_name $id]
 	wm protocol .vbox$id WM_DELETE_WINDOW "supprime_fenetre_config_vbox $id"
-	wm iconphoto .vbox$id -default im_virtualbox
+	wm transient .vbox$id .main
+	#wm iconphoto .vbox$id -default im_virtualbox
 	wm resizable .vbox$id 0 0
-	positionne_fenetre .vbox$id
+	#positionne_fenetre .vbox$id
 	
 	label .vbox$id.ico -image im_virtualbox
 	pack .vbox$id.ico

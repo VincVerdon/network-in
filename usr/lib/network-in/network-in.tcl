@@ -5,7 +5,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
 #version 20250422
-set version(network-in) 2.0-beta9
+set version(network-in) 2.0-beta10
 
 # Démarrage de Network-in!
 ################################################################################

@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20240424
+#version 20250425
 ####################################################################
 
 TMP=/tmp/network-in
@@ -23,6 +23,7 @@ killall vde_switch 2> /dev/null
 vde_tunctl -t networkin_com
 /sbin/ip a add $IP_HOST/$MASK_HOST dev networkin_com
 /sbin/ip link set networkin_com up
+ip route del default dev network_com 2> /dev/null
 vde_switch -d -nostdin -tap networkin_com -s $TMP/vde/switch_com -m 666
 
 #On vide les regles du pare-feu (encore actives en cas de crash)

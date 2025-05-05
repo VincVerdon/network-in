@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250422
+# Version 20250503
 
 # Suppression d'un câble
 ################################################################################
@@ -118,6 +118,8 @@ proc demarre_ordinateur {id} {
   ecrire_fichier_echange $id ip_com $::tmp($id,ip_com)
   # on écrit un fichier qui indique le display de l'hôte
   ecrire_fichier_echange $id display $::screen
+  # on écrit un fichier qui indique la position de placement de la fenêtre bureau
+  ecrire_fichier_echange $id position [calcul_position_desktop $id]
   
   # On initialise les interfaces réseau et on écrit un fichier de com
 	set interf ""
@@ -158,7 +160,7 @@ proc demarre_ordinateur {id} {
 	set exe "$exe_linux $opts mem=$::obj($id,mem) ubd0=$disk root=/dev/ubda ubd1=$::rep_proj/datas/$id/modules.cow,$modules_dd umid=$id hostfs=$::rep_proj/datas/$id"
 	
 	# activation des câbles réseau et des interfaces eth
-	set ::tmp($id,pid_vde) ""
+	set ::tmp($id,pid_vde) {}
   if {[lsearch $::obj($id,techno) "ethernet"]  != {-1}} {
     for  {set i 0} {$i < $::obj($id,nb_eth)} {incr i} {
       # démarrage du socket VDE pour l'interface
@@ -834,7 +836,7 @@ proc init_projet {} {
 	set ::tmp(id2) {}
 	
 	# mise à jour du titre
-	set :: "[::msgcat::mc "unnamed"].net"
+	set ::tmp(file) "[::msgcat::mc "unnamed"].net"
 	maj_titre
 	
 	#prise en compte du niveau de détail
@@ -846,7 +848,8 @@ proc init_projet {} {
 	
 	# nettoyage et creation du nouveau répertoire de projet
 	catch {file delete -force $::rep_proj/datas}
-	catch {file delete -force $::rep_proj/logs}
+	#catch {file delete -force $::rep_proj/logs/m*.log}
+	file_delete_motif $::rep_proj/logs/m*.log
 	catch {file delete -force $::rep_proj/structure.xml}
 	catch {file delete -force $::rep_proj/structure.sav}
 	catch {file mkdir $::rep_proj/datas}
@@ -965,6 +968,7 @@ proc supprime_carte {id type n} {
 	
 }
 
+
 #Copie d'un ensemble de fichiers suivant un motif
 ##################################################################################
 proc file_copy_motif {motif dest} {
@@ -979,6 +983,17 @@ proc file_copy_motif {motif dest} {
 		}
 	}
 }
+
+
+#Suppression d'un ensemble de fichiers suivant un motif
+##################################################################################
+proc file_delete_motif {motif} {
+	set liste  [glob -nocomplain $motif]
+	foreach f $liste {
+		file delete $f
+	}
+}
+
 
 # Traduit le masque en notation CIDR
 # Si déjà en notation CIDR la valeur est renvoyée
@@ -1067,3 +1082,18 @@ proc raise_x_window {win_id} {
 }
 
 
+#Fonction de récupération de la configuration clavier
+#################################################################################
+proc get_keyboard_conf {} {
+
+	set res [exec setxkbmap -query]
+	set res [split $res \n]
+	set ret ""
+	foreach line $res {
+		regexp -expanded {^([a-z0-9]+):[^a-z0-9]*([a-z0-9]+)} $line occurrence param value
+		lappend ret $value
+	}
+
+	return $ret
+	
+}

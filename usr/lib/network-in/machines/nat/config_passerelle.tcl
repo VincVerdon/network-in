@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250419
+# Version 20250427
 set ::version(nat) 2.0
 
 # Interface de configuration de base de la machine
@@ -16,7 +16,7 @@ proc interface_passerelle {id} {
   wm protocol .passe WM_DELETE_WINDOW {#}
   wm iconphoto .passe -default im_nat
   wm resizable .passe 0 0
-  positionne_fenetre .passe
+  positionne_fenetre_principale $id .passe
 	
   label .passe.ico -image im_nat
   pack .passe.ico
@@ -27,7 +27,7 @@ proc interface_passerelle {id} {
   pack .passe.f.1 -fill x
   button .passe.f.3 -text [::msgcat::mc "Name"] -command "fenetre_config_nom_passerelle $id"
   pack .passe.f.3 -fill x
-	button .passe.f.4 -text [::msgcat::mc "About"] -command "a_propos $::version(nat) .passe $::screen"
+	button .passe.f.4 -text [::msgcat::mc "About"] -command "a_propos_sim $::version(nat) .passe"
 	pack .passe.f.4 -fill x
   
 	# boutons

@@ -27,6 +27,7 @@ lsof;lsof
 wmctrl;wmctrl
 iptables;iptables
 xfwm4;xfwm4
+Xephyr;xserver-xephyr
 "
 
 ARRET=false

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250422
+# Version 20250504
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -17,6 +17,8 @@ proc fenetre_principale {} {
 	update
 	set l [winfo width .main]
 	set h [winfo height .main]
+	set ::tmp(l) $l
+	set ::tmp(h) $h
 	
 	# création barre de menus
 	set m .main.menubar
@@ -99,7 +101,7 @@ proc panel_schema {l h} {
 	pack .main.sch.f -fill both -expand 1
 	set ::c .main.sch.f.c
 	canvas $::c -background $::coul(fond) -closeenough 5 -cursor hand2 \
-		  -scrollregion {0 0 1600 1000} \
+		  -scrollregion "0 0 $::schema(l) $::schema(h)" \
 		-xscrollcommand ".main.sch.hscroll set" -yscrollcommand ".main.sch.f.vscroll set"
 	pack $::c -fill both  -side left -expand 1
 	ttk::scrollbar .main.sch.f.vscroll -command "$::c yview"
@@ -148,7 +150,8 @@ proc panel_simulation {l h} {
 	update
 	# Démarrage serveur d'affichage Xephyr et le WM associé
 	set size "${l}x${h}"
-	set ::tmp(x_pid) [exec Xephyr -background none -ac -no-host-grab -parent [scan [winfo id .main.sim.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]	
+	set keyb [get_keyboard_conf]
+	set ::tmp(x_pid) [exec Xephyr -background none -ac -xkb-rules [lindex $keyb 0] -xkb-model [lindex $keyb 1] -xkb-layout [lindex $keyb 2] -xkb-variant [lindex $keyb 3] -no-host-grab -parent [scan [winfo id .main.sim.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]	
 	#set ::tmp(x_pid) [exec Xephyr -background none -ac -no-host-grab -parent [scan [winfo id .main.sim.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]
 	update
 	after 1000 {
@@ -757,6 +760,10 @@ proc fenetre_infos_objet {id} {
     destroy .inf
     toplevel .inf
     wm title .inf "$id - [::msgcat::mc "Informations"]"
+	wm transient .inf .main
+	
+	label .inf.ico -image im_info
+	pack .inf.ico
 	label .inf.l -text "[::msgcat::mc "Informations about"] $id"
 	pack .inf.l
 	labelframe .inf.f -text [::msgcat::mc "Generalities"]
@@ -806,7 +813,7 @@ proc fenetre_infos_objet {id} {
 	ttk::button .inf.bou -compound left -text [::msgcat::mc "Close"] -image im_valider -command {destroy .inf}
 	pack .inf.bou
 	focus .inf.bou
-    positionne_fenetre .inf .main
+    #positionne_fenetre .inf .main
   
 }
 
@@ -1495,9 +1502,10 @@ proc msg_box {path {title {}} {message {}} {parent .main} {screen {}}} {
 	}
 	
 	wm title $path $title
+	wm transient $path $parent
 	wm resizable $path 0 0
-	#wm transient $path $parent
-	positionne_fenetre $path $parent
+	wm transient $path $parent
+	#positionne_fenetre $path $parent
 	
 	label $path.ico -image im_info
 	pack $path.ico
@@ -1520,8 +1528,19 @@ proc a_propos {{version {}} {parent .main} {screen {}}} {
 	if {$version != {}} {
 		set text "$text\n[::msgcat::mc "Equipment version"] : $version"
 	}
-	#tk_messageBox -icon info -title "[::msgcat::mc "About"]..." -message $text -parent $parent
 	msg_box .apropos "[::msgcat::mc "About"]..." $text $parent $screen
+	
+}
+
+
+# Affichage de la boite Apropos avec éventuellement la version du matériel
+################################################################################
+proc a_propos_sim {version parent} {
+	
+	set text $::apropos
+	set text "$text\n[::msgcat::mc "Equipment version"] : $version"
+	msg_box .apropos "[::msgcat::mc "About"]..." $text $parent $::screen
+	positionne_fenetre .apropos $parent
 	
 }
 
@@ -1746,6 +1765,25 @@ proc positionne_fenetre {top {parent {.main}}} {
     set y [winfo y $parent]
     wm geometry $top +$x+$y
 }
+
+
+# Positionne la fenêtre principale d'un composant sur l'écran en fonction de la position sur le schéma
+################################################################################################
+proc positionne_fenetre_principale {id top} {
+
+	eval wm geometry $top [calcul_position_desktop $id]
+	
+}
+
+
+proc calcul_position_desktop {id} {
+	
+	set posx [expr round(1.0 * $::obj($id,x) / $::schema(l) * $::tmp(l))]
+	set posy [expr round(1.0 * $::obj($id,y) / $::schema(h) * $::tmp(h))]
+	return "+${posx}+${posy}"
+	
+}
+
 
 
 # On supprime un ou des objets du schéma

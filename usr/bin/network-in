@@ -44,21 +44,21 @@ fi
 # On interroge la config pour connaître l'emplacement du rep de projet
 REP_PROJ=$(tclsh /usr/lib/network-in/working_dir.tcl)
 LOG_FILE=$REP_PROJ/logs/network-in.log
-if [ ! -e $REP_PROJ/logs ]
+if [ -e $REP_PROJ/logs ]
 then
-  mkdir -p $REP_PROJ/logs
-  mkdir $REP_PROJ/datas
+	rm $REP_PROJ/logs/*.log
 else
-  rm $REP_PROJ/logs/*.log
+  	mkdir -p $REP_PROJ/logs
+  	mkdir $REP_PROJ/datas
 fi
 
-echo Start at $(date) &>$LOG_FILE
+echo Start at $(date) &> $LOG_FILE
 
 #démarrage des interfaces et paramétrage du parefeu
-sudo $REP/bin/network-in-start &>>$LOG_FILE
+sudo $REP/bin/network-in-start &>> $LOG_FILE
 
 #démarrage de Network-in
-wish $REP/network-in.tcl $SIM_FILE &>>$LOG_FILE
+wish $REP/network-in.tcl $SIM_FILE &>> $LOG_FILE
 
 #Arrêt des interfaces et déparamétrage du parefeu
-sudo $REP/bin/network-in-stop &>>$LOG_FILE
+sudo $REP/bin/network-in-stop &>> $LOG_FILE

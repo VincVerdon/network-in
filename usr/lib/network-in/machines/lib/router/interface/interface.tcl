@@ -11,14 +11,12 @@ set version(equipment) {2.0}
 ################################################################################
 proc fenetre_principale {} {
 
-    #set nom [exec hostname]
-    #wm title . $nom
 	boucle_scan_hostname
-		
     wm protocol . WM_DELETE_WINDOW {#}
     wm iconphoto . -default im_icone
     ecrire_fichier_echange window_id [winfo id .]
     wm resizable . 0 0
+	positionne_fenetre_principale
     
     label .ico -image im_icone
     pack .ico

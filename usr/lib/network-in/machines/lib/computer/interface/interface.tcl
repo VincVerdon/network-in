@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface bureau
 ####################################################################
-# Version 20250422
+# Version 20250504
 set version(equipment) {2.0}
 
 # Création de l'interface principale (bureau)
@@ -20,6 +20,8 @@ proc fenetre_principale {} {
     # On crée un canvas qui va contenir les icones
     canvas .c -background $::coul(fond) -width $::taille(l) -height $::taille(h)
     pack .c  
+    
+    positionne_fenetre_principale
     update
     
     # creation des icones des applications
