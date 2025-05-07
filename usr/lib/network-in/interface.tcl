@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250504
+# Version 20250507
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -101,7 +101,7 @@ proc panel_schema {l h} {
 	pack .main.sch.f -fill both -expand 1
 	set ::c .main.sch.f.c
 	canvas $::c -background $::coul(fond) -closeenough 5 -cursor hand2 \
-		  -scrollregion "0 0 $::schema(l) $::schema(h)" \
+		  -scrollregion "0 0 $::tmp(l) $::tmp(h)" \
 		-xscrollcommand ".main.sch.hscroll set" -yscrollcommand ".main.sch.f.vscroll set"
 	pack $::c -fill both  -side left -expand 1
 	ttk::scrollbar .main.sch.f.vscroll -command "$::c yview"
@@ -388,7 +388,10 @@ proc annule_creation_liaison {} {
 # Gestion du clic simple gauche sur le canvas
 ################################################################################
 proc clic_gauche_canvas {x y} {
-
+	
+	set x [$::c canvasx $x]
+	set y [$::c canvasy $y]	
+	
 	#destruction de certains éléments s'ils existent
 	destroy .note
 	destroy $::c.mc
@@ -442,6 +445,9 @@ proc clic_gauche_canvas {x y} {
 
 ################################################################################
 proc clic_droit_canvas {x y} {
+	
+	set x [$::c canvasx $x]
+	set y [$::c canvasy $y]	
   
   set tags [$::c find closest $x $y 0] 
   set tags [$::c gettags $tags]
@@ -1026,6 +1032,9 @@ proc canvas_bouge {x y} {
 ################################################################################
 proc clic_gauche_canvas_bouge {x y} {
 	
+	set x [$::c canvasx $x]
+	set y [$::c canvasy $y]	
+	
   if {$::tmp(sel,type) != {}} {
     # cas où on est en mode ajout, on sort
     return
@@ -1208,8 +1217,8 @@ proc dessine_objet {id} {
   set nom $::obj($id,nom)
   set famille $::obj($id,famille)
   set type $::obj($id,type)
-  set x $::obj($id,x)
-  set y $::obj($id,y)
+	set x $::obj($id,x)
+	set y $::obj($id,y)
 	
   if {$::obj($id,type) == "virtualbox"} {
       set nom [get_vbox_current_name $id]
@@ -1768,7 +1777,7 @@ proc positionne_fenetre {top {parent {.main}}} {
 
 
 # Positionne la fenêtre principale d'un composant sur l'écran en fonction de la position sur le schéma
-################################################################################################
+###############################################################################
 proc positionne_fenetre_principale {id top} {
 
 	eval wm geometry $top [calcul_position_desktop $id]
@@ -1776,10 +1785,12 @@ proc positionne_fenetre_principale {id top} {
 }
 
 
+# Calcul la podition de la fenetre principale du matériel en fonction de sa position sur son schéma
+###############################################################################
 proc calcul_position_desktop {id} {
 	
-	set posx [expr round(1.0 * $::obj($id,x) / $::schema(l) * $::tmp(l))]
-	set posy [expr round(1.0 * $::obj($id,y) / $::schema(h) * $::tmp(h))]
+	set posx [expr round($::obj($id,x))]
+	set posy [expr round($::obj($id,y))]
 	return "+${posx}+${posy}"
 	
 }

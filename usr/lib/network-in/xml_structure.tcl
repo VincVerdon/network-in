@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250422
+# Version 202500505
 
 #Lecture de ::obj et ::tmp et enregistrement de la structure en XML
 ####################################
@@ -111,8 +111,8 @@ proc xml_bloc_equipment_write {f id} {
 			puts $f "    <name_from_vbox>$::obj($id,name_from_vbox)</name_from_vbox>"
 	}
 	puts $f "    <position>"
-	puts $f "        <x>$::obj($id,x)</x>"
-	puts $f "        <y>$::obj($id,y)</y>"
+	puts $f "        <x>[expr round(1.0 * $::obj($id,x) * 1000 / $::tmp(l))]</x>"
+	puts $f "        <y>[expr round(1.0 * $::obj($id,y) * 1000 / $::tmp(h))]</y>"
 	puts $f "    </position>"
 	puts $f "    <reconf>$::obj($id,reconf)</reconf>"
 	if {[info exists ::obj($id,kernel)]} {
@@ -242,9 +242,9 @@ proc xml_bloc_equipment_read {f id} {
 			gets $f ligne
 			while {![regexp -expanded {</position>} $ligne res]} {
 				if [regexp -expanded {<x>(.*)</x>} $ligne res valeur] {
-					set ::obj($id,x) $valeur
+					set ::obj($id,x) [expr round(1.0 * $valeur / 1000 * $::tmp(l))]
 				} elseif [regexp -expanded {<y>(.*)</y>} $ligne res valeur] {
-					set ::obj($id,y) $valeur
+					set ::obj($id,y) [expr round(1.0 * $valeur / 1000 * $::tmp(h))]
 				}
 				gets $f ligne
 			}
