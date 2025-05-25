@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250503
+# Version 20250516
 
 # Suppression d'un câble
 ################################################################################
@@ -116,8 +116,10 @@ proc demarre_ordinateur {id} {
   ecrire_fichier_echange $id ip_hote $::ip_hote
   # on écrit un fichier qui indique l'ip de communication de l'uml
   ecrire_fichier_echange $id ip_com $::tmp($id,ip_com)
-  # on écrit un fichier qui indique le display de l'hôte
+  # on écrit un fichier qui indique le display d'affichage pour les machines
   ecrire_fichier_echange $id display $::screen
+  # on écrit un fichier qui indique le display de l'hôte
+  ecrire_fichier_echange $id display_hote $::env(DISPLAY)
   # on écrit un fichier qui indique la position de placement de la fenêtre bureau
   ecrire_fichier_echange $id position [calcul_position_desktop $id]
   
@@ -180,6 +182,7 @@ proc demarre_ordinateur {id} {
 	set ::tmp($id,pid) [eval exec $exe >& $::rep_proj/logs/$id.log &]
 
   # démarrage de la boucle de surveillance de machine
+	#Logguer démarrage objet
   boucle_demarre_objet $id
 }
 
@@ -200,9 +203,9 @@ proc demarre_switch {id} {
   # démarrage du vde_switch
   if {$famille == {hub}} {
     # cas d'un hub
-    eval exec vde_switch -d -nostdin --fstp -n $::obj($id,nb_eth) -hub -s $::rep_tmp/vde/$id > $::rep_proj/logs/$id.log 2>&1
+    eval exec vde_switch -d -nostdin --fstp -n $::obj($id,nb_eth) -hub -s $::rep_tmp/vde/$id >& $::rep_proj/logs/$id.log
   } else  {
-	eval exec vde_switch -d -nostdin --fstp -n $::obj($id,nb_eth) -M $::rep_tmp/terminal/$id -s $::rep_tmp/vde/$id > $::rep_proj/logs/$id.log 2>&1
+	eval exec vde_switch -d -nostdin --fstp -n $::obj($id,nb_eth) -M $::rep_tmp/terminal/$id -s $::rep_tmp/vde/$id >& $::rep_proj/logs/$id.log
   }
 	#set ::tmp($id,pid_vde) {}
 	set ::tmp($id,pid_vde) [string range [eval exec lsof -Fp $::rep_tmp/vde/$id/ctl 2>/dev/null] 1 end]
@@ -290,10 +293,7 @@ proc demarre_connexion {id} {
 
 #Duplication d'un ordinateur à partir d'un autre
 ##################################################################################
-proc dupliquer_ordinateur {id} {
-
-	# On stocke l'id du parent
-	set parent $id
+proc dupliquer_ordinateur {parent} {
 	
 	# dimensions de l'image
 	#set imx [image width im_$type]
@@ -341,6 +341,11 @@ proc dupliquer_ordinateur {id} {
 	set ::tmp($id,etat) 0
 	set ::tmp($id,win_id) {}
 	
+	# désarchivage éventuel d'une archive compressée
+	if {[file exists $::rep_proj/datas/$parent.tgz]} {
+		exec tar -C $::rep_proj --sparse -xzf $::rep_proj/datas/$parent.tgz
+		file delete $::rep_proj/datas/$parent.tgz
+	}
 	# Copie des fichiers
 	file copy $::rep_proj/datas/$parent $::rep_proj/datas/$id
 	
@@ -1064,14 +1069,6 @@ proc get_interface_ip {interf} {
 	return $ret
 }
 
-# Configuration accès fenetre affichage simulation pour les VM
-#################################################################################
-proc init_x_com {nb} {
-	
-	exec $::rep/bin/init_x_com $::tmp(reseau) $::tmp(n_ip_com) $nb $::screen
-	
-}
-
 
 # Mise en avant fenêtre machine
 #################################################################################
@@ -1082,7 +1079,7 @@ proc raise_x_window {win_id} {
 }
 
 
-#Fonction de récupération de la configuration clavier
+# Récupération de la configuration clavier pour le serveur d'affichage Xephyr
 #################################################################################
 proc get_keyboard_conf {} {
 
@@ -1090,10 +1087,40 @@ proc get_keyboard_conf {} {
 	set res [split $res \n]
 	set ret ""
 	foreach line $res {
-		regexp -expanded {^([a-z0-9]+):[^a-z0-9]*([a-z0-9]+)} $line occurrence param value
+		regexp -expanded {^[a-z0-9]+:[^a-z0-9]*([a-z0-9]+)} $line occurrence value
 		lappend ret $value
 	}
 
 	return $ret
 	
 }
+
+
+# Démarrage serveur d'affichage Xéphyr + WM
+#################################################################################
+proc start_x_server {window size} {
+	
+	set keyb [get_keyboard_conf]
+	set ::tmp(x_pid) [exec Xephyr -background none -ac -xkb-rules [lindex $keyb 0] -xkb-model [lindex $keyb 1] -xkb-layout [lindex $keyb 2] -xkb-variant [lindex $keyb 3] -no-host-grab -parent $window -listen tcp -listen local -screen $size $::screen &]	
+	update
+	after 1000 {
+		eval exec $::x_wm &
+		after 1000 {exec $::rep/bin/conf_wm $::screen}
+	}
+	
+}
+
+# Démarrage boucle de scan du presse papier
+#################################################################################
+proc boucle_maj_clipboard {} {
+	
+	set clip [exec xsel --clipboard -o]
+	
+	if {$::tmp(clip) != $clip} {
+		#On vient de copier du texte dans le presse papier, dans ce cas on transmet aux machines du simulateur
+		exec echo $clip | xsel --display $::screen --clipboard -i
+	}
+	after 2000 {boucle_maj_clipboard}
+	
+}
+

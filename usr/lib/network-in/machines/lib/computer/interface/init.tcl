@@ -4,7 +4,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20240101
+# Version 20250520
 # Bureau version ordinateur
 
 encoding system utf-8
@@ -14,10 +14,6 @@ set rep [info nameofexecutable]
 set rep [file dirname [file normalize [info script]]]
 # et le rep de communication
 set rep_com $rep/../com
-
-# on initialise quelques variables
-set ::nom_machine [exec hostname]
-set ::window_id {}
 
 # on source le fichier de config
 source [file join $rep interface.cfg]
@@ -37,6 +33,13 @@ if {[file exists $rep/dict.actu]} {
 source [file join $rep lib_images.tcl]
 source [file join $rep lib_interface.tcl]
 source [file join $rep interface.tcl]
+
+# on initialise quelques variables
+set ::nom_machine [exec hostname]
+set ::window_id {}
+set ::display [lire_fichier_echange display]
+set ::ip_hote [lire_fichier_echange ip_hote]
+set ::display_hote [lire_fichier_echange display_hote]
 
 # démarrage de l'interface
 fenetre_principale

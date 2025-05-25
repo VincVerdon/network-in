@@ -5,7 +5,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
 # Interface routeur
-# Version 20240101
+# Version 20250520
 
 encoding system utf-8
 
@@ -16,10 +16,6 @@ set rep [file dirname [file normalize [info script]]]
 set rep_com $rep/../com
 # et le rep de config du routage
 set rep_conf $rep/../routage
-
-# on initialise quelques variables
-set ::nom_machine [exec hostname]
-set ::window_id {}
 
 # on source le fichier de config
 source [file join $rep interface.cfg]
@@ -38,6 +34,13 @@ source [file join $rep lib_images.tcl]
 source [file join $rep lib_interface.tcl]
 source [file join $rep interface.tcl]
 source [file join $rep config_reseau.tcl]
+
+# on initialise quelques variables
+set ::nom_machine [exec hostname]
+set ::window_id {}
+set ::display [lire_fichier_echange display]
+set ::ip_hote [lire_fichier_echange ip_hote]
+set ::display_hote [lire_fichier_echange display_hote]
 
 # démarrage de l'interface
 fenetre_principale

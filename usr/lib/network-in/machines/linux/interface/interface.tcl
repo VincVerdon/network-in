@@ -2,9 +2,9 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
-# Interface bureau
+# Interface bureau Linux texte
 ####################################################################
-# Version 20250504
+# Version 20250523
 set version(equipment) {1.0}
 
 # Création de l'interface principale machine type Linux
@@ -19,6 +19,7 @@ proc fenetre_principale {} {
 	positionne_fenetre_principale
 	
 	# zone des terminaux virtuels
+	#ttk::style configure TNotebook -tabposition sw
 	ttk::notebook .not -width $::size(width) -height $::size(height)
 	pack .not -fill both -expand 1
 	# creation des onglets
@@ -36,15 +37,13 @@ proc fenetre_principale {} {
     menu .fb.arret.men -tearoff 0
     .fb.arret.men add command -label [::msgcat::mc "Shutdown"] -command {exec halt &}
     .fb.arret.men add command -label [::msgcat::mc "Reboot"] -command {exec reboot &}
-    frame .fb.h
-      pack .fb.h -side right
-      label .fb.h.h1 -text "[::msgcat::mc "Keys ctrl-shift-C : copy text"] / [::msgcat::mc "Keys ctrl-shift-V : paste text"]"
-      #label .fb.h.h2 -text [::msgcat::mc "Keys ctrl-shift-V : paste text"]
-      pack .fb.h.h1 -side right
-      #pack .fb.h.h2 -side right
+	button .fb.paste -compound right -relief flat -text [::msgcat::mc "Paste"] -image im_paste -command  "clipboard_paste .not"
+	pack .fb.paste -side right
+	button .fb.copy -compound right -relief flat -text [::msgcat::mc "Copy"] -image im_copy -command  "clipboard_copy .not"
+	pack .fb.copy -side right
 
       bind .not  <<NotebookTabChanged>> {traite_change_panneau}
-      after 100 "event generate .not.1 <Motion> -x 20 -y 20 -warp 1"
+      after 100 "event generate .not.1 <Motion> -x 50 -y 50 -warp 1"
 	
     update
     winid_maj [winid_parent [winfo id .]]
@@ -79,4 +78,5 @@ proc creation_onglet {nb} {
 	exec st -w [scan [winfo id $onglet.f] %x] -e $::rep/login.sh &
     
 }
+
 

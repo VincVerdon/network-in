@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20250419
+# Version 20250520
 
 # Lanceur de l'application
 #####################################
@@ -48,12 +48,10 @@ namespace eval term {
       # Barre de boutons
       frame $term.fb
       pack $term.fb -fill x
-      frame $term.fb.h
-      pack $term.fb.h -fill x -side left
-      label $term.fb.h.h1 -text [::msgcat::mc "Keys ctrl-shift-C : copy text"]
-      label $term.fb.h.h2 -text [::msgcat::mc "Keys ctrl-shift-V : paste text"]
-      pack $term.fb.h.h1
-      pack $term.fb.h.h2
+      button $term.fb.copy -compound right -relief flat -text [::msgcat::mc "Copy"] -image im_copy -command  "clipboard_copy $term.f"
+      pack $term.fb.copy -side left
+      button $term.fb.paste -compound right -relief flat -text [::msgcat::mc "Paste"] -image im_paste -command  "clipboard_paste $term.f"
+      pack $term.fb.paste -side left
       button $term.fb.q -compound right -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  "term::quit $term"
       pack $term.fb.q -side right
       frame $term.f -container 1
@@ -69,13 +67,14 @@ namespace eval term {
       winid_maj [winid_parent [winfo id $term]]
       
       #On déplace le curseur sur le terminal pour avoir le focus, pas d'autre solution !
-      after 100 "event generate $term.f <Motion> -x 150 -y 150 -warp 1"
+      after 100 "event generate $term.f <Motion> -x 50 -y 50 -warp 1"
       
       #Si st est fermé (commande exit ou logout) alors on détruit la fenêtre
       tkwait window $term.f
       term::quit $term
       
     }
+    
 
     # A propos
     #######################################################

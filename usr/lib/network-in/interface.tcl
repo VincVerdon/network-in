@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250507
+# Version 20250516
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -149,17 +149,7 @@ proc panel_simulation {l h} {
 	
 	update
 	# Démarrage serveur d'affichage Xephyr et le WM associé
-	set size "${l}x${h}"
-	set keyb [get_keyboard_conf]
-	set ::tmp(x_pid) [exec Xephyr -background none -ac -xkb-rules [lindex $keyb 0] -xkb-model [lindex $keyb 1] -xkb-layout [lindex $keyb 2] -xkb-variant [lindex $keyb 3] -no-host-grab -parent [scan [winfo id .main.sim.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]	
-	#set ::tmp(x_pid) [exec Xephyr -background none -ac -no-host-grab -parent [scan [winfo id .main.sim.f0.f] %x] -listen tcp -listen local -screen $size $::screen &]
-	update
-	after 1000 {
-		eval exec $::x_wm &
-		after 1000 {exec $::rep/bin/conf_wm $::screen}
-		#Initialisation des IP utilisées pour l'affichage des machines virtuelles
-		#init_x_com 20
-	}
+	start_x_server [scan [winfo id .main.sim.f0.f] %x] "${l}x${h}"
 	
 }
 
@@ -356,7 +346,8 @@ proc creation_liaison {id} {
 			set ::tmp(id2) $id
 			set ::tmp(id2,eth) $::tmp(sel,interface)
 			if {$::tmp(id1)==$::tmp(id2)} {
-				tk_messageBox -icon warning -title [::msgcat::mc "Impossible"] -message [::msgcat::mc "Cannot connect on itself !"]
+				tk_messageBox -icon warning -title [::msgcat::mc "Impossible"] -parent .main \
+				-message [::msgcat::mc "Cannot connect on itself !"]
 			} else {
 				creation_connexion $::tmp(id1) $::tmp(id2) $::tmp(id1,eth) $::tmp(id2,eth) $::tmp(sel,type)
 			}
@@ -634,9 +625,11 @@ proc dialogue_supprimer_objet {id} {
     
     # l'objet doit d'abord être arrêté
     if {$::tmp($id,etat)} {
-        tk_messageBox -icon info -title [::msgcat::mc "Impossible"] -message [::msgcat::mc "You must first stop this equipment"]
+        tk_messageBox -icon info -title [::msgcat::mc "Impossible"] -parent .main \
+		-message [::msgcat::mc "You must first stop this equipment"]
     } else {
-        set rep [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "Suppression"] -message [::msgcat::mc "Do you really want to suppress this equipment ? \nIt will suppress all its configuration too"]]
+        set rep [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "Suppression"] -parent .main \
+		 -message [::msgcat::mc "Do you really want to suppress this equipment ? \nIt will suppress all its configuration too"]]
         if {$rep == "yes"} {
             supprimer_objet $id
         }
@@ -648,7 +641,8 @@ proc dialogue_supprimer_objet {id} {
 # Dialogue appelé lors de la demande de duplication d'un composant
 ###############################################################
 proc dialogue_dupliquer {id} {
-	tk_messageBox -type ok -icon warning -title [::msgcat::mc "Duplicate"] -message [::msgcat::mc "After duplication, MAC address should be changed !"]	
+	tk_messageBox -type ok -icon warning -title [::msgcat::mc "Duplicate"] -parent .main \
+	-message [::msgcat::mc "After duplication, MAC address should be changed !"]	
 	dupliquer_ordinateur $id
 }
 
@@ -819,7 +813,6 @@ proc fenetre_infos_objet {id} {
 	ttk::button .inf.bou -compound left -text [::msgcat::mc "Close"] -image im_valider -command {destroy .inf}
 	pack .inf.bou
 	focus .inf.bou
-    #positionne_fenetre .inf .main
   
 }
 
@@ -1203,8 +1196,10 @@ proc creer_fontes_interface {} {
 # gestion des erreurs
 ################################################################################
 proc bgerror { msg } {
-  tk_messageBox -icon error -type ok -message "[::msgcat::mc "Error"] : $msg\n\n$::errorInfo"
-  #puts $msg
+	
+	puts $msg
+  tk_messageBox -icon error -type ok -parent .main \
+	-message "[::msgcat::mc "Error"] : $msg\n\n$::errorInfo"
 	
 }
 
@@ -1470,13 +1465,16 @@ proc dialogue_ouvrir_projet {fic} {
 		return
 	}
 	
-  set reponse [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "Open a project"] -message [::msgcat::mc "Do you really want to open another project ? If you don't  save the actual project, it will be lost"]]
+  set reponse [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "Open a project"] -parent .main \
+   -message [::msgcat::mc "Do you really want to open another project ? If you don't  save the actual project, it will be lost"]]
   if {$reponse != "no"} {
   	if {$fic == {} } {
-      set fic [tk_getOpenFile -initialdir $::rep_home -filetypes {{Network-in! .net}}]
+      set fic [tk_getOpenFile -initialdir $::tmp(current_dir) -parent .main -filetypes {{Network-in! .net}}]
   	}
     if {$fic != {}} {
-      desarchiver_projet $fic
+		# Nouveau rep courant
+		set ::tmp(current_dir) [file dirname $fic]
+		desarchiver_projet $fic
     }  
   }
 	
@@ -1490,7 +1488,8 @@ proc dialogue_nouveau_projet {} {
   	if ![verif_arret] {
 	  dialogue_arreter_tout
     } else {
-    	set reponse [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "New project"] -message [::msgcat::mc "Do you really want to start a new project ? If you don't  save the actual project, it will be lost"]]
+    	set reponse [tk_messageBox -type yesno -default no -icon warning -title [::msgcat::mc "New project"] -parent .main \
+		 -message [::msgcat::mc "Do you really want to start a new project ? If you don't  save the actual project, it will be lost"]]
       	if {$reponse == "yes"} {
       		init_projet
       	}
@@ -1513,7 +1512,6 @@ proc msg_box {path {title {}} {message {}} {parent .main} {screen {}}} {
 	wm title $path $title
 	wm transient $path $parent
 	wm resizable $path 0 0
-	wm transient $path $parent
 	#positionne_fenetre $path $parent
 	
 	label $path.ico -image im_info
@@ -1570,7 +1568,8 @@ proc dialogue_confirm_arreter_tout {} {
 	if [verif_arret] {
 		set ret 1
 	} else {
-		set reponse [tk_messageBox -type yesno -default no -parent .main -icon warning -title [::msgcat::mc "Warning"] -message [::msgcat::mc "This action causes to stop every equipment. Proceed ?"]]
+		set reponse [tk_messageBox -type yesno -default no -parent .main -icon warning -title [::msgcat::mc "Warning"] \
+		 -message [::msgcat::mc "This action causes to stop every equipment. Proceed ?"]]
 	  if {$reponse == "yes"} {
 		  set ret 1
 	  }
@@ -1582,20 +1581,23 @@ proc dialogue_confirm_arreter_tout {} {
 #Dialogue appelé si le disque système d'une machine n'est pas trouvé
 ################################################################################
 proc dialogue_system_disk_missing {img} {
-	set rep [tk_messageBox -icon info -title [::msgcat::mc "System disk"] -message "[::msgcat::mc "System disk not found for this equipment"] :\ $img"]
+	set rep [tk_messageBox -icon info -title [::msgcat::mc "System disk"] -parent .main \
+	 -message "[::msgcat::mc "System disk not found for this equipment"] :\ $img"]
 }
 
 
 #Dialogue appelé si le disque système d'une machine n'est pas trouvé
 ################################################################################
 proc dialogue_kernel_missing {kern} {
-	set rep [tk_messageBox -icon info -title [::msgcat::mc "Kernel"] -message "[::msgcat::mc "Kernel not found for this equipment"] :\ $kern"]
+	set rep [tk_messageBox -icon info -title [::msgcat::mc "Kernel"] -parent .main \
+	 -message "[::msgcat::mc "Kernel not found for this equipment"] :\ $kern"]
 }
 
 
 ################################################################################
 proc dialogue_creation_passerelle_impossible {} {
-  tk_messageBox -icon info -title [::msgcat::mc "Network-In!"] -message [::msgcat::mc "You can't create more than one gateway"]
+  tk_messageBox -icon info -title [::msgcat::mc "Network-In!"] -parent .main \
+	-message [::msgcat::mc "You can't create more than one gateway"]
 }
 
 ################################################################################
@@ -1605,10 +1607,12 @@ proc dialogue_enregistrer_projet {} {
     if ![verif_arret] {
         dialogue_arreter_tout
     } else {
-        set f [tk_getSaveFile -initialdir $::rep_home -initialfile $::tmp(file) -filetypes {{Network-in! .net} {Network-in! .NET}}]
+        set f [tk_getSaveFile -initialdir $::tmp(current_dir) -parent .main -initialfile $::tmp(file) -filetypes {{Network-in! .net} {Network-in! .NET}}]
         if {$f == {}} {
           return
         }
+		# Nouveau rep courant
+		set ::tmp(current_dir) [file dirname $f]
         # affichage barre
         after 1 {
           affiche_barre [::msgcat::mc "Please, be patient"]
@@ -1731,7 +1735,7 @@ proc fenetre_change_carte {id type n} {
 	
 	destroy .fcc
 	toplevel .fcc
-	wm transient .fcc .
+	wm transient .fcc .main
 	wm title .fcc [::msgcat::mc "Change network card"]
 	ttk::label .fcc.ico -image im_carte
 	pack .fcc.ico

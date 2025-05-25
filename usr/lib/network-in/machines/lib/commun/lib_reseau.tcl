@@ -223,12 +223,26 @@ proc calcul_mask_cidr2dec {cidr} {
 
 #Fonction qui calcule l'ip de réseau à partir de l'IP+masque
 ################################################################################
-proc calcul_reseau {ip netmask} {
-  set res [exec ipcalc -b $ip/$netmask]
-  set n [lsearch $res {Network:}]
-  set res [lindex $res [expr $n+1]]
-  set res [split $res {/}]
-  return [lindex $res 0]
+proc calcul_reseau {ip mask} {
+	
+	  # Convertir l'adresse IP et le masque en listes d'octets
+	  set ipBytes [split $ip "."]
+	  set maskBytes [split $mask "."]
+  
+	  # Initialiser une liste pour stocker les octets de l'adresse réseau
+	  set networkBytes {}
+  
+	  # Calculer chaque octet de l'adresse réseau
+	  for {set i 0} {$i < 4} {incr i} {
+		  set ipByte [lindex $ipBytes $i]
+		  set maskByte [lindex $maskBytes $i]
+		  set networkByte [expr {$ipByte & $maskByte}]
+		  lappend networkBytes $networkByte
+	  }
+  
+	  # Joindre les octets pour former l'adresse réseau
+	  return [join $networkBytes "."]
+	
 }
 
 # Ecriture DNS dans resolv.conf

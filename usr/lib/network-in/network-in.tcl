@@ -4,7 +4,7 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-#version 20250422
+#version 20250521
 set version(network-in) 2.0-beta10
 
 # Démarrage de Network-in!
@@ -40,11 +40,19 @@ if ![file exists $::rep_conf/kernels] {
 	file mkdir $::rep_conf/kernels
 }
 
+# Rep courant initial
+set ::tmp(current_dir) $::rep_home
+
 # définition de la première ip de communication utilisable
 set decoup [split $::ip_hote .]
 set ::tmp(reseau) "[lindex $decoup 0].[lindex $decoup 1].[lindex $decoup 2]"
 set ::tmp(n_ip_com) [lindex $decoup 3]
 unset decoup
+# on permet la connexion des machines UML sur notre serveur X
+for  {set i 2} {$i <=20} {incr i} {
+  exec xhost inet:$::tmp(reseau).$i
+}
+
 
 # Prise en compte de la langue souhaitée
 if {$::lang == {auto}} {
@@ -99,6 +107,10 @@ set ::tmp(vbox_found) [is_vbox_software_installed]
 creer_images_interface
 creer_fontes_interface
 fenetre_principale
+
+#Démarrage du scan du presse papier pour envoi aux machines du simulateur
+set ::tmp(clip) ""
+boucle_maj_clipboard
 
 # restauration du projet en cours
 if {[file exists $::rep_proj/structure.xml]} {

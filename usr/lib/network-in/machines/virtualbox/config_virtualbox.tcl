@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250427
+# Version 20250510
 set ::version(vbox) 1.0
 
 # Interface de configuration de base de la machine
@@ -41,6 +41,7 @@ proc fenetre_config_vbox {id} {
 	pack .vbox$id.fb
 	ttk::button .vbox$id.fb.a -compound left -text [::msgcat::mc "Close"] -image im_annuler -command "supprime_fenetre_config_vbox $id"
 	pack .vbox$id.fb.a -side left
+	focus .vbox$id.fb.a
 	
 }
 
@@ -119,6 +120,7 @@ proc fenetre_select_vbox {id} {
 	pack .vbox2$id.fb.v -side left
 	ttk::button .vbox2$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command "destroy .vbox2$id"
 	pack .vbox2$id.fb.a -side left
+	focus .vbox2$id.fb.a
 	
 }
 
@@ -267,15 +269,18 @@ proc fenetre_config_nom_vbox {id} {
 	# boutons
 	frame .vbox2$id.fb
 	pack .vbox2$id.fb
-	button .vbox2$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "
+	ttk::button .vbox2$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command "
 		change_nom_vbox $id
 		destroy .vbox2$id
 	"
 	
 	pack .vbox2$id.fb.v -side left
-	button .vbox2$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command "destroy .vbox2$id" -relief flat
+	ttk::button .vbox2$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command "destroy .vbox2$id"
 	pack .vbox2$id.fb.a -side left
+	focus .vbox2$id.fb.a
+	
 }
+
 
 # Fenêtre permettant de modifier le nom du matériel
 # et de le faire éventuellement correspondre au nom VirtualBox
@@ -312,14 +317,17 @@ proc fenetre_select_interf_vbox {id} {
 	# boutons
 	frame .vbox2$id.fb
 	pack .vbox2$id.fb
-	button .vbox2$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat \
+	ttk::button .vbox2$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider \
 	-command "change_vbox_interf $id"
 	
 	pack .vbox2$id.fb.v -side left
-	button .vbox2$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler \
-	-command "destroy .vbox2$id" -relief flat
+	ttk::button .vbox2$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler \
+	-command "destroy .vbox2$id"
 	pack .vbox2$id.fb.a -side left
+	focus .vbox2$id.fb.a
+	
 }
+
 
 ################################################################################
 proc change_vbox_interf {id} {

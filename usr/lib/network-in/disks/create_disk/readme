@@ -1,28 +1,37 @@
 How to create a system disk for Network-In! computers
 ------------------------------------------------------
 
-A) Stage 1
+A) Stage 1 : Base system
 -----------
 1) Configurer le script stage1.sh pour adapter la version et nom d'image
 2) Exécuter le script
 
-B) Stage 2
+cp -a /usr/lib/network-in/disks/create_disk/ /mnt/root
+
+B) Stage 2 : Base system Linux text
 -----------
+Copy the new disk in ~/rep_conf/disks/new.img
+
 Start a new simulation and create a computer. Don't start the computer. Exit from Network-In! simulator.
+Edit structure.xml file and modify disk paramètre to new.img
 
-Copy the new disk 
+copy stage2 directory in ~/network-in-proj/datas/m1/
+Start simulation and execute script from /var/networkin/ directory
 
-#In /etc/network/interfaces :
+C) Stage 3 : Complete system with services and graphical software for pc, servers, routers
+-----------
+(If you don't want a preconfigure system but a simple linux text system ignore the stage)
 
-auto eth0
-iface eth0 inet static
-address 10.0.0.1
-network 255.255.255.0
-gateway 10.0.0.254
+copy stage3 directory in ~/network-in-proj/datas/m1/
+execute script from /var/networkin/ directory
 
-#In resolv.conf
-echo nameserver 9.9.9.9 > /etc/resolv.conf
+D) Stage 4 : cleaning
+-----------
+copy stage4 directory in ~/network-in-proj/datas/m1/
+Start simulation and execute script from /var/networkin/ directory
 
-
-Construire l'image définitive en mergeant l'image de base et le disque cow :
-uml_moo  system.cow resultat.img
+E) Stage 5 : disk renaming
+-----------
+Name disk with the final name : DEB-VERSION_DISK-VERSION_SPEC.img
+Example : bookworm_1.01_linux.img   (for a Linux text disk)
+Example : bookworm_1.01_main.img   (for a main disk : general usage)

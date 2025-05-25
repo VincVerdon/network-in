@@ -16,3 +16,6 @@ image create photo im_config -file $::rep/images/configure.gif
 image create photo im_supprimer -file $::rep/images/delete.gif
 image create photo im_quitter -file $::rep/images/quit.gif
 image create photo im_info -file $::rep/images/info.gif
+image create photo im_cut -file $::rep/images/cut.gif
+image create photo im_copy -file $::rep/images/copy.gif
+image create photo im_paste -file $::rep/images/paste.gif

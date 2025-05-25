@@ -1,0 +1,18 @@
+#!/bin/sh
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
+#version 20250426
+####################################################################
+
+# Delete entries in sudoers
+sed -i 's/.*Network-In!.*//' /etc/sudoers
+sed -i 's/.*network-in.*//' /etc/sudoers
+chmod 0440 /etc/sudoers
+sudo -v
+
+# Delete networkin symlink
+rm /usr/bin/networkin
+
+exit 0

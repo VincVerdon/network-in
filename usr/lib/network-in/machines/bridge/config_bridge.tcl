@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la bridge nat
 ####################################################################
-# Version 20250504
+# Version 20250513
 set ::version(bridge) 1.0
 
 # Interface de configuration de base de la machine
@@ -115,10 +115,11 @@ proc fenetre_config_nom_bridge {id} {
   # boutons
   frame .brnom$id.fb
   pack .brnom$id.fb
-  button .brnom$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "applique_change_nom_bridge $id ; destroy .brnom$id"
+  button .brnom$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command "applique_change_nom_bridge $id ; destroy .brnom$id"
   pack .brnom$id.fb.v -side left
-  button .brnom$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command "destroy .brnom$id" -relief flat
+  button .brnom$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command "destroy .brnom$id"
   pack .brnom$id.fb.a -side left
+  focus .brnom$id.fb.a
     
 }
 
@@ -152,10 +153,12 @@ proc fenetre_config_nom_tap_bridge {id} {
 	# boutons
 	frame .brnom$id.fb
 	pack .brnom$id.fb
-	button .brnom$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "change_nom_tap_bridge $id ; destroy .brnom$id"
+	button .brnom$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command "change_nom_tap_bridge $id ; destroy .brnom$id"
 	pack .brnom$id.fb.v -side left
-	button .brnom$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command "destroy .brnom$id" -relief flat
+	button .brnom$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command "destroy .brnom$id"
 	pack .brnom$id.fb.a -side left
+	focus .brnom$id.fb.a
+	
 }
 
 
@@ -208,7 +211,7 @@ proc fenetre_config_ip_bridge {id} {
     grid .brip$id.f0.r1 -row 0 -column 0 -sticky w
     radiobutton .brip$id.f0.r2 -text "[::msgcat::mc "DHCP configuration"]" \
     -value {dhcp} -variable ::tmp($id,conf_tap) -command "desactive_interface_conf_ip $id"
-    grid .brip$id.f0.r2 -row 1 -column 0 -sticky w
+    #grid .brip$id.f0.r2 -row 1 -column 0 -sticky w
     radiobutton .brip$id.f0.r3 -text "[::msgcat::mc "Static configuration"]" \
     -value {static} -variable ::tmp($id,conf_tap) -command  "active_interface_conf_ip $id"
     grid .brip$id.f0.r3 -row 2 -column 0 -sticky w
@@ -226,16 +229,17 @@ proc fenetre_config_ip_bridge {id} {
     grid .brip$id.f.e1 -row 1 -column 1 -sticky w
     grid .brip$id.f.l2 -row 2 -column 0 -sticky e
     grid .brip$id.f.e2 -row 2 -column 1 -sticky w
-    grid .brip$id.f.l3 -row 3 -column 0 -sticky e
-    grid .brip$id.f.e3 -row 3 -column 1 -sticky w
+    #grid .brip$id.f.l3 -row 3 -column 0 -sticky e
+    #grid .brip$id.f.e3 -row 3 -column 1 -sticky w
     
     # boutons
     frame .brip$id.fb
     pack .brip$id.fb
-    button .brip$id.fb.a -compound left -text [::msgcat::mc "Abort"] -relief flat -image im_annuler -command "destroy .brip$id"
+    button .brip$id.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command "destroy .brip$id"
     pack .brip$id.fb.a -side right
-    button .brip$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "ch_ip_bridge $id"
+    button .brip$id.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command "ch_ip_bridge $id"
     pack .brip$id.fb.v -side right
+	focus .brip$id.fb.a
     
     if {$::tmp($id,conf_tap) != "static"} {
         desactive_interface_conf_ip $id

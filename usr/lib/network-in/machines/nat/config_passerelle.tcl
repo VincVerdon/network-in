@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250427
+# Version 20250508
 set ::version(nat) 2.0
 
 # Interface de configuration de base de la machine
@@ -110,10 +110,11 @@ proc fenetre_config_nom_passerelle {id} {
   # boutons
   frame .passe2.fb
   pack .passe2.fb
-  button .passe2.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "change_nom_passerelle $id ; destroy .passe2"
+  button .passe2.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command "change_nom_passerelle $id ; destroy .passe2"
   pack .passe2.fb.v -side left
-  button .passe2.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .passe2} -relief flat
+  button .passe2.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .passe2}
   pack .passe2.fb.a -side left
+	focus .passe2.fb.a
 }
 
 
@@ -162,10 +163,11 @@ proc fenetre_config_ip_passerelle {id} {
   # boutons
   frame .passe3.fb
   pack .passe3.fb
-  button .passe3.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .passe3} -relief flat
+  button .passe3.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .passe3}
   pack .passe3.fb.a -side right
-  button .passe3.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "applique_config_ip_passerelle $id ; destroy .passe3"
+  button .passe3.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command "applique_config_ip_passerelle $id ; destroy .passe3"
   pack .passe3.fb.v -side right
+	focus .passe3.fb.a
   
 }
 

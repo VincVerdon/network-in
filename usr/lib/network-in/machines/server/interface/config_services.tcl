@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 202500404
+# Version 20250509
 # Ce module a besoin des libs réseau
 source [file join $::rep lib_reseau.tcl]
 
@@ -48,21 +48,33 @@ proc fenetre_config_services {} {
     button .srv.f.5 -text [::msgcat::mc "SSH server"] -command {fenetre_config_ssh}
     pack .srv.f.5 -fill x
 
-    button .srv.q -compound left -text [::msgcat::mc "Close"] -image im_annuler -command {quit_srv} -relief flat
+    button .srv.q -compound left -text [::msgcat::mc "Close"] -image im_annuler -command {quit_srv}
     pack .srv.q
+	focus .srv.q
 
     update
     winid_maj [winid_parent [winfo id .srv]]
+	
+	bind Button <Key-Return> { 
+		%W invoke
+	}
+	
 }
 
+
+# Destruction de toutes les fenêtre lors de la sortie
+################################################################################
 proc quit_srv {} {
+	
 	destroy .srv
 	destroy .sftp
 	destroy .sdns
 	destroy .sssh
 	destroy .shttp
 	destroy .sdhcp
+	
 }
+
 
 # Fenetre de config du serveur dns
 ################################################################################
@@ -153,7 +165,7 @@ proc fenetre_config_dns {} {
     # boutons
     frame .sdns.fb
     pack .sdns.fb
-    button .sdns.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command {
+    button .sdns.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command {
         set ::conf_dns(dns_records) {}
         set liste [.sdns.f1.t children {}]
         foreach i $liste {
@@ -165,10 +177,11 @@ proc fenetre_config_dns {} {
         destroy .sdns
     }
     pack .sdns.fb.v -side left
-    button .sdns.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -relief flat -command {
+    button .sdns.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {
         destroy .sdns
     }
     pack .sdns.fb.a -side left
+	focus .sdns.fb.a
     
 }
 
@@ -219,6 +232,7 @@ proc interf_ajout_dns {type} {
     }
     
 }
+
 
 # On applique la configuration DNS définie dans l'interface
 ################################################################################
@@ -321,6 +335,7 @@ proc applique_config_dns {} {
 # Renverse l'IP
 ################################################################################
 proc renverse_ip {ip} {
+	
   set ip [split $ip {.}]
   set inv {}
   for  {set i 3} {$i >= 0} {incr i -1} {
@@ -328,6 +343,7 @@ proc renverse_ip {ip} {
   }
   set inv [string range $inv 1 end]
   return $inv
+	
 }
 
 
@@ -434,7 +450,7 @@ proc fenetre_config_ftp {} {
     # boutons
     frame .sftp.fb
     pack .sftp.fb
-    button .sftp.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command {
+    button .sftp.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command {
         set ::conf_ftp(ftp_users) {}
         set liste [.sftp.f1.t children {}]
         foreach i $liste {
@@ -446,8 +462,9 @@ proc fenetre_config_ftp {} {
         destroy .sftp
     }
     pack .sftp.fb.v -side left
-    button .sftp.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .sftp} -relief flat
+    button .sftp.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .sftp}
     pack .sftp.fb.a -side left
+	focus .sftp.fb.a
     
 }
 
@@ -629,13 +646,14 @@ proc fenetre_config_dhcp {} {
     # boutons
     frame .sdhcp.fb
     pack .sdhcp.fb
-    button .sdhcp.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command {
+    button .sdhcp.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command {
         applique_config_dhcp
         destroy .sdhcp
     }
     pack .sdhcp.fb.v -side left
-    button .sdhcp.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .sdhcp} -relief flat
+    button .sdhcp.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .sdhcp}
     pack .sdhcp.fb.a -side left
+	focus .sdhcp.fb.a
 
 }
 
@@ -646,13 +664,12 @@ proc applique_config_dhcp {} {
 
     # calcul du réseau
     set ::conf_dhcp(netmask) [lindex [lire_interface $::conf_dhcp(eth)] 2]
-    set ::conf_dhcp(network) [calcul_reseau $::conf_dhcp(ip1) $::conf_dhcp(netmask)]
+	# Le réseau doit être au format décimal pas en CIDR dans le fichier de config de isc-dhcp-server
+	set netmask [calcul_mask_cidr2dec $::conf_dhcp(netmask)]
+    set ::conf_dhcp(network) [calcul_reseau $::conf_dhcp(ip1) $netmask]
   
   # sauvegarde des données
   ecrire_param dhcp [array get ::conf_dhcp]
-  
-  # Le réseau doit être au format décimal pas en CIDR dans le fichier de config de isc-dhcp-server
-  set netmask [calcul_mask_cidr2dec $::conf_dhcp(netmask)]
   
   # ecriture du fichier de config dhcpd.conf
   set f [open /etc/dhcp/dhcpd.conf w]
@@ -736,7 +753,7 @@ proc fenetre_config_http {} {
     # boutons
     frame .shttp.fb
     pack .shttp.fb
-    button .shttp.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command {
+    button .shttp.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command {
         # on écrit les modifs du fichier index.html
         ecrire_fichier /var/www/html/index.html [.shttp.f1.t1 get 1.0 end]
         # on applique la config
@@ -744,8 +761,9 @@ proc fenetre_config_http {} {
         destroy .shttp
     }
     pack .shttp.fb.v -side left
-    button .shttp.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .shttp} -relief flat
+    button .shttp.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .shttp}
     pack .shttp.fb.a -side left
+	focus .shttp.fb.a
     
 }
 
@@ -818,14 +836,15 @@ proc fenetre_config_ssh {} {
     # boutons
     frame .sssh.fb
     pack .sssh.fb
-    button .sssh.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command {
+    button .sssh.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command {
         # on applique la config
         applique_config_ssh
         destroy .sssh
     }
     pack .sssh.fb.v -side left
-    button .sssh.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .sssh} -relief flat
+    button .sssh.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .sssh}
     pack .sssh.fb.a -side left
+	focus .sssh.fb.a
     
 }
 

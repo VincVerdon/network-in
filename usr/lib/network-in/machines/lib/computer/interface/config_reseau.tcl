@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de configuration réseau
 ####################################################################
-# Version 20250102
+# Version 20250509
 # Ce module a besoin des libs réseau
 source [file join $::rep lib_reseau.tcl]
 
@@ -32,12 +32,19 @@ proc config_reseau {} {
     button .cfg.f.3 -text [::msgcat::mc "Name"] -command {fenetre_config_nom}
     pack .cfg.f.3 -fill x
 
-    button .cfg.q -compound left -text [::msgcat::mc "Close"] -image im_annuler -command {quit_cfg} -relief flat
+    button .cfg.q -compound left -text [::msgcat::mc "Close"] -image im_annuler -command {quit_cfg}
     pack .cfg.q
+	focus .cfg.q
 
     update
     winid_maj [winid_parent [winfo id .cfg]]
+	
+	bind Button <Key-Return> { 
+		%W invoke
+	}
+	
 }
+
 
 # Fenetre de config du nom
 ################################################################################
@@ -48,6 +55,7 @@ proc quit_cfg {} {
 	destroy .cfgci
 	destroy .cfgcip
 }
+
 
 # Fenetre de config du nom
 ################################################################################
@@ -88,9 +96,12 @@ proc fenetre_config_nom {} {
 		}
 	}
 	pack .cfgnom.fb.v -side left
-	button .cfgnom.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .cfgnom} -relief flat
+	button .cfgnom.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .cfgnom}
 	pack .cfgnom.fb.a -side left
+	focus .cfgnom.fb.a
+	
 }
+
 
 # fenetre de config du DNS
 ################################################################################
@@ -165,9 +176,12 @@ proc fenetre_config_client_dns {} {
         }
         pack .cfgdns.fb.v -side left
     }
-    button .cfgdns.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .cfgdns} -relief flat
+    button .cfgdns.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .cfgdns}
     pack .cfgdns.fb.a -side left
+	focus .cfgdns.fb.a
+	
 }
+
 
 ################################################################################
 proc config_interfaces {} {
@@ -186,6 +200,7 @@ proc config_interfaces {} {
         fenetre_choix_interface
     }
 }
+
 
 ################################################################################
 proc fenetre_choix_interface {} {
@@ -226,8 +241,9 @@ proc fenetre_choix_interface {} {
         }
     }
 
-    button .cfgci.v -compound left -text [::msgcat::mc "Close"] -image im_annuler -relief flat -command {destroy .cfgci}
+    button .cfgci.v -compound left -text [::msgcat::mc "Close"] -image im_annuler -command {destroy .cfgci}
     pack .cfgci.v
+	focus .cfgci.v
   
 }
 
@@ -338,15 +354,16 @@ proc fenetre_config_ip {interf} {
     # boutons
     frame .cfgcip.fb
     pack .cfgcip.fb
-    button .cfgcip.fb.a -compound left -text [::msgcat::mc "Abort"] -relief flat -image im_annuler -command {
+    button .cfgcip.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {
         destroy .cfgcip
         if {[winfo exists .cfgci]} {
             wm deiconify .cfgci
         }
     }
     pack .cfgcip.fb.a -side right
-    button .cfgcip.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "ch_ip $interf"
-
+    button .cfgcip.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command "ch_ip $interf"
+    focus .cfgcip.fb.a
+	
     # prise en compte du mode
     set ::tmp(etat_config_ip) 0
     if { $::tmp(mode) == "static"} {
@@ -361,6 +378,7 @@ proc fenetre_config_ip {interf} {
     }
 
 }
+
 
 # Application des choix de conf IP saisis dans l'interface
 ################################################################################

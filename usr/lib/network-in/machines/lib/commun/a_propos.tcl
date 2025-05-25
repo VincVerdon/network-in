@@ -6,26 +6,9 @@
 # Version 20250427
 
 proc a_propos {} {
-    set apropos "[lire_fichier_echange apropos]\n[::msgcat::mc "Equipment version"] : $::version(equipment)"
-    
-	destroy .apropos
-    toplevel .apropos
-	wm title .apropos "[::msgcat::mc "About"]..."
-	wm resizable .apropos 0 0
-	positionne_fenetre .apropos
-	wm transient .apropos .
-	
-	label .apropos.ico -image im_info
-	pack .apropos.ico
-	label .apropos.l -text $apropos
-	pack .apropos.l
-	button .apropos.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider  \
-	-command {destroy .apropos}
-	pack .apropos.v
-    focus .apropos.v
 
-    bind Button <Key-Return> { 
-        %W invoke
-    }
+    set apropos "[lire_fichier_echange apropos]\n[::msgcat::mc "Equipment version"] : $::version(equipment)"
+	msg_box .apropos "[::msgcat::mc "About"]..." $apropos
+	positionne_fenetre .apropos .
     
 }

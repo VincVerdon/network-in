@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions utilitaires interface bureau ordinateur et routeur
 ####################################################################
-# Version 20250504
+# Version 20250520
 
 # proc positionnant une toplevel à la position du bureau
 ###############################################################################
@@ -35,8 +35,7 @@ proc lire_fichier_echange {fic} {
 	set f [open $::rep_com/$fic r]
 	set texte [read $f]
 	close $f
-	# file delete $::rep_proj/$id/com/$fic
-	return $texte
+	return [string trim $texte]
     
 }
 
@@ -129,3 +128,49 @@ proc boucle_scan_hostname {} {
     
 }
 
+
+# Création d'une boite type messageBox
+################################################################################
+proc msg_box {path {title {}} {message {}} {parent .}} {
+
+    destroy $path
+    toplevel $path
+	wm title $path $title
+	wm transient $path $parent
+	wm resizable $path 0 0
+	wm transient $path $parent
+	
+	label $path.ico -image im_info
+	pack $path.ico
+	label $path.l -text $message
+	pack $path.l
+	
+	button $path.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider \
+	-command "destroy $path"
+	pack $path.v
+	focus $path.v
+
+    bind Button <Key-Return> { 
+        %W invoke
+    }
+	
+}
+
+
+# Place la sélection dans le presse papier des machines ET de l'hôte
+#######################################################
+proc clipboard_copy {widg} {
+	exec xsel --primary -o |  xsel --display ${::ip_hote}${::display_hote} --clipboard -i &
+	exec xsel --primary -o |  xsel --clipboard -i &
+	
+}
+
+
+# Colle le contenu du presse papier dans le terminal
+#######################################################
+proc clipboard_paste {widg} {
+	
+	event generate $widg <Motion> -x 200 -y 200 -warp 1
+	after 10 {exec xdotool key ctrl+shift+v}
+	
+}

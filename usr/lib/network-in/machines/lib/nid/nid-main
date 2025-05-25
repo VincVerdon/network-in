@@ -15,7 +15,7 @@ export HOME=/root
 cd $HOME
 . /etc/profile
 
-#Correction pug noyau relatif aux processus
+#Correction bug noyau relatif aux processus
 cp /proc/cpuinfo /tmp/
 echo >> /tmp/cpuinfo
 mount --bind /tmp/cpuinfo /proc/cpuinfo

@@ -28,6 +28,7 @@ wmctrl;wmctrl
 iptables;iptables
 xfwm4;xfwm4
 Xephyr;xserver-xephyr
+xsel;xsel
 "
 
 ARRET=false
