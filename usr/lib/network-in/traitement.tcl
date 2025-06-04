@@ -1103,9 +1103,9 @@ proc start_x_server {window size} {
 	set keyb [get_keyboard_conf]
 	set ::tmp(x_pid) [exec Xephyr -background none -ac -xkb-rules [lindex $keyb 0] -xkb-model [lindex $keyb 1] -xkb-layout [lindex $keyb 2] -xkb-variant [lindex $keyb 3] -no-host-grab -parent $window -listen tcp -listen local -screen $size $::screen &]	
 	update
-	after 1000 {
+	after 500 {
 		eval exec $::x_wm &
-		after 1000 {exec $::rep/bin/conf_wm $::screen}
+		after 500 "exec $::rep/bin/conf_wm $::screen $::coul(bg_simul)"
 	}
 	
 }

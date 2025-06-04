@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20250424
+#Version 20250603
 #############################
 REP_INS=$(dirname $0)
 #Software directory
@@ -29,6 +29,7 @@ iptables;iptables
 xfwm4;xfwm4
 Xephyr;xserver-xephyr
 xsel;xsel
+hsetroot;hsetroot
 "
 
 ARRET=false

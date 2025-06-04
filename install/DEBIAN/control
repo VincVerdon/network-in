@@ -1,9 +1,9 @@
 Package: network-in
-Version: 2.0-beta10
+Version: 2.0-beta11
 Section: base
 Priority: optional
 Architecture: amd64
-Depends: bash , uml-utilities , vde2 , sudo , tcl(>=8.5), tk(>=8.5), lsof, wmctrl, x11-utils, iptables, xfwm4, xserver-xephyr, xsel
+Depends: bash , uml-utilities , vde2 , sudo , tcl(>=8.5) , tk(>=8.5) , lsof , wmctrl , x11-utils , iptables , xfwm4 , xserver-xephyr , xsel, hsetroot
 Maintainer: Vincent Verdon <network-in@vverdon.fr>
 Description: A network simulator software
 Homepage: https://network-in.vverdon.fr

@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface bureau Linux texte
 ####################################################################
-# Version 20250523
+# Version 20250604
 set version(equipment) {1.0}
 
 # Création de l'interface principale machine type Linux
@@ -74,8 +74,7 @@ proc creation_onglet {nb} {
 	frame $onglet.f -container 1
 	pack $onglet.f -fill both -expand 1
 	update
-    # -f "DejaVu Sans Mono-12"
-	exec st -w [scan [winfo id $onglet.f] %x] -e $::rep/login.sh &
+	exec st -f $::font(name) -w [scan [winfo id $onglet.f] %x] -e $::rep/login.sh &
     
 }
 

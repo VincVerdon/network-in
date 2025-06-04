@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250516
+# Version 20250604
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -38,7 +38,7 @@ proc fenetre_principale {} {
 	$m.tools add cascade -label [::msgcat::mc "Type of interface"] -menu $m.tools.niv
 	creation_menu_niveau $m.tools.niv
 	$m.tools add separator
-	$m.tools add command -label [::msgcat::mc "Messages"] -command affiche_logs
+	$m.tools add command -label [::msgcat::mc "Messages"] -command fenetre_affiche_logs
 	$m.tools add command -label [::msgcat::mc "Terminal"] -command affiche_term
 	# menu aide
 	$m add cascade -menu $m.help -label [::msgcat::mc "Help"]
@@ -100,7 +100,7 @@ proc panel_schema {l h} {
 	frame .main.sch.f
 	pack .main.sch.f -fill both -expand 1
 	set ::c .main.sch.f.c
-	canvas $::c -background $::coul(fond) -closeenough 5 -cursor hand2 \
+	canvas $::c -background $::coul(bg_schema) -closeenough 5 -cursor hand2 \
 		  -scrollregion "0 0 $::tmp(l) $::tmp(h)" \
 		-xscrollcommand ".main.sch.hscroll set" -yscrollcommand ".main.sch.f.vscroll set"
 	pack $::c -fill both  -side left -expand 1
@@ -138,7 +138,7 @@ proc panel_simulation {l h} {
 	pack .main.sim.f0.vbar -fill y -side left
 	ttk::scrollbar .main.sim.hbar -command {.main.sim.f0.t xview} -orient horizontal
 	
-	canvas .main.sim.f0.t -background $::coul(fond) -scrollregion "0 0 $l $h" \
+	canvas .main.sim.f0.t -background $::coul(bg_simul) -scrollregion "0 0 $l $h" \
 	-yscrollcommand {.main.sim.f0.vbar set} -xscrollcommand {.main.sim.hbar set}
 	pack .main.sim.f0.t -side right -fill both -expand 1
 	pack .main.sim.hbar -fill x
@@ -503,6 +503,7 @@ proc menu_contextuel_objet {id x y} {
         	# infos sur l'objet sélectionné
         	$::c.mc add separator
         	$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+			$::c.mc add command -label [::msgcat::mc "Logs print"] -command "fenetre_affiche_logs $id"
         	$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
         	$::c.mc add separator
         	$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dialogue_dupliquer $id" -state $etat3
@@ -521,6 +522,7 @@ proc menu_contextuel_objet {id x y} {
         	# infos sur l'objet sélectionné
         	$::c.mc add separator
         	$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+			$::c.mc add command -label [::msgcat::mc "Logs print"] -command "fenetre_affiche_logs $id"
         	$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
         	$::c.mc add separator
         	$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dialogue_dupliquer $id" -state $etat3
@@ -1634,7 +1636,7 @@ proc affiche_texte {fichier} {
   frame .t_texte.f
   pack .t_texte.f -expand 1 -fill both
   
-  text .t_texte.f.tex -yscrollcommand {.t_texte.f.scrolv set} \
+  text .t_texte.f.tex -background $::coul(bg_schema) -foreground $::coul(texte) -yscrollcommand {.t_texte.f.scrolv set} \
       -wrap word
   pack .t_texte.f.tex -expand 1 -fill both -side left
   
@@ -1674,22 +1676,28 @@ proc ouvrir_fichier_texte {fichier} {
 #Affichage d'une console xterm
 ################################################################################
 proc affiche_term {} {
-  exec xterm +ai -title "Network-In! - xterm" -bg $::coul(fond) -fg $::coul(texte) -fn 10x20 &
+  exec xterm +ai -title "Network-In! - xterm" -bg $::coul(bg_schema) -fg $::coul(texte) -fn 10x20 &
 }
 
 #Affichage des messages (fichier journal network-in.log)
 ################################################################################
-proc affiche_logs {} {
+proc fenetre_affiche_logs {{id {}}} {
 	
-	proc maj_log {} {
+	proc maj_log {{id {}}} {
 		.t_mess.f.tex configure -state normal
 		.t_mess.f.tex delete 1.0 end
-		 #Appel commande tail Unix
-		 set fic $::rep_proj/logs/network-in.log
-		 set f [open $fic r]
-		 set txt [read $f]
-		 close $f
-		 .t_mess.f.tex insert end "$txt\n"
+		if {$id == {}} {
+			set fic $::rep_proj/logs/network-in.log
+		} else {
+			set fic $::rep_proj/logs/$id.log
+		}
+		if {[file exists $fic]} {
+			set f [open $fic r]
+    		set txt [read $f]
+    		close $f
+    		.t_mess.f.tex insert end "$txt\n"
+		}
+		 
 		 .t_mess.f.tex configure -state disabled
 		 .t_mess.f.tex yview moveto 1
 		 update
@@ -1697,13 +1705,17 @@ proc affiche_logs {} {
 	
   destroy .t_mess
   toplevel .t_mess
-  wm title .t_mess [::msgcat::mc "Logs print"]
+	set titre [::msgcat::mc "Logs print"]
+	if {$id != {}} {
+		set titre "$titre - $id"
+	} 
+	wm title .t_mess $titre
   
   frame .t_mess.f
   pack .t_mess.f -expand 1 -fill both
   
   text .t_mess.f.tex -yscrollcommand {.t_mess.f.scrolv set} \
-      -wrap word -background $::coul(fond) -foreground $::coul(texte)
+      -wrap word -background $::coul(bg_schema) -foreground $::coul(texte)
   pack .t_mess.f.tex -expand 1 -fill both -side left
   
   #création scrollbar verticale
@@ -1715,16 +1727,15 @@ proc affiche_logs {} {
   ttk::button .t_mess.f_bou.val -compound right -text [::msgcat::mc "Close"] -image im_valider -command {
     destroy .t_mess
   }
-  ttk::button .t_mess.f_bou.raf -compound right -text [::msgcat::mc "Refresh"] -image im_rafraichir -command {
-    maj_log
-  }
+  ttk::button .t_mess.f_bou.raf -compound right -text [::msgcat::mc "Refresh"] -image im_rafraichir -command "maj_log $id"
+
   pack  .t_mess.f_bou
   pack .t_mess.f_bou.val -side left
   pack .t_mess.f_bou.raf -side left
   focus .t_mess.f_bou.val
 	
   #Mise à jour texte log
-	maj_log
+	maj_log $id
 }
 
 

@@ -7,6 +7,9 @@
 ####################################################################
 TMP=/tmp/network-in
 DISP=$1		#DIS is virtual X screen to use
+COLOR=$2	#COLOR is the color code for screen background
 
 #Only one desktop
+DISPLAY=$DISP hsetroot -solid $COLOR
 DISPLAY=$DISP wmctrl -n 1
+

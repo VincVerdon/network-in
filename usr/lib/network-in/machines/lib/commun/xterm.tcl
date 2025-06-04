@@ -56,12 +56,11 @@ namespace eval term {
       pack $term.fb.q -side right
       frame $term.f -container 1
       pack $term.f -fill both -expand 1
-      if {$exe != {}} {
-          # -f "DejaVu Sans Mono-12" 
-          exec st -w [scan [winfo id $term.f] %x] -e $exe &
+      if {$exe != {}} { 
+          exec st -f $::font(name) -w [scan [winfo id $term.f] %x] -e $exe &
           
       } else {
-          exec st -w [scan [winfo id $term.f] %x] &
+          exec st -f $::font(name) -w [scan [winfo id $term.f] %x] &
       }
       wm deiconify $term
       winid_maj [winid_parent [winfo id $term]]

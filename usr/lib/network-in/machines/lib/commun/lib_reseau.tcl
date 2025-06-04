@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions gestion réseau ordinateur et routeur
 ####################################################################
-# Version 20250103
+# Version 20250527
 
 # Ecriture du nom dans /etc/hostname
 ################################################################################
@@ -251,7 +251,7 @@ proc changer_dns_machine {domain serv1 serv2 serv3} {
   set f [open /etc/resolv.conf w]
   puts $f "#Automatic configuration by Network-In interface"
   if {$domain != {}} {
-    puts $f "domain $domain"
+    puts $f "search $domain"
   }
   for  {set i 1} {$i <=3} {incr i} {
     if {[set serv$i] != {}} {
