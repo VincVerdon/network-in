@@ -2,7 +2,7 @@
 #Network-in!
 #Demarrage de l'interface graphique d'un routeur
 #V. Verdon
-#Version 20231227
+#Version 20250610
 ###################
 REP_NETW=$(dirname $0)
 PID_INTERFACE=/var/run/nid_interface
@@ -11,7 +11,7 @@ wish $REP_NETW/interface/init.tcl &
 echo $(jobs -p %%) > $PID_INTERFACE
 
 #Retablissement des routes statiques du routeur
-echo 1 > /proc/sys/net/ipv4/ip_forward
+sysctl -w net.ipv4.ip_forward=1
 if [ -e $REP_NETW/routage/routage_on.sh ]
 then
 	while ! systemctl is-active networking.service

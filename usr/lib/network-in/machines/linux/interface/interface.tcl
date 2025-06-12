@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface bureau Linux texte
 ####################################################################
-# Version 20250604
+# Version 20250605
 set version(equipment) {1.0}
 
 # Création de l'interface principale machine type Linux
@@ -27,6 +27,7 @@ proc fenetre_principale {} {
 		creation_onglet $i
 	}
     set ::tmp(tab) .not.1
+    .not select .not.1
     traite_change_panneau
 	
     # zone de boutons
@@ -50,7 +51,7 @@ proc fenetre_principale {} {
 	
 }
 
-
+# Code exécuté au changement de terminal
 ################################################################################
 proc traite_change_panneau {} {
 
@@ -64,18 +65,17 @@ proc traite_change_panneau {} {
     
 }
 
-
+# Création d'un nouveau panneau de terminal
 ################################################################################
 proc creation_onglet {nb} {
   
 	set onglet .not.$nb
 	frame $onglet
-	.not add $onglet -text term$nb -padding {0 5 0 0}
+    .not add $onglet -text term$nb -padding {0 5 0 0}
 	frame $onglet.f -container 1
 	pack $onglet.f -fill both -expand 1
-	update
+    .not select .not.$nb
 	exec st -f $::font(name) -w [scan [winfo id $onglet.f] %x] -e $::rep/login.sh &
+    update
     
 }
-
-

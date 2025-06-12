@@ -10,14 +10,14 @@
 ################################################################################
 proc initialisation_desktop {id} {
 	set ::obj($id,reconf) true
-  set ::obj($id,famille) computer
-  set ::obj($id,type) desktop
-  set ::obj($id,categorie) dte
-  set ::obj($id,techno) ethernet
+	set ::obj($id,famille) computer
+	set ::obj($id,type) desktop
+	set ::obj($id,categorie) dte
+	set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
 	init_eth_mac $id
-  set ::obj($id,nom) $id
-  set ::obj($id,mem) 512M
+	set ::obj($id,nom) $id
+	set ::obj($id,mem) 512M
 	set ::obj($id,dd) $::img_disk_main
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null"
 	set ::obj($id,kernel) $::kernel
@@ -34,14 +34,14 @@ proc initialisation_desktop {id} {
 ################################################################################
 proc initialisation_laptop {id} {
 	set ::obj($id,reconf) false
-  set ::obj($id,famille) computer
-  set ::obj($id,type) laptop
-  set ::obj($id,categorie) dte
-  set ::obj($id,techno) ethernet
+	set ::obj($id,famille) computer
+	set ::obj($id,type) laptop
+	set ::obj($id,categorie) dte
+	set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
-  init_eth_mac $id
-  set ::obj($id,nom) $id
-  set ::obj($id,mem) 512M
+	init_eth_mac $id
+	set ::obj($id,nom) $id
+	set ::obj($id,mem) 512M
 	set ::obj($id,dd) $::img_disk_main
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null"
 	set ::obj($id,kernel) $::kernel
@@ -58,14 +58,14 @@ proc initialisation_laptop {id} {
 ################################################################################
 proc initialisation_server {id} {
 	set ::obj($id,reconf) true
-  set ::obj($id,famille) computer
-  set ::obj($id,type) server
-  set ::obj($id,categorie) dte
+	set ::obj($id,famille) computer
+	set ::obj($id,type) server
+	set ::obj($id,categorie) dte
 	set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
-  init_eth_mac $id
-  set ::obj($id,nom) $id
-  set ::obj($id,mem) 512M
+	init_eth_mac $id
+	set ::obj($id,nom) $id
+	set ::obj($id,mem) 512M
 	set ::obj($id,dd) $::img_disk_main
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null"
 	set ::obj($id,kernel) $::kernel
@@ -82,14 +82,14 @@ proc initialisation_server {id} {
 ################################################################################
 proc initialisation_linux {id} {
 	set ::obj($id,reconf) true
-  set ::obj($id,famille) computer
-  set ::obj($id,type) linux
-  set ::obj($id,categorie) dte
-  set ::obj($id,techno) ethernet
+	set ::obj($id,famille) computer
+	set ::obj($id,type) linux
+	set ::obj($id,categorie) dte
+	set ::obj($id,techno) ethernet
 	set ::obj($id,nb_eth) 1
 	init_eth_mac $id
-  set ::obj($id,nom) $id
-  set ::obj($id,mem) 256M
+	set ::obj($id,nom) $id
+	set ::obj($id,mem) 256M
 	set ::obj($id,dd) $::img_disk_linux
 	set ::obj($id,exe_options) "con0=fd:0,fd:1 con1=null"
 	set ::obj($id,kernel) $::kernel

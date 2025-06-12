@@ -2,7 +2,7 @@
 #Network-in!
 #Script de preparation d'une image de machine
 #V. Verdon
-#Version 20250522
+#Version 20250612
 ###################
 REP=$(dirname $0)
 

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20250509
+# Version 20250612
 # Ce module a besoin des libs réseau
 source [file join $::rep lib_reseau.tcl]
 
@@ -444,6 +444,8 @@ proc fenetre_config_ftp {} {
     pack .sftp.f2.f1.e2 -side left
     button .sftp.f2.f1.b1 -width 16 -text [::msgcat::mc "Add"] -command {
         .sftp.f1.t insert {} end -values [list $::tmp(nom) $::tmp(passe)]
+		set ::tmp(nom) ""
+		set ::tmp(passe) ""
     }
     pack .sftp.f2.f1.b1 -side right
 

@@ -2,7 +2,7 @@
 #Network-in!
 #Script de preparation d'une image de machine
 #V. Verdon
-#Version 20250524
+#Version 20250611
 ###################
 REP=$(dirname $0)
 
@@ -44,7 +44,7 @@ apt purge -y xterm
 #Ajout des exe spécifiques à network-in
 cp -r $REP/networkin-bin /sbin
 #Redirection des appels des commandes vers celles du rep networkin-bin
-sed -i 's/[^#] *PATH=/PATH=\/sbin\/networkin-bin:/' /etc/profile
+sed -E -i 's/^[^#]*PATH="(.+)"/PATH="\/sbin\/networkin-bin:\1"/' /etc/profile
 
 #Installation du daemon nid
 cp $REP/nid/* /etc/systemd/system
@@ -67,3 +67,8 @@ update-alternatives --set iptables /usr/sbin/iptables-legacy
 #Configuraton journalctl pour limiter la consommation disque
 sed -i 's/#SystemMaxUse=/SystemMaxUse=2M/' /etc/systemd/journald.conf
 
+#Désactivation d'IPv6 par défaut
+cp $REP/ipv6_disable.conf /etc/sysctl.d/
+#Correction bug : sysctl exécuté trop tard
+sed -i 's/^After=.*$/After=networking.service/' /lib/systemd/system/systemd-sysctl.service
+sed -i -E 's/^(After=.*) systemd-sysctl.service (.*)$/\1 \2/'  /lib/systemd/system/networking.service

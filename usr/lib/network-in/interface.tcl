@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250604
+# Version 20250612
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -13,6 +13,7 @@ proc fenetre_principale {} {
 	toplevel .main
 	wm protocol .main WM_DELETE_WINDOW {quit}
 	wm iconphoto .main -default im_network-in
+	wm minsize .main 800 600
 	wm attributes .main -zoomed true
 	update
 	set l [winfo width .main]
@@ -58,12 +59,12 @@ proc fenetre_principale {} {
 	#ttk::button .main.fb.zm -image im_zoom- -command {$::c scale all 0 0 0.5 0.5}
 	#pack .main.fb.zm -side left
 	ttk::button .main.fb.si -compound $comp -text [::msgcat::mc "Delete info labels"] -image im_del_infos -command {efface_infos_connexion}
-	pack .main.fb.si -side left
+	pack .main.fb.si -side left -padx {0 10}
 	ttk::button .main.fb.startall -compound $comp -text [::msgcat::mc "Start all"] -image im_start_all \
 	-command {
 		demarrer_tout
 	}
-	pack .main.fb.startall -side left
+	pack .main.fb.startall -side left -padx {10 0}
 	ttk::button .main.fb.stopall -compound $comp -text [::msgcat::mc "Shutdown all"] -image im_stop_all \
 	-command {
 		if ![verif_arret] {
@@ -72,7 +73,7 @@ proc fenetre_principale {} {
 			}
 		}
 	}
-	pack .main.fb.stopall -side left
+	pack .main.fb.stopall -side left -padx {0 10}
 	ttk::button .main.fb.quit -compound $comp -text [::msgcat::mc "Quit"] -image im_quitter -command quit
 	pack .main.fb.quit -side right
     
@@ -134,19 +135,16 @@ proc panel_simulation {l h} {
 	
 	frame .main.sim.f0
 	pack .main.sim.f0 -fill both -expand 1
-	ttk::scrollbar .main.sim.f0.vbar -command {.main.sim.f0.t yview} -orient vertical
-	pack .main.sim.f0.vbar -fill y -side left
-	ttk::scrollbar .main.sim.hbar -command {.main.sim.f0.t xview} -orient horizontal
 	
+	ttk::scrollbar .main.sim.hbar -command {.main.sim.f0.t xview} -orient horizontal
+	ttk::scrollbar .main.sim.f0.vbar -command {.main.sim.f0.t yview} -orient vertical
 	canvas .main.sim.f0.t -background $::coul(bg_simul) -scrollregion "0 0 $l $h" \
 	-yscrollcommand {.main.sim.f0.vbar set} -xscrollcommand {.main.sim.hbar set}
 	pack .main.sim.f0.t -side right -fill both -expand 1
 	pack .main.sim.hbar -fill x
-	update
+	pack .main.sim.f0.vbar -fill y -side right
 	frame .main.sim.f0.f -width $l -height $h -container 1
-	update
 	.main.sim.f0.t create window [expr $l / 2] [expr $h / 2] -window .main.sim.f0.f
-	
 	update
 	# Démarrage serveur d'affichage Xephyr et le WM associé
 	start_x_server [scan [winfo id .main.sim.f0.f] %x] "${l}x${h}"
@@ -1705,6 +1703,7 @@ proc fenetre_affiche_logs {{id {}}} {
 	
   destroy .t_mess
   toplevel .t_mess
+	wm transient .t_mess .main
 	set titre [::msgcat::mc "Logs print"]
 	if {$id != {}} {
 		set titre "$titre - $id"

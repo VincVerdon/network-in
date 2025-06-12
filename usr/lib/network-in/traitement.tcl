@@ -851,6 +851,14 @@ proc init_projet {} {
 	# effacement des objets sur le canvas
 	canvas_delete all
 	
+	#On ramène la barre de séparation au milieu
+	if {$::orientation == "vertical"} {
+		.main.pan sashpos 0 [expr [winfo height .main] / 2]
+	} else {
+		.main.pan sashpos 0 [expr [winfo width .main] / 2]
+	}
+	update
+	
 	# nettoyage et creation du nouveau répertoire de projet
 	catch {file delete -force $::rep_proj/datas}
 	#catch {file delete -force $::rep_proj/logs/m*.log}
