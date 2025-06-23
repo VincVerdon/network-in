@@ -15,11 +15,6 @@ proc fenetre_principale {} {
 	wm iconphoto .main -default im_network-in
 	wm minsize .main 800 600
 	wm attributes .main -zoomed true
-	update
-	set l [winfo width .main]
-	set h [winfo height .main]
-	set ::tmp(l) $l
-	set ::tmp(h) $h
 	
 	# création barre de menus
 	set m .main.menubar
@@ -88,8 +83,12 @@ proc fenetre_principale {} {
 	.main.pan add .main.sim -weight 1
 	update
 	
-	panel_simulation $l $h
-	panel_schema $l $h
+	set l [winfo width .main.pan]
+	set h [winfo height .main.pan]
+	set ::tmp(l) $l
+	set ::tmp(h) $h
+	panel_simulation $l [expr $h -10]
+	panel_schema $l [expr $h -100]
 	
 }
 
@@ -102,7 +101,7 @@ proc panel_schema {l h} {
 	pack .main.sch.f -fill both -expand 1
 	set ::c .main.sch.f.c
 	canvas $::c -background $::coul(bg_schema) -closeenough 5 -cursor hand2 \
-		  -scrollregion "0 0 $::tmp(l) $::tmp(h)" \
+		  -scrollregion "0 0 $l $h" \
 		-xscrollcommand ".main.sch.hscroll set" -yscrollcommand ".main.sch.f.vscroll set"
 	pack $::c -fill both  -side left -expand 1
 	ttk::scrollbar .main.sch.f.vscroll -command "$::c yview"

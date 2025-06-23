@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface routeur
 ####################################################################
-# Version 20250407
+# Version 20250621
 set version(equipment) {2.0}
 
 # Création de l'interface de configuration principale
@@ -210,7 +210,9 @@ proc fenetre_config_routage_statique {} {
         lappend ::conf(static) $record
         puts $::conf(static)
     }
-        applique_routage_statique
+        routage_off
+        write_static_routes
+        routage_on
         destroy .cfgst
     }
     pack .cfgst.fb.v -side left
@@ -343,6 +345,9 @@ proc ch_ip {interf} {
   }
   set ::tmp($interf) [list $::tmp(mode) $::tmp(ip) $::tmp(netmask) $::tmp(gateway) $::tmp(etat)]
   changer_ip_machine
+  #On rapplique le routage
+  routage_off
+  after 3000 routage_on
   destroy .cfgcip
   wm deiconify .cfgci
 }

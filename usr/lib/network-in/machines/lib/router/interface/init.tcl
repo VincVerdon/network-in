@@ -5,7 +5,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
 # Interface routeur
-# Version 20250520
+# Version 20250620
 
 encoding system utf-8
 
@@ -33,7 +33,7 @@ if {[file exists $::rep/dict.actu]} {
 source [file join $rep lib_images.tcl]
 source [file join $rep lib_interface.tcl]
 source [file join $rep interface.tcl]
-source [file join $rep config_reseau.tcl]
+source [file join $rep config_router.tcl]
 
 # on initialise quelques variables
 set ::nom_machine [exec hostname]

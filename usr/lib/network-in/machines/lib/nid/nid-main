@@ -9,10 +9,10 @@ REP_NETW=/var/networkin
 PID=/var/run/nid
 PID_INTERFACE=/var/run/nid_interface
 
-#on fixe quelques variables d'environnement
-#export USER=root
-#export HOME=/root
-#. /etc/profile
+#on fixe quelques variables d'environnement et on définit l'env utilisateur
+export USER=root
+export HOME=/root
+. /etc/profile
 cd ~
 
 #Correction bug noyau relatif aux processus

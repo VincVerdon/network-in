@@ -9,8 +9,10 @@ source [file join $::rep lib_reseau.tcl]
 
 # Enregistre et crée les scripts de routage statique
 ################################################################################
-proc applique_routage_statique {} {
+proc write_static_routes {} {
 
+    routage_off
+    
   # sauvegarde des données
   ecrire_param_routage static $::conf(static)
   
@@ -49,15 +51,27 @@ proc applique_routage_statique {} {
   close $f
   file attributes $::rep_conf/routage_off.sh -permissions 0700
 	
-	demarre_routage
+	routage_on
 }
+
 
 # Activation des règles de routage statique
 ################################################################################
-proc demarre_routage {} {
-	# execution du script de routage
+proc routage_on {} {
+	
 	exec $::rep_conf/routage_on.sh &
+    
 }
+
+
+# Activation des règles de routage statique
+################################################################################
+proc routage_off {} {
+	
+	exec $::rep_conf/routage_off.sh &
+    
+}
+
 
 # lecture des paramètres suivant le type de routage
 ################################################################################
