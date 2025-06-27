@@ -4,21 +4,20 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Outils config routeur
 ####################################################################
-# Version 20250128
+# Version 20250625
 source [file join $::rep lib_reseau.tcl]
 
 # Enregistre et crée les scripts de routage statique
 ################################################################################
 proc write_static_routes {} {
-
+	
+	
+	# Suppression des routes actuelles
     routage_off
-    
-  # sauvegarde des données
-  ecrire_param_routage static $::conf(static)
-  
-  # Suppression des routes actuelles
-  catch {exec $::rep_conf/routage_off.sh}
-  
+	
+    # sauvegarde des données
+	ecrire_param_routage static $::conf(static)
+	
   # creation du script de config de routage
   set f [open $::rep_conf/routage_on.sh w]
   puts $f "#!/bin/sh"
@@ -59,7 +58,7 @@ proc write_static_routes {} {
 ################################################################################
 proc routage_on {} {
 	
-	exec $::rep_conf/routage_on.sh &
+	catch {exec $::rep_conf/routage_on.sh}
     
 }
 
@@ -68,7 +67,7 @@ proc routage_on {} {
 ################################################################################
 proc routage_off {} {
 	
-	exec $::rep_conf/routage_off.sh &
+	catch {exec $::rep_conf/routage_off.sh}
     
 }
 
