@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20250610
+#version 20250830
 ####################################################################
 
 TMP=/tmp/network-in
@@ -40,5 +40,7 @@ vde_switch -d -nostdin -tap networkin_com -s $TMP/vde/switch_com -m 666
 /sbin/iptables -A INPUT -i networkin_com -j DROP
 /sbin/iptables -A FORWARD -i networkin_com -j DROP
 
-#Activation du routage des paquets + nat
-#sysctl -w net.ipv4.ip_forward=1
+#Activation du routage des paquets (indispensable pour passerelle nat)
+sysctl -w net.ipv4.ip_forward=1
+
+echo Network configuration ready

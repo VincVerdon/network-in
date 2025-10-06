@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20250419
+#version 20250703
 ####################################################################
 
 #Rep d'installation
@@ -11,7 +11,7 @@ REP=/usr/lib/network-in
 SIM_FILE=''
 
 # Option de la ligne de commande
-
+SIM_FILE=""
 if [[ "$1" =~ \.net$ ]]
 then
 	SIM_FILE=$1

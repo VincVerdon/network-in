@@ -15,6 +15,8 @@ proc fenetre_principale {} {
 	wm iconphoto .main -default im_network-in
 	wm minsize .main 800 600
 	wm attributes .main -zoomed true
+	#update suivant indispensable sous Ubuntu (Wayland)
+	update
 	
 	# création barre de menus
 	set m .main.menubar

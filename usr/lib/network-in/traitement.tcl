@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250516
+# Version 20250926
 
 # Suppression d'un câble
 ################################################################################
@@ -203,9 +203,9 @@ proc demarre_switch {id} {
   # démarrage du vde_switch
   if {$famille == {hub}} {
     # cas d'un hub
-    eval exec vde_switch -d -nostdin --fstp -n $::obj($id,nb_eth) -hub -s $::rep_tmp/vde/$id >& $::rep_proj/logs/$id.log
+    eval exec vde_switch -d -nostdin --fstp -n [expr $::obj($id,nb_eth) + 1] -hub -s $::rep_tmp/vde/$id >& $::rep_proj/logs/$id.log
   } else  {
-	eval exec vde_switch -d -nostdin --fstp -n $::obj($id,nb_eth) -M $::rep_tmp/terminal/$id -s $::rep_tmp/vde/$id >& $::rep_proj/logs/$id.log
+	eval exec vde_switch -d -nostdin --fstp -n [expr $::obj($id,nb_eth) + 1] -M $::rep_tmp/terminal/$id -s $::rep_tmp/vde/$id >& $::rep_proj/logs/$id.log
   }
 	#set ::tmp($id,pid_vde) {}
 	set ::tmp($id,pid_vde) [string range [eval exec lsof -Fp $::rep_tmp/vde/$id/ctl 2>/dev/null] 1 end]
@@ -271,7 +271,7 @@ proc demarre_connexion {id} {
         {hub} {set rep$n $::rep_tmp/vde/$i}
         {output} {
 			switch $::obj($i,type) {
-				{nat} {set rep$n $::rep_tmp/vde/switch_gateway}
+				{nat} {set rep$n $::rep_tmp/vde/switch_nat}
 				{bridge} {set rep$n $::rep_tmp/vde/$i}
 			}
         }
@@ -1091,7 +1091,7 @@ proc raise_x_window {win_id} {
 #################################################################################
 proc get_keyboard_conf {} {
 
-	set res [exec setxkbmap -query]
+	set res [exec setxkbmap -query 2>> /dev/null]
 	set res [split $res \n]
 	set ret ""
 	foreach line $res {
