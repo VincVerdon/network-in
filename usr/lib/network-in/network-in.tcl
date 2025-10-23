@@ -15,18 +15,28 @@ encoding system utf-8
 
 wm withdraw .
 
-# on determine le repertoire de demarrage
-#set rep [info nameofexecutable]
+# On determine le repertoire de demarrage
 set rep [file dirname [file normalize [info script]]]
 
-# on définit le répertoire temporaire
+# On définit le répertoire temporaire
 set rep_tmp /tmp/network-in
 
-#Valeur de l'orientation par défaut de la fenêtre principale
+# Valeur de l'orientation par défaut de la fenêtre principale
 set ::orientation horizontal
 
-# on source le fichier de config général et personnel s'il existe
+# On source le fichier de config général et personnel s'il existe
 source /etc/network-in.cfg
+
+# Création des rep de config et de stockage d'images disque s'il n'existent pas
+if ![file exists $::rep_conf/disks] {
+	file mkdir $::rep_conf/disks
+	file mkdir $::rep_conf/kernels
+}
+if ![file exists $::rep_conf/kernels] {
+	file mkdir $::rep_conf/kernels
+}
+
+# Prise en compte fichier de conf personnel s'il existe
 if {[file exists $::rep_conf/network-in.cfg]} {
   source $::rep_conf/network-in.cfg
 } else {
@@ -34,15 +44,6 @@ if {[file exists $::rep_conf/network-in.cfg]} {
 	puts $f "#Insert here your own parameters configuration"
 	puts $f "#This overrides /etc/network-in.cfg parameters"
 	close $f
-}
-
-#Création des rep de config et de stockage d'images disque s'il n'existent pas
-if ![file exists $::rep_conf/disks] {
-	file mkdir $::rep_conf/disks
-	file mkdir $::rep_conf/kernels
-}
-if ![file exists $::rep_conf/kernels] {
-	file mkdir $::rep_conf/kernels
 }
 
 # Rep courant initial
@@ -58,7 +59,6 @@ unset decoup
 for  {set i 2} {$i <=20} {incr i} {
   exec xhost inet:$::tmp(reseau).$i
 }
-
 
 # Prise en compte de la langue souhaitée
 if {$::lang == {auto}} {
