@@ -1,0 +1,147 @@
+package require tcltest 2.2
+namespace import tcltest::*
+
+loadTestedCommands
+package hide fswatch
+loadpackage
+
+test choosedir-1.1 {tk_chooseDirectory available options} -body {
+    tk_chooseDirectory -help
+} -returnCodes error -result {bad option "-help":\
+  must be -initialdir, -mustexist, -parent, -resultvariable, or -title}
+
+test choosedir-1.2 {tk_chooseDirectory missing value} -body {
+    tk_chooseDirectory -title
+} -returnCodes error -result {value for "-title" missing}
+
+test choosedir-1.3 {tk_chooseDirectory bad parent} -body {
+    tk_chooseDirectory -parent .nosuchwindow
+} -returnCodes error -result {bad window path name ".nosuchwindow"}
+
+test choosedir-2.1 {pick directory} -body {
+    keystrokes .__ttk_dirdialog {
+	<Tab> <Down> <Down> <Down> <Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -result [file join $testpath home]
+
+test choosedir-3.1 {enter existing directory} -body {
+    keystrokes .__ttk_dirdialog {
+	/home <Return> <Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -result [file join $testpath home]
+
+test choosedir-3.2 {enter existing directory with spaces} -body {
+    keystrokes .__ttk_dirdialog {
+	"/dir with spaces" <Return> <Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -result [file join $testpath "dir with spaces"]
+
+test choosedir-3.3 {enter existing directory with tilde} -body {
+    keystrokes .__ttk_dirdialog {
+	"/~user" <Return> <Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -result [file join $testpath ./~user]
+
+test choosedir-3.4 {enter directory in home directory} -setup {
+    set saveenv [array get env HOME]
+    set env(HOME) [file join $testpath home]
+} -body {
+    keystrokes .__ttk_dirdialog {
+	<Control-u> "~/subdir" <Return> <Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -cleanup {
+    array set env $saveenv
+} -result [file join $testpath home subdir]
+
+test choosedir-4.1 {accept non-existing directory} -body {
+    keystrokes .__ttk_dirdialog {
+	/fake <Return> <Escape> <Escape>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -result [file join $testpath fake]
+
+test choosedir-4.2 {deny non-existing directory} -body {
+    keystrokes .__ttk_dirdialog {
+	/fake <Return> <Escape> <Escape>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath -mustexist 1]
+} -result {}
+
+test choosedir-5.1 {select directory from list of matches} -body {
+    keystrokes .__ttk_dirdialog {
+	/h <Down> <Return> <Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -result [file join $testpath home]
+
+test choosedir-5.2 {select subdirectory from list of matches} -body {
+    keystrokes .__ttk_dirdialog {
+	/h <Down> <Return> /s <Down> <Return> <Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -result [file join $testpath home subdir]
+
+test choosedir-6.1 {make new subdirectory} -body {
+    keystrokes .__ttk_dirdialog {
+	<F10> <Sleep-50> newdir <Return> <Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -cleanup {
+    file delete [file join $testpath newdir]
+} -result [file join $testpath newdir]
+
+test choosedir-6.2 {new subdirectory exists} -body {
+    keystrokes .__ttk_dirdialog {
+	<F10> <Sleep-50> empty <Return> <Return>
+	<Control-u> newdir <Return> <Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -cleanup {
+    file delete [file join $testpath newdir]
+} -result [file join $testpath newdir]
+
+test choosedir-7.1 {find new directory after refresh} -setup {
+    proc newdir {} {
+	global testpath
+	file mkdir [file join $testpath newdir]
+    }
+} -body {
+    keystrokes .__ttk_dirdialog {
+	<F6> <Tab>
+	<<<newdir>>>
+	<F5>
+	<Down> <Down> <Down> <Down> <Down>
+	<Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -cleanup {
+    file delete [file join $testpath newdir]
+    rename newdir {}
+} -result [file join $testpath newdir]
+
+test choosedir-7.2 {find new directory after opening parent} -setup {
+    proc newdir {} {
+	global testpath
+	file mkdir [file join $testpath newdir]
+    }
+} -body {
+    keystrokes .__ttk_dirdialog {
+	<F6> <Tab>
+	<space>
+	<<<newdir>>>
+	<space>
+	<Down> <Down> <Down> <Down> <Down>
+	<Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -cleanup {
+    file delete [file join $testpath newdir]
+    rename newdir {}
+} -result [file join $testpath newdir]
+
+cleanupTests

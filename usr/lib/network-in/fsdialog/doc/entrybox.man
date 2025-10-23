@@ -1,0 +1,33 @@
+[comment {-*- tcl -*- doctools manpage}]
+[vset libname entrybox]
+[vset cmdname ttk::entrybox]
+[manpage_begin [vset libname] n 2.0]
+[copyright {2017 Schelte Bron}]
+[moddesc   {Tk Themed Widget}]
+[titledesc {editable text field widget with clear controls}]
+[require Tk "9 8.6.6"]
+[require matchbox 2.0]
+[description]
+The [widget [vset cmdname]] widget is an extension of the regular ttk::entry
+widget. It can be used wherever a ttk::entry is currently used, without any
+other changes to the code.
+[para]
+The difference between the [widget [vset cmdname]] widget and the ttk::entry
+widget is in the interaction with the user. An empty [widget [vset cmdname]]
+looks just like a ttk::entry. However, when there is any text in the
+[widget [vset cmdname]], an icon appears on the right-hand side of the widget.
+The user can click this icon to erase the text.
+
+[section "Widget command"]
+A [widget [vset cmdname]] widget supports the same subcommands as a
+ttk::entry. As a convenience, one additional subcommand is available:
+[list_begin definitions]
+[def "[arg pathName] [method set] [arg value]"]
+Directly set the value of the [widget [vset cmdname]] to [arg value],
+replacing any existing text.
+[list_end]
+
+[section "Default bindings"]
+The [widget [vset cmdname]] has one additional key binding, Control-u, that
+also erases all text in the [widget [vset cmdname]].
+[manpage_end]

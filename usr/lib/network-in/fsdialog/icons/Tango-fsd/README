@@ -1,0 +1,7 @@
+The Tango-fsd directory tree contains a stripped down version of the Tango
+Icon Theme. It includes only those icons that are needed for the Tcl/Tk
+fsdialog package.
+
+The Tango Icon Theme is an icon theme that follows the Tango visual
+guidelines. The icons included in the Tango Icon Theme have been released
+into the Public Domain.

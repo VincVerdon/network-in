@@ -1,0 +1,330 @@
+package require tcltest 2.2
+namespace import tcltest::*
+
+loadTestedCommands
+package hide fswatch
+loadpackage
+
+test openfile-common-1.1 {available options} -body {
+    tk_getOpenFile -help
+} -returnCodes error -result {bad option "-help":\
+  must be -defaultextension, -filetypes, -initialdir, -initialfile,\
+  -multiple, -parent, -resultvariable, -title, or -typevariable}
+
+test openfile-common-1.2 {missing value} -body {
+    tk_getOpenFile -initialdir
+} -returnCodes error -result {value for "-initialdir" missing}
+
+test openfile-common-1.3 {non-existing parent} -body {
+    tk_getOpenFile -parent .fake
+} -returnCodes error -result {bad window path name ".fake"}
+
+test openfile-common-1.4 {invalid file types} -body {
+    tk_getOpenFile -filetypes none
+} -returnCodes error -result {bad file type "none", should be\
+  "typeName {extension ?extensions ...?} ?{macType ?macTypes ...?}?"}
+
+test openfile-common-1.5 {invalid multiple option} -body {
+    tk_getOpenFile -multiple maybe
+} -returnCodes error -result {expected boolean value but got "maybe"}
+
+foreach mode {compact details} {
+    set prefs {details 0 duopane 0 hidden 0 mixed 0 reverse 0 sort name}
+    if {$mode eq "details"} {dict set prefs details 1}
+
+    test openfile-$mode-1.1 {cancel dialog} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    file.txt <Escape>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result {}
+
+    test openfile-$mode-1.2 {get file from home directory} -setup {
+	set saveenv [array get env HOME]
+	set env(HOME) [file join $testpath home]
+    } -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    <Alt-Home>
+	    <Shift-Tab> <Home> <Down> <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -cleanup {
+	array set env $saveenv
+    } -result [file join $testpath home somefile.txt]
+
+    test openfile-$mode-2.1 {choose single file} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    # Traverse to the file list area
+	    <Shift-Tab>
+	    # Navigate to the file
+	    <Down> <Down> <Down> <Down> <Down> <Down>
+	    # Select the file
+	    <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result [file join $testpath file.txt]
+
+    test openfile-$mode-2.2 {choose single file from the back} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    # Traverse to the file list area
+	    <Shift-Tab>
+	    # Navigate to the file
+	    <End> <Up> <Up> <Up>
+	    # Select the file
+	    <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result [file join $testpath image.svg]
+
+    test openfile-$mode-2.3 {choose file in other dir} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog [varsubst {
+	    <F6> <Control-u> $testpath <Return>
+	    <Tab> <Down> <Down> <Down> <Down> <Down> <Down> <Return>
+	}]
+	collect [tk_getOpenFile -initialdir [file dirname $testpath]]
+    } -result [file join $testpath file.txt]
+
+    test openfile-$mode-2.4 {navigate to other dir and choose file} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    <Shift-Tab>
+	    <Down> <Down> <Down> <Return>
+	    <Tab> somefile.txt <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result [file join $testpath home somefile.txt]
+
+    test openfile-$mode-3.1 {input existing file} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    file.txt <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result [file join $testpath file.txt]
+
+    test openfile-$mode-3.2 {input existing file with spaces} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    "name with spaces" <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result [file join $testpath "name with spaces"]
+
+    test openfile-$mode-3.3 {input existing file in other dir} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog [varsubst {
+	    <F6> <Control-u> $testpath <Return>
+	    <F7> file.txt <Return>
+	}]
+	collect [tk_getOpenFile -initialdir [file dirname $testpath]]
+    } -result [file join $testpath file.txt]
+
+    test openfile-$mode-4.1 {pick existing file} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    f <Down> <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result [file join $testpath file.txt]
+
+    test openfile-$mode-4.2 {pick existing file with spaces} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    n <Down> <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result [file join $testpath "name with spaces"]
+
+    test openfile-$mode-4.3 {pick existing file in other dir} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    h <Down> <Return> s <Down> <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result [file join $testpath home somefile.txt]
+
+    test openfile-$mode-5.1 {pick file with spaces in multiple mode} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    n <Down> <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath -multiple 1]
+    } -result [list [file join $testpath "name with spaces"]]
+
+    test openfile-$mode-5.2 {pick multiple files} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    n <Down> <space> f <Down> <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath -multiple 1]
+    } -result [list \
+      [file join $testpath "name with spaces"] [file join $testpath file.txt]]
+
+    test openfile-$mode-5.3 {input existing file in multiple mode} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    file.txt <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath -multiple 1]
+    } -result [list [file join $testpath file.txt]]
+
+    test openfile-$mode-5.4 {input file with spaces in multiple mode} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    {"name with spaces"} <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath -multiple 1]
+    } -result [list [file join $testpath "name with spaces"]]
+
+    test openfile-$mode-5.5 {input multiple files} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    file.txt <space> {"name with spaces"} <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath -multiple 1]
+    } -result [list \
+      [file join $testpath file.txt] [file join $testpath "name with spaces"]]
+
+    test openfile-$mode-5.6 {choose single file in multiple mode} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    # Traverse to the file list area
+	    <Shift-Tab>
+	    # Navigate to the file
+	    <Down> <Down> <Down> <Down> <Down> <Down>
+	    # Select the file
+	    <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath -multiple 1]
+    } -result [list [file join $testpath file.txt]]
+
+    test openfile-$mode-5.7 {choose multiple consecutive files} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    # Traverse to the file list area
+	    <Shift-Tab>
+	    # Navigate to the file
+	    <Down> <Down> <Down> <Down> <Down> <Down>
+	    # Select the files
+	    <Shift-Down> <Shift-Down> <Shift-Down>
+	    <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath -multiple 1]
+    } -result [lmap n {file.txt file001.txt file002.txt file003.txt} {
+	file join $testpath $n
+    }]
+
+    test openfile-$mode-5.8 {choose multiple disjoint files} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    # Traverse to the file list area
+	    <Shift-Tab>
+	    # Navigate to the file
+	    <Down> <Down> <Down> <Down> <Down> <Down>
+	    # Select the files
+	    <Control-Down> <Control-Down> <space>
+	    <Control-Down> <Control-Down> <space>
+	    <Control-Down> <Control-Down> <space>
+	    <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath -multiple 1]
+    } -result [lmap n {file.txt file002.txt file004.txt file006.txt} {
+	file join $testpath $n
+    }]
+
+    test openfile-$mode-5.9 {mixed selection methods} -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    # Traverse to the file list area
+	    <Shift-Tab>
+	    # Navigate to the file
+	    <Down> <Down> <Down> <Down> <Down> <Down>
+	    # Select the files
+	    <Control-Down> <Control-Down> <space>
+	    <Shift-Down> <Shift-Down>
+	    <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath -multiple 1]
+    } -result [lmap n {file.txt file002.txt file003.txt file004.txt} {
+	file join $testpath $n
+    }]
+
+    test openfile-$mode-6.1 {choose single file with separate dirs} -body {
+	ttk::fsdialog preferences {*}$prefs duopane 1
+	keystrokes .__ttk_filedialog {
+	    # Traverse to the file list area
+	    <Shift-Tab>
+	    # Navigate to the file
+	    <Home>
+	    # Select the file
+	    <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result [file join $testpath file.txt]
+
+    test openfile-$mode-6.2 {choose single file when sorted by date} -body {
+	ttk::fsdialog preferences {*}$prefs duopane 1 sort mtime
+	keystrokes .__ttk_filedialog {
+	    # Traverse to the file list area
+	    <Shift-Tab>
+	    # Navigate to the file
+	    <Home>
+	    # Select the file
+	    <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result [file join $testpath file001.txt]
+
+    test openfile-$mode-6.3 {choose single file when sorted reverse} -body {
+	ttk::fsdialog preferences {*}$prefs duopane 1 reverse 1
+	keystrokes .__ttk_filedialog {
+	    # Traverse to the file list area
+	    <Shift-Tab>
+	    # Navigate to the file
+	    <Home>
+	    # Select the file
+	    <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result [file join $testpath ./~home]
+
+    test openfile-$mode-6.4 {choose hidden file} -body {
+	ttk::fsdialog preferences {*}$prefs duopane 1 hidden 1
+	keystrokes .__ttk_filedialog {
+	    # Traverse to the file list area
+	    <Shift-Tab>
+	    # Navigate to the file
+	    <Home>
+	    # Select the file
+	    <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -result [file join $testpath .hidden]
+
+    test openfile-$mode-7.1 {find new file after refresh} -setup {
+	proc newfile {} {
+	    global testpath
+	    touch [file join $testpath newfile]
+	}
+    } -body {
+	ttk::fsdialog preferences {*}$prefs
+	keystrokes .__ttk_filedialog {
+	    <Shift-Tab>
+	    <End>
+	    <<<newfile>>>
+	    <F5>
+	    <Up> <Up>
+	    <Return>
+	}
+	collect [tk_getOpenFile -initialdir $testpath]
+    } -cleanup {
+	file delete [file join $testpath newfile]
+    } -result [file join $testpath newfile]
+}
+
+cleanupTests

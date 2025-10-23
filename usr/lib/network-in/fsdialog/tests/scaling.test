@@ -1,0 +1,68 @@
+package require tcltest 2.2
+namespace import tcltest::*
+
+loadTestedCommands
+package hide fswatch
+loadpackage
+
+test scaling-1.1 {choose dir at low resolution} -setup {
+    # Standard display: 96 dpi (dots-per-inch) with 72 ppi (points-per-inch)
+    tk scaling [expr {96. / 72.}]
+} -body {
+    keystrokes .__ttk_dirdialog {
+	<Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -result $testpath
+
+test scaling-1.2 {choose dir at medium resolution} -setup {
+    # HD display: 128 dpi (dots-per-inch) with 72 ppi (points-per-inch)
+    tk scaling [expr {128. / 72.}]
+} -body {
+    keystrokes .__ttk_dirdialog {
+	<Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -result $testpath
+
+test scaling-1.3 {choose dir at high resolution} -setup {
+    # 4K display: 192 dpi (dots-per-inch) with 72 ppi (points-per-inch)
+    tk scaling [expr {192. / 72.}]
+} -body {
+    keystrokes .__ttk_dirdialog {
+	<Return>
+    }
+    collect [tk_chooseDirectory -initialdir $testpath]
+} -result $testpath
+
+test scaling-2.1 {get save file at low resolution} -setup {
+    # Standard display: 96 dpi (dots-per-inch) with 72 ppi (points-per-inch)
+    tk scaling [expr {96. / 72.}]
+} -body {
+    keystrokes .__ttk_filedialog {
+	newfile.txt <Return>
+    }
+    collect [tk_getSaveFile -initialdir $testpath]
+} -result [file join $testpath newfile.txt]
+
+test scaling-2.2 {get save file at medium resolution} -setup {
+    # HD display: 128 dpi (dots-per-inch) with 72 ppi (points-per-inch)
+    tk scaling [expr {128. / 72.}]
+} -body {
+    keystrokes .__ttk_filedialog {
+	newfile.txt <Return>
+    }
+    collect [tk_getSaveFile -initialdir $testpath]
+} -result [file join $testpath newfile.txt]
+
+test scaling-2.3 {get save file at high resolution} -setup {
+    # 4K display: 192 dpi (dots-per-inch) with 72 ppi (points-per-inch)
+    tk scaling [expr {192. / 72.}]
+} -body {
+    keystrokes .__ttk_filedialog {
+	newfile.txt <Return>
+    }
+    collect [tk_getSaveFile -initialdir $testpath]
+} -result [file join $testpath newfile.txt]
+
+cleanupTests

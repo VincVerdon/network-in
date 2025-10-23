@@ -1,0 +1,43 @@
+package require tcltest 2.2
+namespace import tcltest::*
+
+loadTestedCommands
+package hide fswatch
+loadpackage
+
+test savefile-1.1 {available options} -body {
+    tk_getSaveFile -help
+} -returnCodes error -result {bad option "-help":\
+  must be -confirmoverwrite, -defaultextension, -filetypes, -initialdir,\
+  -initialfile, -parent, -resultvariable, -title, or -typevariable}
+
+test savefile-1.2 {missing value} -body {
+    tk_getSaveFile -confirmoverwrite
+} -returnCodes error -result {value for "-confirmoverwrite" missing}
+
+test savefile-1.3 {bad parent} -body {
+    tk_getSaveFile -parent .nosuchwindow
+} -returnCodes error -result {bad window path name ".nosuchwindow"}
+
+test savefile-2.1 {input available name} -body {
+    keystrokes .__ttk_filedialog {
+	newfile.txt <Return>
+    }
+    collect [tk_getSaveFile -initialdir $testpath]
+} -result [file join $testpath newfile.txt]
+
+test savefile-2.2 {input existing name} -body {
+    keystrokes .__ttk_filedialog {
+	file.txt <Return> <Escape> <Escape>
+    }
+    collect [tk_getSaveFile -initialdir $testpath]
+}
+
+test savefile-2.3 {input existing name} -body {
+    keystrokes .__ttk_filedialog {
+	file.txt <Return> <Escape> <Escape>
+    }
+    collect [tk_getSaveFile -initialdir $testpath -confirmoverwrite 0]
+} -result [file join $testpath file.txt]
+
+cleanupTests

@@ -1,0 +1,132 @@
+[comment {-*- tcl -*- doctools manpage}]
+[vset libname fsdialog]
+[vset cmdname ttk::fsdialog]
+[manpage_begin [vset libname] n 3.0]
+[copyright {2018 Schelte Bron}]
+[moddesc   {File system dialog boxes}]
+[titledesc {dialog boxes for the user to select a file or directory.}]
+[require Tk "9 8.6.6"]
+[require [vset libname] 3.0]
+[description]
+The [package [vset libname]] package installs direct replacements for the
+original [cmd tk_getOpenFile], [cmd tk_getSaveFile], and
+[cmd tk_chooseDirectory] commands of Tk. The replacements provide more
+advanced features for user interaction. See the manual pages of the original
+commands for the details on their usage.
+[para]
+To control the advanced features, the package provides some additional
+commands.
+
+[list_begin definitions]
+
+[call [cmd [vset cmdname]] [method configfile] [opt [arg name]]]
+Specify a configuration file for the dialogs to automatically store and
+retrieve the preference settings and history.
+By default, the package will use the file "~/.config/tcltk/fsdialog.cfg", but
+only if that file exists.
+Calling this command without the [arg name] argument will create the default
+configuration file, so it is guaranteed to be used.
+Specify an empty string for [arg name] to prevent the use of the default
+configuration file, even if it exists.
+
+[call [cmd [vset cmdname]] [method extensions] [opt "[arg spec]"]]
+Specify a mapping from file extensions to icons.
+The file lists normally show a generic file icon for regular files and a
+directory icon for directories.
+It may be desirable to differentiate file types by displaying a different
+icon for each type.
+The icons must be made available in various sizes under the icons/Tango-fsd
+subdirectory.
+Alternatively, the [package xdgicons] package can be used for providing the
+icons.
+If no [arg spec] argument is supplied, the command returns the currently
+configured mapping.
+[para]
+Example: [example_begin]
+[vset cmdname] extensions {
+    .mp3     audio-x-generic
+    .png     image-x-generic
+    .html    text-html
+}
+[example_end]
+
+[call [cmd [vset cmdname]] [method filesystems] [opt "[arg systems]"]]
+Configure which file system types will be accessible through the dialogs.
+By default the dialogs will provide access to the full directory tree that is
+available to the script. With starkits, starpacks, and similar technologies
+that includes the internal virtual file system. When this is undesired, the
+[method filesystems] command may be used to set a list of the allowed file
+system types. Common types are: native, tclvfs, zipfs.
+If no [arg systems] argument is supplied, the command returns the currently
+configured list of allowed file systems.
+An empty list means all file system types are allowed.
+
+[call [cmd [vset cmdname]] [method history] [opt "[arg name] [arg ...]"]]
+Get or seed the list of files and directories that will be presented to the
+user in various drop-down lists. That list is normally maintained
+automatically, but this command makes it available for external storage and
+loading.
+
+[call [cmd [vset cmdname]] [method preferences] \
+  [opt [arg option]] [opt "[arg value] [arg option] [arg value] [arg ...]"]]
+Configure preference settings. This command is provided for situations where
+the use of a specific configuration file for the file system dialogs is not
+desired. For example, when the preferences are going to be stored as part of
+the overall application configuration.
+[para]
+If no [arg name] or [arg value] arguments are supplied, the command returns
+a list containing alternating option names and values for the channel. If
+[arg name] is supplied but no [arg value] then the command returns the
+current value of the given option. If one or more pairs of [arg name] and
+[arg value] are supplied, the command sets each of the named options to the
+corresponding [arg value]; in this case the return value is an empty string.
+[para]
+The following settings are available:
+[list_begin definitions]
+[def "[option details] [arg boolean]"]
+Show the short (0) or long (1) version of the file list. Default: 0. 
+[def "[option duopane] [arg boolean]"]
+Combine files and directories in a single pane (0) or show directories in a
+separate pane (1). Default: 0.
+[def "[option hidden] [arg boolean]"]
+Show hidden files and directories. Default: 0. 
+[def "[option mixed] [arg boolean]"]
+List directories before files (0) or list all entries without making a
+distinction between files and directories (1). This setting only has effect
+when files and directories are shown in a single pane. Default: 0.
+[def "[option reverse] [arg boolean]"]
+Show the entries in reverse sorting order. Default: 0.
+[def "[option sort] [arg property]"]
+Select which property to use for sorting the entries in the file pane.
+The directory pane is always sorted by name.
+Possible values are [const name], [const size], [const mtime], [const atime],
+[const ctime], [const uid], [const gid], and [const inode].
+The value [const date] is accepted as an alias for [const mtime].
+Default: name.
+[list_end]
+[list_end]
+
+[section "Keyboard traversal"]
+The dialogs can be navigated using the keyboard. The following bindings are
+in place:
+[list_begin itemized]
+[item][type Tab] cycles the keyboard focus forward through the widgets.
+[item][type Shift-Tab] cycles the keyboard focus backward through the widgets.
+[item][type Alt-Home] changes the view to the user's home directory.
+[item][type Alt-Up] changes the view one level up in the directory tree.
+[item][type Alt-Left] moves the view back through the history of visited
+directories.
+[item][type Alt-Right] moves the view forward through the history of visited
+directories.
+[item][type F5] refreshes the file list
+[item][type F6] moves the keyboard focus to the directory entry box.
+[item][type F7] moves the keyboard focus to the file entry box.
+[item][type F10] opens a dialog box for creating a new directory. 
+[list_end]
+
+Within the file area the cursor can be moved around using the cursor keys.
+To select multiple files hold down the [term Control] key to move around
+without affecting the selection. Press [term Space] to add or remove the
+file under the cursor in the selection. Using the cursor keys while
+[term Shift] is pressed extends the selection. 
+[manpage_end]

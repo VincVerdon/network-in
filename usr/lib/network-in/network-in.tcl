@@ -4,8 +4,8 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-#version 20250521
-set version(network-in) 2.0-beta13
+#version 20251022
+set version(network-in) 2.0
 
 # Démarrage de Network-in!
 ################################################################################
@@ -29,6 +29,11 @@ set ::orientation horizontal
 source /etc/network-in.cfg
 if {[file exists $::rep_conf/network-in.cfg]} {
   source $::rep_conf/network-in.cfg
+} else {
+	set f [open $::rep_conf/network-in.cfg w]
+	puts $f "#Insert here your own parameters configuration"
+	puts $f "#This overrides /etc/network-in.cfg parameters"
+	close $f
 }
 
 #Création des rep de config et de stockage d'images disque s'il n'existent pas
@@ -49,6 +54,7 @@ set ::tmp(reseau) "[lindex $decoup 0].[lindex $decoup 1].[lindex $decoup 2]"
 set ::tmp(n_ip_com) [lindex $decoup 3]
 unset decoup
 # on permet la connexion des machines UML sur notre serveur X
+# Indispensable pour copier/coller entre hôte et machines
 for  {set i 2} {$i <=20} {incr i} {
   exec xhost inet:$::tmp(reseau).$i
 }
@@ -86,12 +92,14 @@ source [file join $rep machines nat config_passerelle.tcl]
 source [file join $rep machines virtualbox config_virtualbox.tcl]
 source [file join $rep machines bridge config_bridge.tcl]
 
+# Prise en compte des thèmes
 lappend auto_path $::rep/ScidLightTheme
 package require ttk-themes
 # styles possibles : clam alt default classic
 ttk::style theme use scidblue
 #ttk::style configure TRadiobutton -color  {green}
 ttk::style configure TButton -relief flat
+
 #Les boutons répondent à la touche Entrée en plus de la touche espace
 bind TButton <Key-Return> { 
 	%W invoke
@@ -99,6 +107,10 @@ bind TButton <Key-Return> {
 bind Button <Key-Return> { 
 	%W invoke
 }
+
+# Package fsdialog pour amélioration des boites de gestion des fichiers (remplacement tk_getOpenFile et tk_SaveFile)
+lappend auto_path $::rep/fsdialog
+package require fsdialog
 
 #On vérifie si Virtualbox est installé
 set ::tmp(vbox_found) [is_vbox_software_installed]
@@ -127,3 +139,4 @@ if {[file exists $::rep_proj/structure.xml]} {
 		desarchiver_projet [lindex $argv 0]
 	}
 }
+

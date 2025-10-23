@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250612
+# Version 20251023
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -1300,6 +1300,8 @@ proc maj_infos_connexion {id} {
 	if {$id == {}} {return}
 	if {$::tmp($id,infos_connexion) == 0} {return}
 	
+	$::c delete inf$id
+	
 	set type $::obj($id,type)
 	
 	#Infos des 2 objets connectés par cette connexion
@@ -1317,18 +1319,19 @@ proc maj_infos_connexion {id} {
 	set y2 $::obj($id2,y)
 	
 	#Points d'insertion des étiquettes
+	set l [expr sqrt(($x2 - $x1)**2 + ($y2 - $y1)**2)]
 	if {[expr $x1 - $x2] >= 0} {
-		set X1 [expr $x1 - 80]
-		set X2 [expr $x2 + 80]
+		set X1 [expr $x1 - $l/4]
+		set X2 [expr $x2 + $l/4]
 	} else {
-		set X1 [expr $x1 + 80]
-		set X2 [expr $x2 - 80]
+		set X1 [expr $x1 + $l/4]
+		set X2 [expr $x2 - $l/4]
 	}
 	if {[expr $y1 - $y2] >= 0} {
 		set Y1 [expr $y1 - 30]
-		set Y2 [expr $y2 + 30]
+		set Y2 [expr $y2 + 40]
 	} else {
-		set Y1 [expr $y1 + 30]
+		set Y1 [expr $y1 + 40]
 		set Y2 [expr $y2 - 30]
 	}
 	
@@ -1608,10 +1611,12 @@ proc dialogue_enregistrer_projet {} {
     if ![verif_arret] {
         dialogue_arreter_tout
     } else {
-        set f [tk_getSaveFile -initialdir $::tmp(current_dir) -parent .main -initialfile $::tmp(file) -filetypes {{Network-in! .net} {Network-in! .NET}}]
+        set f [tk_getSaveFile -initialdir $::tmp(current_dir) -parent .main -initialfile $::tmp(file) -filetypes {{Network-in! .net}}]
         if {$f == {}} {
           return
-        }
+        } elseif {[file extension $f] != ".net"} {
+			set f "$f.net"
+		}
 		# Nouveau rep courant
 		set ::tmp(current_dir) [file dirname $f]
         # affichage barre

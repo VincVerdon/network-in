@@ -1,0 +1,36 @@
+[comment {-*- tcl -*- doctools manpage}]
+[vset libname matchbox]
+[vset cmdname ttk::matchbox]
+[manpage_begin [vset libname] n 2.0]
+[copyright {2017 Schelte Bron}]
+[moddesc   {Tk Themed Widget}]
+[titledesc {text field with popdown selection and completion lists}]
+[require Tk "9 8.6.6"]
+[require [vset libname] 2.0]
+[description]
+The [widget [vset cmdname]] widget is an extension of the regular
+ttk::combobox widget. It can be used wherever a ttk::combobox is currently
+used, without any other changes to the code.
+[para]
+The difference between the [widget [vset cmdname]] widget and the ttk::combobox
+widget is in the interaction with the user. An empty [widget [vset cmdname]]
+looks just like a ttk::combobox. However, when there is any text in the
+[widget [vset cmdname]], an icon appears on the right-hand side of the text
+field. The user can click this icon to erase the text.
+[section "Widget-specific options"]
+If the [option -matchcommand] option is specified, an additional drop-down
+list may be displayed showing possible completions for the entered string.
+[para]
+Whenever the user changes the value of the [widget [vset cmdname]] widget, the
+command specified via the [option -matchcommand] option is invoked with one
+additional argument; the current value of the widget. The command is expected
+to return a list of possible completions. These will be presented to the user
+via the second drop-down list of the widget. If the command returns an empty
+list, the drop-down list will not be displayed.
+[para]
+Note: The match command is not invoked when the user selects an entry from the
+main drop-down list.
+[section "Default bindings"]
+The [widget [vset cmdname]] has one additional key binding, Control-u, that
+also erases all text in the [widget [vset cmdname]].
+[manpage_end]

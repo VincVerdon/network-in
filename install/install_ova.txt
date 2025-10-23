@@ -1,0 +1,7 @@
+Installation machine virtuelle VirtualBox Network-In! 
+------------------------------------------------------
+-------------------------------------------------------
+
+Installer VirtualBox sur votre ordinateur.
+Il suffit de double-cliquer sur le fichier Network-in-simulator.ova pour lancer la création de la machine virtuelle.
+La machine virtuelle lance automatiquement le simulateur Network-In une fois démarrée.
