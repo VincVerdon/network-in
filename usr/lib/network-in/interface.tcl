@@ -1473,7 +1473,7 @@ proc dialogue_ouvrir_projet {fic} {
    -message [::msgcat::mc "Do you really want to open another project ? If you don't  save the actual project, it will be lost"]]
   if {$reponse != "no"} {
   	if {$fic == {} } {
-      set fic [tk_getOpenFile -initialdir $::tmp(current_dir) -parent .main -filetypes {{Network-in! .net}}]
+      set fic [tk_getOpenFile -initialdir $::tmp(current_dir) -homedir $::rep_home -parent .main -filetypes {{Network-in! .net}}]
   	}
     if {$fic != {}} {
 		# Nouveau rep courant
@@ -1611,7 +1611,7 @@ proc dialogue_enregistrer_projet {} {
     if ![verif_arret] {
         dialogue_arreter_tout
     } else {
-        set f [tk_getSaveFile -initialdir $::tmp(current_dir) -parent .main -initialfile $::tmp(file) -filetypes {{Network-in! .net}}]
+        set f [tk_getSaveFile -initialdir $::tmp(current_dir) -homedir $::rep_home -parent .main -initialfile $::tmp(file) -filetypes {{Network-in! .net}}]
         if {$f == {}} {
           return
         } elseif {[file extension $f] != ".net"} {

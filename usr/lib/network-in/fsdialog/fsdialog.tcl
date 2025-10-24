@@ -1,6 +1,7 @@
 # A file selection mega widget
 # Copyright (C) Schelte Bron.  Freely redistributable.
 # Version 3.0 - 12 Sep 2024
+# Version 20251024 modified by Vincent Verdon for Network-In project
 
 namespace eval ttk::fsdialog {
     # Need the tk::Megawidget changes that went into Tk 8.6.6
@@ -193,8 +194,17 @@ proc ttk::fsdialog::warning {w message} {
     }
 }
 
-proc ttk::fsdialog::homedir {{refresh 0}} {
+#Modif VV ajout param valhomedir
+proc ttk::fsdialog::homedir {valhomedir {refresh 0}} {
+    #Ajout VV
     variable homedir
+    if {$valhomedir != {}} {
+        if {[file isdirectory $valhomedir]} {
+            set homedir $valhomedir
+        return $homedir
+        }
+    }
+    
     global env tcl_platform
     if {$refresh} {
 	if {[info exists env(HOME)] && $env(HOME) ne $homedir} {
@@ -977,7 +987,7 @@ proc ttk::fsdialog::xdgicon::find {size args} {
 
 namespace eval ttk::fsdialog {
     try {
-	set home [homedir 1]
+	set home [homedir {} 1]
 	set defaultcfgfile [file join $home .config tcltk fsdialog.cfg]
     } trap {TCL VALUE PATH HOMELESS} {} {
 	# Don't have a valid home directory
@@ -2413,8 +2423,9 @@ namespace eval ttk::fsdialog {
 
 oo::class create ::ttk::fsdialog::commonMethods {
     method ButtonHome {} {
+        variable options
 	try {
-	    my ChangeDir [homedir]
+	    my ChangeDir [homedir $options(-homedir)]
 	} trap {TCL VALUE PATH HOMELESS} {} {
 	    # The home directory of the user could not be determined
 	}
@@ -2502,6 +2513,7 @@ oo::class create ::ttk::fsdialog::commonMethods {
 	    {-mustexist "" "" 0}
 	    {-resultvariable "" "" ""}
 	    {-title "" "" ""}
+        {-homedir "" "" ""}
 	}
     }
 
@@ -2587,8 +2599,9 @@ oo::class create ::ttk::fsdialog::commonMethods {
 	$dirbox validate
 
 	# Check that the user has a known home directory
+    variable options
 	try {
-	    homedir 1
+	    homedir $options(-homedir) 1
 	} trap {TCL VALUE PATH HOMELESS} {} {
 	    $w.toolbar.home state disabled
 	}
@@ -2714,6 +2727,7 @@ oo::class create ::ttk::fsdialog::commonMethods {
 	    {-resultvariable "" "" ""}
 	    {-title "" "" ""}
 	    {-typevariable "" "" ""}
+        {-homedir "" "" ""}
 	}
     }
 
@@ -2851,8 +2865,9 @@ oo::class create ::ttk::fsdialog::commonMethods {
 	pack $dirbox -fill x -expand 1 -padx 1.5p -pady 1.5p
 
 	# Check that the user has a known home directory
+    variable options
 	try {
-	    homedir 1
+	    homedir $options(-homedir) 1
 	} trap {TCL VALUE PATH HOMELESS} {} {
 	    $w.toolbar.home state disabled
 	}
@@ -3645,6 +3660,9 @@ oo::class create ::ttk::fsdialog::multiple {
 	    oo::objdefine [self] mixin multiple
 	    my MultipleInit
 	}
+    if {$options(-homedir) != {}} {
+        homedir $options(-homedir)
+    }
 	next
     }
 

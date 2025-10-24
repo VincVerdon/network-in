@@ -68,7 +68,7 @@ if {![file exists $::rep/lang/dict.$::lang]} {
   # choix de l'anglais par défaut
   set ::lang en
 }
-package require msgcat 1.3
+package require msgcat
 ::msgcat::mclocale $::lang
 set f [open $::rep/lang/dict.$::lang r]
 set l [read $f]
@@ -92,6 +92,10 @@ source [file join $rep machines nat config_passerelle.tcl]
 source [file join $rep machines virtualbox config_virtualbox.tcl]
 source [file join $rep machines bridge config_bridge.tcl]
 
+# Package fsdialog pour amélioration des boites de gestion des fichiers (remplacement tk_getOpenFile et tk_SaveFile)
+lappend auto_path $::rep/fsdialog
+package require fsdialog
+
 # Prise en compte des thèmes
 lappend auto_path $::rep/ScidLightTheme
 package require ttk-themes
@@ -107,10 +111,6 @@ bind TButton <Key-Return> {
 bind Button <Key-Return> { 
 	%W invoke
 }
-
-# Package fsdialog pour amélioration des boites de gestion des fichiers (remplacement tk_getOpenFile et tk_SaveFile)
-lappend auto_path $::rep/fsdialog
-package require fsdialog
 
 #On vérifie si Virtualbox est installé
 set ::tmp(vbox_found) [is_vbox_software_installed]
