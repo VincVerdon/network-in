@@ -1,2 +1,0 @@
-Se placer dans le rep parent du rep network-in/ puis créer un rep deb/ et enfin construire le paquet :
-dpkg-deb --build network-in/ deb/

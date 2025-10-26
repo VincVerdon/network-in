@@ -1,0 +1,3 @@
+[system-distro-env]
+WESTON_RDP_APPLIST=false
+WESTON_RDP_DISABLE_APPLIST=true
