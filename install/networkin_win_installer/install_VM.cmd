@@ -1,3 +1,5 @@
+REM Network-In! Windows installer
+REM Version 20251027 - V. Verdon
 
-"c:\Program Files\WSL\wsl.exe" --install --no-distribution
-"c:\Program Files\WSL\wsl.exe" --import NetworkIn %1 networkin.tgz
+REM "C:\Windows\System32\wsl.exe" --install --no-distribution
+"C:\Windows\System32\wsl.exe" --import NetworkIn %1 networkin.tgz

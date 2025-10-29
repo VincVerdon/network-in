@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250926
+# Version 20251029
 
 # Suppression d'un câble
 ################################################################################
@@ -1126,7 +1126,7 @@ proc boucle_maj_clipboard {} {
 	
 	if {$::tmp(clip) != $clip} {
 		#On vient de copier du texte dans le presse papier, dans ce cas on transmet aux machines du simulateur
-		exec echo $clip | xsel --display $::screen --clipboard -i
+		exec echo -n $clip | xsel --display $::screen --clipboard -i
 	}
 	after 2000 {boucle_maj_clipboard}
 	

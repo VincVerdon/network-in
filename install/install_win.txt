@@ -1,0 +1,12 @@
+Installation Network-In! sous Windows
+------------------------------------------------
+-------------------------------------------------
+
+Sous Windows, Network-In utilise WSL.
+L'installateur s'occupe d'installer WSL et la machine virtuelle préconfigurée.
+Des raccourcis sont également automatiquement créés.
+
+L'installateur doit être exécuté SANS droits administrateurs particuliers. L'installation est mono-utilisateur, à cause des limitations actuelles de la technologie WSL.
+Lancer l'installateur et choisissez le dossier d'installation (il est conseillé de laisser ce qui est proposé).
+
+Lors du premier démarrage il est souvent nécessaire de lancer 2 fois le simulateur en cliquant sur le raccourci (Je ne sais pas pourquoi, initialisation de la machine virtuelle sans doute...). Cela n'empêche en rien le bon fonctionnement du simulateur.

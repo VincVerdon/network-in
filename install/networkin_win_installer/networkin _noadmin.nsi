@@ -25,7 +25,6 @@ OutFile "Network-In-install_2.0.exe"
 
 ; Request application privileges for Windows Vista and higher
 RequestExecutionLevel user
-;RequestExecutionLevel highest
 ;RequestExecutionLevel admin
 
 ; Build Unicode installer
@@ -79,18 +78,10 @@ InstallDirRegKey HKLM "Software\network-in" "Install_Dir"
 ;Installer Sections
 ;--------------------------------
 
-Section "WSL" wsl
-
-  SectionIn RO
-  RequestExecutionLevel highest
-  
-  Exec "wsl.exe --install --nodistribution"
-  
-
 Section "Simulateur" SecSimu
 
   SectionIn RO
-  RequestExecutionLevel user
+  
   SetShellVarContext all
   
   SetOutPath "$INSTDIR"

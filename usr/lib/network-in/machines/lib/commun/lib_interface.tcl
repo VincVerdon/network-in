@@ -160,8 +160,9 @@ proc msg_box {path {title {}} {message {}} {parent .}} {
 # Place la sélection dans le presse papier des machines ET de l'hôte
 #######################################################
 proc clipboard_copy {widg} {
-	exec xsel --primary -o |  xsel --display ${::ip_hote}${::display_hote} --clipboard -i &
-	exec xsel --primary -o |  xsel --clipboard -i &
+	
+	exec xsel --primary -o | xsel --display ${::ip_hote}${::display_hote} --clipboard -i &
+	exec xsel --primary -o | xsel --clipboard -i &
 	
 }
 
