@@ -1,0 +1,2 @@
+Pour construire l'installation NSIS pour Win, aller dans le rep nsis_install puis taper la commande :
+makensis networkin.nsi

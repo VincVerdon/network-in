@@ -14,5 +14,5 @@ Exemple : apt install /home/vincent/Téléchargements/network-in-2.0-beta13.deb
 Sous Ubuntu
 ------------
 Ouvrir un terminal
-Installer : sudo apt install <dossier du paquet deb>/network-in-<version>.deb     (saisir le mot de passe de l'utilisatuer)
+Installer : sudo apt install <dossier du paquet deb>/network-in-<version>.deb     (saisir le mot de passe de l'utilisateur)
 Exemple : sudo apt install /home/vincent/Téléchargements/network-in-2.0-beta13.deb
