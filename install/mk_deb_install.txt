@@ -3,4 +3,4 @@ Créer un rep network-in qui contient les rep sources usr et etc
 Se placer dans le rep parent du rep network-in/ puis créer un rep deb/
 
 Construire le paquet :
-dpkg-deb --build network-in/ deb/
+dpkg-deb --build --root-owner-group network-in/ deb/
