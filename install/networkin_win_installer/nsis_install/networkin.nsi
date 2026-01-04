@@ -21,7 +21,7 @@ FunctionEnd
 Name "Network-In! Simulateur $networkin_version"
 
 ; The file to write
-OutFile "Network-In-install_2.0.exe"
+OutFile "Network-In-install-2.0.exe"
 
 ; Request application privileges for Windows Vista and higher
 RequestExecutionLevel user

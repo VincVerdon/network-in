@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20251026
+#Version 20251228
 #############################
 REP_INS=$(dirname $0)
 #Software directory
@@ -21,7 +21,6 @@ LISTE_DEP="
 tclsh;tcl
 wish;tk
 vde_switch;vde2
-uml_mconsole;uml-utilities
 sudo;sudo
 lsof;lsof
 wmctrl;wmctrl
