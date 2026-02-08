@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20251029
+# Version 20260202
 
 # Suppression d'un câble
 ################################################################################
@@ -1091,25 +1091,34 @@ proc raise_x_window {win_id} {
 #################################################################################
 proc get_keyboard_conf {} {
 
-	set res [exec setxkbmap -query 2>> /dev/null]
-	set res [split $res \n]
-	set ret ""
-	foreach line $res {
-		regexp -expanded {^[a-z0-9]+:[^a-z0-9]*([a-z0-9]+)} $line occurrence value
-		lappend ret $value
-	}
+	set ret(model) ""
+	set ret(layout) ""
+	set ret(variant) ""
 
-	return $ret
+	set res [exec  localectl status 2>> /dev/null]
+	set res [split $res \n]
+	foreach line $res {
+		regexp -expanded {^[ \t]*([a-zA-Z0-9]+[ ]*[a-zA-Z0-9]*):[ \t]*(.+)$} $line occurrence param value
+		switch $param {
+			{X11 Model} {set ret(model) $value}
+			{X11 Layout} {set ret(layout) $value}
+			{X11 Variant} {set ret(variant) $value}
+		}
+		
+	}
+	return [array get ret]
 	
 }
+
 
 
 # Démarrage serveur d'affichage Xéphyr + WM
 #################################################################################
 proc start_x_server {window size} {
 	
-	set keyb [get_keyboard_conf]
-	set ::tmp(x_pid) [exec Xephyr -background none -ac -xkb-rules [lindex $keyb 0] -xkb-model [lindex $keyb 1] -xkb-layout [lindex $keyb 2] -xkb-variant [lindex $keyb 3] -no-host-grab -parent $window -listen tcp -listen local -screen $size $::screen &]	
+	array set keyb [get_keyboard_conf]
+	#set ::tmp(x_pid) [exec Xephyr -background none -ac -xkb-rules [lindex $keyb 0] -xkb-model [lindex $keyb 1] -xkb-layout [lindex $keyb 2] -xkb-variant [lindex $keyb 3] -no-host-grab -parent $window -listen tcp -listen local -screen $size $::screen &]	
+	set ::tmp(x_pid) [exec Xephyr -background none -ac -xkb-model $keyb(model) -xkb-layout $keyb(layout) -xkb-variant $keyb(variant) -no-host-grab -parent $window -listen tcp -listen local -screen $size $::screen &]	
 	update
 	after 500 {
 		eval exec $::x_wm &
@@ -1127,6 +1136,7 @@ proc boucle_maj_clipboard {} {
 	if {$::tmp(clip) != $clip} {
 		#On vient de copier du texte dans le presse papier, dans ce cas on transmet aux machines du simulateur
 		exec echo -n $clip | xsel --display $::screen --clipboard -i
+		set ::tmp(clip) $clip
 	}
 	after 2000 {boucle_maj_clipboard}
 	
