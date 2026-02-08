@@ -2,9 +2,7 @@ Installation Network-In! sous Windows
 ------------------------------------------------
 -------------------------------------------------
 
-Sous Windows, Network-In utilise WSL.
-L'installateur s'occupe d'installer WSL et la machine virtuelle préconfigurée.
-Des raccourcis sont également automatiquement créés.
+Sous Windows, Network-In utilise WSL. Une vérification est faite à l'exécution, et si WSL n'est pas installé, le programme s'interrompt.
 
 L'installateur doit être exécuté SANS droits administrateurs particuliers. L'installation est mono-utilisateur, à cause des limitations actuelles de la technologie WSL.
 Lancer l'installateur et choisissez le dossier d'installation (il est conseillé de laisser ce qui est proposé).

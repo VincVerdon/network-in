@@ -21,7 +21,7 @@ FunctionEnd
 Name "Network-In! Simulateur $networkin_version"
 
 ; The file to write
-OutFile "Network-In-install-2.0.exe"
+OutFile "Network-In-install_2.0.exe"
 
 ; Request application privileges for Windows Vista and higher
 RequestExecutionLevel user
@@ -90,11 +90,6 @@ Section "WSL" SecWSL
     DetailPrint "WSL version : $1"
   ${Else}
     MessageBox MB_TOPMOST $(MES_INST_WSL_1)
-    ;SetOutPath "$INSTDIR"
-    ;File "install_WSL.cmd"
-    ;ExecShell "runas" '"install_WSL.cmd"'
-    ;Delete "install_WSL.cmd"
-    ;MessageBox MB_TOPMOST $(MES_INST_WSL_2)
     Abort
   ${EndIf}
 
@@ -132,11 +127,14 @@ Section "Simulateur" SecSimu
   
   ;Language and other configuration in VM
   Var /GLOBAL lang
+  Var /GLOBAL lang_loc
   StrCpy $lang "auto"
+  StrCpy $lang_loc "en_US.UTF-8"
   ${If} $LANGUAGE == 1036
     StrCpy $lang "fr"
+    StrCpy $lang_loc "fr_FR.UTF-8"
   ${EndIf}
-  Exec "$SYSDIR\wsl.exe -d NetworkIn -u root -- /root/init.sh $lang '$DOCUMENTS'"
+  Exec "$SYSDIR\wsl.exe -d NetworkIn -u root -- /root/init.sh $lang $lang_loc '$DOCUMENTS'"
 
   ;Store installation folder
   WriteRegStr HKCU "Software\network-in" "Install_Dir" $INSTDIR
@@ -176,14 +174,9 @@ SectionEnd
   LangString DESC_SecSimu ${LANG_FRENCH} "Le simulateur"
   LangString DESC_SecWSL ${LANG_ENGLISH} "WSL installation"
   LangString DESC_SecWSL ${LANG_FRENCH} "Installation de WSL"
-  ;LangString MES_INST_WSL_1 ${LANG_ENGLISH} "WSL is not installed but necessary. \nInstallation stage will start, the screen can feel empty for a moment, be patient"
-  ;LangString MES_INST_WSL_1 ${LANG_FRENCH} "WSL n'est pas installe mais est necessaire. \nL'installation va demarrer, l'ecran peut rester vide un moment, soyez patient"
 
   LangString MES_INST_WSL_1 ${LANG_ENGLISH} "WSL is not installed but necessary. Open a cmd.exe terminal and enter command :$\r$\nwsl.exe --install --no-distribution. $\r$\nReboot the computer. Run again installation program after reboot"
   LangString MES_INST_WSL_1 ${LANG_FRENCH} "WSL n'est pas installe mais est necessaire. Ouvrez un terminal cmd.exe and entrez la commands :$\r$\nwsl.exe --install --no-distribution. $\r$\nRedemarrez l'ordinateur. Relancez le programme d'installation apres redemarrage"
-
-  ;LangString MES_INST_WSL_2 ${LANG_ENGLISH} "The computer is going to reboot before to continue. Run again installation program after reboot"
-  ;LangString MES_INST_WSL_2 ${LANG_FRENCH} "L'ordinateur va redemarrer avant de poursuite. Relancez le programme d'installation apres redemarrage"
 
 
   ;Assign language strings to sections
