@@ -3,10 +3,11 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20250830
+#version 20260311
 ####################################################################
 
 TMP=/tmp/network-in
+VDE_PATH=/usr/lib/network-in/vde4networkin
 IP_HOST=$(grep -E  '^[^#]*set ip_hote' /etc/network-in.cfg | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]')
 MASK_HOST=$(grep -E  '^[^#]*set masque_hote' /etc/network-in.cfg | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]')
 N_SCREEN_0=$(sed -r 's/:([0-9]).*/\1/' <<< $DISPLAY)
@@ -22,11 +23,10 @@ chmod -R 777 $TMP
 killall vde_switch 2> /dev/null
 
 #Création de l'interface et du switch de communication avec les machines virtuelles
-vde_tunctl -t networkin_com
+$VDE_PATH/vde_switch -d -nostdin -tap networkin_com -s $TMP/vde/switch_com -m 666
 /sbin/ip a add $IP_HOST/$MASK_HOST dev networkin_com
 /sbin/ip link set networkin_com up
 ip route del default dev network_com 2> /dev/null
-vde_switch -d -nostdin -tap networkin_com -s $TMP/vde/switch_com -m 666
 
 #On vide les regles du pare-feu (encore actives en cas de crash)
 /sbin/iptables -D INPUT -i networkin_com -p tcp --dport $X_PORT -j ACCEPT 2>/dev/null
@@ -35,10 +35,10 @@ vde_switch -d -nostdin -tap networkin_com -s $TMP/vde/switch_com -m 666
 /sbin/iptables -D FORWARD -i networkin_com -j DROP 2>/dev/null
 
 #On empèche les machines virtuelles UML de sortir par l'interface de com
-/sbin/iptables -A INPUT -i networkin_com -p tcp --dport $X_PORT -j ACCEPT
-/sbin/iptables -A INPUT -i networkin_com -p tcp --dport $X_PORT_0 -j ACCEPT
-/sbin/iptables -A INPUT -i networkin_com -j DROP
-/sbin/iptables -A FORWARD -i networkin_com -j DROP
+#/sbin/iptables -A INPUT -i networkin_com -p tcp --dport $X_PORT -j ACCEPT
+#/sbin/iptables -A INPUT -i networkin_com -p tcp --dport $X_PORT_0 -j ACCEPT
+#/sbin/iptables -A INPUT -i networkin_com -j DROP
+#/sbin/iptables -A FORWARD -i networkin_com -j DROP
 
 #Activation du routage des paquets (indispensable pour passerelle nat)
 sysctl -w net.ipv4.ip_forward=1

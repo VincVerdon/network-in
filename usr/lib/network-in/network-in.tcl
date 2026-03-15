@@ -4,8 +4,8 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-#version 20251022
-set version(network-in) 2.01
+#version 20260306
+set version(network-in) pre-2.1
 
 # Démarrage de Network-in!
 ################################################################################
@@ -81,6 +81,16 @@ set ::apropos "[::msgcat::mc "Network-In! is a network simulator"]
 V. Verdon Corp! - $::version(network-in)
 https://network-in.vverdon.fr
 "
+# Définition des exe vde4networkin (vde2)
+set rep_vde $rep/vde4networkin
+set ::vde(switch) vde_switch
+set ::vde(mswitch) $rep_vde/vde_switch
+set ::vde(term) $rep_vde/vdeterm
+set ::vde(dpipe) $rep_vde/dpipe
+set ::vde(plug) $rep_vde/vde_plug
+
+unset rep_vde
+
 
 # on source les differents modules
 source [file join $rep xml_structure.tcl]

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20251023
+# Version 20260314
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -591,11 +591,28 @@ proc menu_contextuel_objet {id x y} {
         	# infos sur l'objet sélectionné
         	$::c.mc add separator
         	$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-        	$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+			$::c.mc add command -label [::msgcat::mc "Logs print"] -command "fenetre_affiche_logs $id"
+			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
         	$::c.mc add separator
         	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
     		
     	}
+		
+		{mswitch} {
+					
+			$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_switch $id" -state $etat3
+			$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_switch $id" -state $etat2
+			$::c.mc add command -label [::msgcat::mc "CLI console"] -command "fen_manage_switch $id" -state $etat2
+			# infos sur l'objet sélectionné
+			$::c.mc add separator
+			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+			$::c.mc add command -label [::msgcat::mc "Logs print"] -command "fenetre_affiche_logs $id"
+			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+			$::c.mc add separator
+			$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dupliquer_mswitch $id" -state $etat3
+			$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+			
+		}
     
     	{hub} {
     		
@@ -618,6 +635,17 @@ proc menu_contextuel_objet {id x y} {
     $::c.mc post $X $Y
     
 }
+
+
+
+# Terminal de management d'un switch
+###############################################################
+proc fen_manage_switch {id} {
+	#exec xterm -e $::vde(term) $::rep_tmp/terminal/$id &
+	exec xterm +ai -title "Network-In! - xterm" -bg $::coul(bg_schema) \
+	-fg $::coul(texte) -fn 10x20  -e "$::vde(term) $::rep_tmp/terminal/$id" &
+}
+
 
 
 # Dialogue appelé lors de la demande de suppression d'un composant
@@ -793,6 +821,9 @@ proc fenetre_infos_objet {id} {
 		{switch} {
 			fenetre_infos_switch $id
 		}
+		{mswitch} {
+			fenetre_infos_switch $id
+		}
 		{hub} {
 			fenetre_infos_switch $id
 		}
@@ -962,9 +993,18 @@ proc fenetre_infos_vm {id} {
 }
 
 
-#Fenêtre d'infos pour un switch/hub
+#Fenêtre d'infos pour un switch/hub/mswitch
 #####################################
 proc fenetre_infos_switch {id} {
+	
+	if {$::obj($id,famille) == {mswitch}} {
+		labelframe .inf.fstp -text [::msgcat::mc "STP infos"]
+		pack .inf.fstp -fill x
+		label .inf.fstp.l1 -text "[::msgcat::mc "MAC"] : "
+		grid .inf.fstp.l1 -row 1 -column 0 -sticky e
+		label .inf.fstp.l2 -text $::obj($id,mac)
+		grid .inf.fstp.l2 -row 1 -column 1 -sticky w
+	}
 	
 	labelframe .inf.if -text [::msgcat::mc "Ethernet ports"]
 	pack .inf.if -fill x
@@ -1093,17 +1133,15 @@ proc menu_choix_connexion {id} {
     for  {set i 0} {$i < $::obj($id,nb_eth)} {incr i} {
       if {$::obj($id,categorie) == "dce"} {
         set type "port"
-        set n [expr $i + 1]
       } else  {
         set type "eth"
-        set n $i
       }
       if {$::obj($id,eth$i) == {}} {
         # la connexion n'est pas utilisée
-        $::c.men add radio -label "$type$n" -indicatoron 1 -variable ::tmp(sel,interface) -value eth$i
+        $::c.men add radio -label "$type$i" -indicatoron 1 -variable ::tmp(sel,interface) -value eth$i
       } else  {
         # la connexion est utilisée
-        $::c.men add radio -label "$type$n" -indicatoron 1 -variable ::tmp(sel,interface) -value eth$i -state disabled
+        $::c.men add radio -label "$type$i" -indicatoron 1 -variable ::tmp(sel,interface) -value eth$i -state disabled
       }
     }
   }
@@ -1336,7 +1374,7 @@ proc maj_infos_connexion {id} {
 	}
 	
 	
-	if {$famille1 == {hub} || $famille1 == {switch}} {
+	if {$famille1 == {hub} || $famille1 == {switch} || $famille1 == {mswitch}} {
 		regexp -expanded {[0-9]+} $interf1 n
 		set nom_interf1 "port$n"
 	} else {
@@ -1683,7 +1721,7 @@ proc affiche_term {} {
   exec xterm +ai -title "Network-In! - xterm" -bg $::coul(bg_schema) -fg $::coul(texte) -fn 10x20 &
 }
 
-#Affichage des messages (fichier journal network-in.log)
+#Affichage des fichiers journaux (par défaut log général network-in.log)
 ################################################################################
 proc fenetre_affiche_logs {{id {}}} {
 	

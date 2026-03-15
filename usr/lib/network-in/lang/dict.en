@@ -27,6 +27,7 @@ Cable  Cable
 "Choose a random Mac address"  "Choose a random Mac address"
 "Choose file"  "Choose file"
 "Choose the interface of VirtualBox VM to bind to Network-In simulator"  "Choose the interface of VirtualBox VM to bind to Network-In simulator"
+"CLI console"  "CLI console"
 Close Close
 CNAME  CNAME
 Complete  Complete
@@ -125,6 +126,7 @@ License  License
 List  List
 "Login terminal" "Login terminal"
 "Logs print" "Log print"
+MAC  MAC
 "Managed by the host system"  "Managed by the host system"
 MISSING MISSING
 Name  Name
@@ -199,6 +201,7 @@ Static Static
 "Static routing" "Static routing"
 "Static routing configuration" "Static routing configuration"
 Stop  Stop
+"STP informations"  "STP informations"
 Suppress  Suppress
 Suppression  Suppression
 "Suppression of a selected record"  "Suppression of a selected record"
@@ -251,3 +254,5 @@ Warning  Warning
 "4 ports switch"  "4 ports switch"
 "8 ports hub"  "8 ports hub"
 "8 ports switch"  "8 ports switch"
+"16 ports manageable switch"  "16 ports manageable switch"
+

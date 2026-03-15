@@ -3,9 +3,10 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20250830
+#version 20260311
 ####################################################################
 TMP=/tmp/network-in
+VDE_PATH=/usr/lib/network-in/vde4networkin
 IP=$1
 MASK=$2
 ACTION=$3
@@ -13,11 +14,10 @@ ACTION=$3
 if [ "$ACTION" = "start" ]
 then
 
-	#Méthode avec slirp, abandonnée car pas de ping possible
-    /usr/bin/vde_switch -d -nostdin -s $TMP/vde/switch_nat -m 666
+	#Méthode avec slirp, pas de ping possible !
+    $VDE_PATH/vde_switch -d -nostdin -p $TMP/switch_nat_PID -s $TMP/vde/switch_nat -m 666
     /usr/bin/slirpvde -d -nostdin --host $IP/$MASK -s $TMP/vde/switch_nat
     
-    #vde_tunctl -t networkin_nat
 	#/sbin/ip a add $IP/$MASK dev networkin_nat
 	#/sbin/ip link set networkin_nat up
 	#ip route del default dev network_nat 2> /dev/null
@@ -40,8 +40,6 @@ else
 	#/sbin/ip link set networkin_nat down
 	#/sbin/ip link delete networkin_nat
     #déparamétrage et suppression du switch
-    PID=$(lsof -Fp $TMP/vde/switch_nat/ctl)
-    PID=${PID##p}
-    /bin/kill $PID
+    /bin/kill $($TMP/switch_nat_PID)
     
 fi

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 202500505
+# Version 20260311
 
 #Lecture de ::obj et ::tmp et enregistrement de la structure en XML
 ####################################
@@ -98,7 +98,10 @@ proc xml_bloc_equipment_write {f id} {
 	puts $f "    <category>$::obj($id,categorie)</category>"
 	
 	if {[info exists ::obj($id,nom)]} {
-			puts $f "    <name>$::obj($id,nom)</name>"
+		puts $f "    <name>$::obj($id,nom)</name>"
+	}
+	if {[info exists ::obj($id,mac)]} {
+		puts $f "    <mac>$::obj($id,mac)</mac>"
 	}
 	if {[info exists ::obj($id,note)]} {
 		puts $f "    <note>$::obj($id,note)</note>"
@@ -303,7 +306,7 @@ proc xml_bloc_equipment_read {f id} {
 			#Autres balises
 			set param {}
 			regexp -expanded {<(.+)>(.*)</.+>} $ligne res param valeur
-			set param [string map {name_from_vbox name_from_vbox family famille name nom category categorie} $param]
+			set param [string map {name_from_vbox name_from_vbox family famille name nom category categorie mac mac} $param]
 			set ::obj($id,$param) $valeur
 		}
 		gets $f ligne
