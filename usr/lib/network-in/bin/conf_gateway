@@ -15,7 +15,7 @@ if [ "$ACTION" = "start" ]
 then
 
 	#Méthode avec slirp, pas de ping possible !
-    $VDE_PATH/vde_switch -d -nostdin -p $TMP/switch_nat_PID -s $TMP/vde/switch_nat -m 666
+    vde_switch -d -nostdin -p $TMP/switch_nat_PID -s $TMP/vde/switch_nat -m 666
     /usr/bin/slirpvde -d -nostdin --host $IP/$MASK -s $TMP/vde/switch_nat
     
 	#/sbin/ip a add $IP/$MASK dev networkin_nat

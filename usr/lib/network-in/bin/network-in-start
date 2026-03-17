@@ -23,7 +23,7 @@ chmod -R 777 $TMP
 killall vde_switch 2> /dev/null
 
 #Création de l'interface et du switch de communication avec les machines virtuelles
-$VDE_PATH/vde_switch -d -nostdin -tap networkin_com -s $TMP/vde/switch_com -m 666
+vde_switch -d -nostdin -tap networkin_com -s $TMP/vde/switch_com -m 666
 /sbin/ip a add $IP_HOST/$MASK_HOST dev networkin_com
 /sbin/ip link set networkin_com up
 ip route del default dev network_com 2> /dev/null

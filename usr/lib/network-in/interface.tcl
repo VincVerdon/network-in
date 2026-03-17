@@ -1380,7 +1380,7 @@ proc maj_infos_connexion {id} {
 	} else {
 		set nom_interf1 $interf1
 	}
-	if {$famille2 == "hub" || $famille2 == "switch"} {
+	if {$famille2 == "hub" || $famille2 == "switch" || $famille2 == {mswitch}} {
 		regexp -expanded {[0-9]+} $interf2 n
 		set nom_interf2 "port$n"
 	} else {

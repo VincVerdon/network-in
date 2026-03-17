@@ -318,7 +318,6 @@ proc demarre_connexion {id} {
       }
     }
     # On branche !
-	  puts "exec $::vde(dpipe) $::vde(plug) $rep1 = $::vde(plug) $rep2 &"
     set ::tmp($id,pid) [exec $::vde(dpipe) $::vde(plug) $rep1 = $::vde(plug) $rep2 &]
 		puts "Connection $id1 - $id2 established"
 		#Mise à jour étiquettes infos
@@ -648,6 +647,13 @@ proc clean_machine_context {id} {
 proc boucle_scan_mswitch {id} {
 	
 	if {[file exists $::rep_proj/datas/$id/com/pid]} {
+		#récupération du nouveau nom de machine
+		set res  [lire_fichier_echange $id hostname]
+		if  {$res != {-1}} {
+		  set ::obj($id,nom) $res
+		  # on met à jour l'affichage
+		  dessine_objet $id
+		}
 		after 2000 boucle_scan_mswitch $id
 	} else  {
 		arrete_switch $id
