@@ -39,7 +39,7 @@ proc xml_structure_write {file} {
 proc xml_bloc_global_write {f} {
 	
 	puts $f "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>"
-	puts $f "<structure version=\"1.0\">"
+	puts $f "<structure version=\"1.1\">"
 	puts $f "<!-- Definition of network structure and components for Network-In! Simulator -->"
 	puts $f "<global>"
 	puts $f "    <version>$::version(network-in)</version>"

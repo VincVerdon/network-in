@@ -165,8 +165,8 @@ proc demarre_ordinateur {id} {
   if {[lsearch $::obj($id,techno) "ethernet"]  != {-1}} {
     for  {set i 0} {$i < $::obj($id,nb_eth)} {incr i} {
       	# démarrage du socket VDE pour l'interface
-		#eval exec $::vde(mswitch) -d -nostdin -hub -n 2 -l /dev/null -p $::rep_proj/datas/$id/com/pid-eth$i -s $::rep_tmp/vde/$id-eth$i
-		eval exec $::vde(switch) -d -nostdin -hub -n 3 -p $::rep_proj/datas/$id/com/pid-eth$i -s $::rep_tmp/vde/$id-eth$i
+		eval exec $::vde(mswitch) -d --nostdin -hub -n 2 -p $::rep_proj/datas/$id/com/pid-eth$i -l $::rep_proj/logs/$id.log -s $::rep_tmp/vde/$id-eth$i
+		#eval exec $::vde(switch) -d -nostdin -hub -n 3 -p $::rep_proj/datas/$id/com/pid-eth$i -s $::rep_tmp/vde/$id-eth$i
 		after 1000 get_interf_pid $id $i
 		
       # ajout de la carte eth à la ligne de commande de l'uml
@@ -217,14 +217,15 @@ proc demarre_switch {id} {
 	# démarrage du vde_switch
 	switch $famille {
 		{hub} {
-    		eval exec $::vde(switch) -d -nostdin -hub -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
+			#eval exec $::vde(switch) -d -nostdin -hub -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
+    		eval exec $::vde(mswitch) -d --nostdin -hub -l /dev/null -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
 		}
 		{switch} {
-			eval exec $::vde(mswitch) -d -nostdin -n $::obj($id,nb_eth) -l $::rep_proj/logs/$id.log -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
+			eval exec $::vde(mswitch) -d --nostdin -n $::obj($id,nb_eth) -l $::rep_proj/logs/$id.log -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
 		}
 		{mswitch} {
 			set f_conf $::rep_proj/datas/$id/init.conf
-			eval exec $::vde(mswitch) -d -nostdin -n $::obj($id,nb_eth) --macaddr $::obj($id,mac) -w $f_conf -f $f_conf -M $::rep_tmp/terminal/$id -l $::rep_proj/logs/$id.log -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
+			eval exec $::vde(mswitch) -d --nostdin -n $::obj($id,nb_eth) --macaddr $::obj($id,mac) -w $f_conf -f $f_conf -M $::rep_tmp/terminal/$id -l $::rep_proj/logs/$id.log -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
 			after 1000 boucle_scan_mswitch $id
 		}
 	}
@@ -302,6 +303,8 @@ proc demarre_connexion {id} {
         {switch} {set rep$n $::rep_tmp/vde/$i}
 		{mswitch} {
 			regexp -expanded {[0-9]+} $::obj($id,interf$n) port
+			#Num de port démarre à 1 dans vde_switch
+			incr port
 			set rep$n "$::rep_tmp/vde/$i\[$port\]"}
         {hub} {set rep$n $::rep_tmp/vde/$i}
         {output} {
@@ -319,9 +322,9 @@ proc demarre_connexion {id} {
     }
     # On branche !
     set ::tmp($id,pid) [exec $::vde(dpipe) $::vde(plug) $rep1 = $::vde(plug) $rep2 &]
-		puts "Connection $id1 - $id2 established"
-		#Mise à jour étiquettes infos
-		maj_infos_connexion $id
+	puts "Connection $id1 - $id2 established"
+	#Mise à jour étiquettes infos
+	maj_infos_connexion $id
   }
 	
 }
@@ -722,7 +725,7 @@ proc creation_objet {famille type x y} {
           return
         }
       }
-		}
+	}
   }
   
   # dimensions de l'image
@@ -881,6 +884,11 @@ proc restaurer_projet {} {
 	#puts [array get ::tmp]
 	#puts [array get ::obj]
 	
+	# Adaptation ports switchs à la version 2.1 de Network-In
+	if {$::tmp(structure_version) < 1.1} {
+		#maj_1.1	
+	}
+
 	# mise à jour du titre
 	maj_titre
 	
@@ -917,7 +925,7 @@ proc restaurer_projet {} {
     							set ::tmp($id,name) $::obj($id,nom)
     						}
     					}
-    				}
+    				}			
     				set ::tmp($id,win_id) {}
     				dessine_objet $id
                 }
@@ -930,6 +938,30 @@ proc restaurer_projet {} {
 	
 }
 
+
+proc maj_1.1 {} {
+	for  {set i 1} {$i <= $::tmp(lastid)} {incr i} {
+		set id m$i
+		if [info exists ::obj($id,famille)] {
+        	if {$::obj($id,famille) == "switch" || $::obj($id,famille) == "hub"} {
+        		for {set j $::obj($id,nb_eth)} {$j > 0} {incr j -1} {
+        			set ::obj($id,eth$j) $::obj($id,eth[expr $j-1])
+        		}
+				set ::obj($id,eth0) {}
+        	}
+			if {$::obj($id,famille) == "connexion"} {
+				foreach n "1 2" {
+					set id$n $::obj($id,id$n)
+    				if {$::obj(id$n,famille) == "switch" || $::obj(id$n,famille) == "hub"} {
+    					regexp -expanded {[0-9]+} $::obj($id,interf$n) port
+    					incr port
+    					set ::obj($id,interf$n) eth$port
+    				}
+				}
+			}
+        }
+	}
+}
 
 #Initialisation ou réinitialisation d'un projet
 #efface tout si projet existant
@@ -1181,12 +1213,13 @@ proc get_interface_mac {interf} {
 # Renvoie l'adresse IP et masque d'une interface sur machine hôte
 #################################################################################
 proc get_interface_ip {interf} {
-	set ip_inf [exec /sbin/ip address show $interf]
-	set exp {inet ([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/([0-9]{1,2}).*}
-	if {[regexp $exp $ip_inf res ip mask]} { 
-		set ret [list $ip $mask]
-	} else {
-		set ret {}
+	set ret {}
+	set err [catch {set ip_inf [exec /sbin/ip address show $interf]}]
+	if {$err == {0}} {
+		set exp {inet ([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/([0-9]{1,2}).*}
+    	if {[regexp $exp $ip_inf res ip mask]} { 
+    		set ret [list $ip $mask]
+    	}
 	}
 	return $ret
 }
