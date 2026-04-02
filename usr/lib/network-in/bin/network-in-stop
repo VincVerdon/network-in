@@ -3,9 +3,10 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20260319
+#version 20260331
 ####################################################################
 
+REP=$(dirname $0)
 TMP=/tmp/network-in
 IP_HOST=$(grep -E  '^[^#]*set ip_hote' /etc/network-in.cfg | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]')
 MASK_HOST=$(grep -E  '^[^#]*set masque_hote' /etc/network-in.cfg | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]')
@@ -13,18 +14,22 @@ N_SCREEN_0=$(sed -r 's/:([0-9]).*/\1/' <<< $DISPLAY)
 X_PORT_0=$((6000 + $N_SCREEN_0))
 N_SCREEN=$(grep -E  '^[^#]*set screen' /etc/network-in.cfg | grep -o '[0-9]')
 X_PORT=$((6000 + $N_SCREEN))
+TAP=netkin_com
+
+# Arrêt point de capture si nécessaire
+$REP/conf_capture stop
 
 #On vide les regles du pare-feu
-/sbin/iptables -F NETWORKIN
-/sbin/iptables -D INPUT -i networkin_com -j NETWORKIN
-/sbin/iptables -X NETWORKIN
+/sbin/iptables -F NETWORKIN 2> /dev/null
+/sbin/iptables -D INPUT -i $TAP -j NETWORKIN 2> /dev/null
+/sbin/iptables -X NETWORKIN 2> /dev/null
 
 #Arrêt des switchs
 killall vde_switch
 
 #Désactivation des interfaces
-/sbin/ip link set networkin_com down
-/sbin/ip link delete networkin_com
+/sbin/ip link set $TAP down 2> /dev/null
+/sbin/ip link delete $TAP 2> /dev/null
 
 #Suppression du répertoire temporaire
 rm -rf $TMP

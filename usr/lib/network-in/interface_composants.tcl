@@ -41,6 +41,7 @@ set def(nat,label)  [::msgcat::mc "Real network NAT router"]
 set def(bridge,label)  [::msgcat::mc "Bridge"]
 set def(vm,label)  [::msgcat::mc "Virtual machine"]
 set def(virtualbox,label)  [::msgcat::mc "Virtualbox VM"]
+set def(capture,label)  [::msgcat::mc "Capture point"]
 
 # Définition des éléments vus en fonction du niveau d'interface
 #familles

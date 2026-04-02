@@ -18,13 +18,13 @@ GATEWAY=$7
 case "$ACTION" in
 	
 	host) #Interface créée mais non configurée, configuration par l'hôte
-		$VDE_PATH/vde_switch -d --nostdin --tap $TAP -l /dev/null -s $TMP/vde/$ID -m 666
+		$VDE_PATH/vde_switch -d --nostdin -hub --tap $TAP -l /dev/null -s $TMP/vde/$ID -m 666
 		/sbin/ip link set $TAP address $MAC
 		/sbin/ip link set $TAP up
 	;;
 	
 	dhcp) #Interface créée et configurée en utilisant un service DHCP dans le simulateur
-		$VDE_PATH/vde_switch -d --nostdin --tap $TAP -l /dev/null -s $TMP/vde/$ID -m 666
+		$VDE_PATH/vde_switch -d --nostdin -hub --tap $TAP -l /dev/null -s $TMP/vde/$ID -m 666
 		/sbin/ip link set $TAP address $MAC
 		#paramétrage de l'interface avec le client dhcp
 		dhclient $TAP
@@ -32,7 +32,7 @@ case "$ACTION" in
 	;;
 	
 	static) #Interface créée et configurée en statique depuis le simulateur
-		$VDE_PATH/vde_switch -d --nostdin --tap $TAP -l /dev/null -s $TMP/vde/$ID -m 666
+		$VDE_PATH/vde_switch -d --nostdin -hub --tap $TAP -l /dev/null -s $TMP/vde/$ID -m 666
 		/sbin/ip link set $TAP address $MAC
 		#paramétrage éventuel de l'interface
 		if [ -n "$IP" ] && [ -n "$MASK" ]

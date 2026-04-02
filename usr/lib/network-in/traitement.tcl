@@ -9,21 +9,25 @@
 ################################################################################
 proc supprimer_connexion {id} {
   
-  # on debranche d'abord le câble
-  arrete_connexion $id
-  
-  # on efface le câble
-  canvas_delete $id
-  # on supprime le câble
-  set id1 $::obj($id,id1)
-  set id2 $::obj($id,id2)
-  set interf1 $::obj($id,interf1)
-  set interf2 $::obj($id,interf2)
-  set ::obj($id1,$interf1) {}
-  set ::obj($id2,$interf2) {}
-  array unset ::obj $id,*
-  # on sauvegarde les données obj
-  sauvegarder_projet
+	if {$::tmp(capture,id) == $id} {
+		supprimer_capture
+	}
+	
+	# on debranche d'abord le câble
+	arrete_connexion $id
+	
+	# on efface le câble
+	$::c delete $id
+	# on supprime le câble
+	set id1 $::obj($id,id1)
+	set id2 $::obj($id,id2)
+	set interf1 $::obj($id,interf1)
+	set interf2 $::obj($id,interf2)
+	set ::obj($id1,$interf1) {}
+	set ::obj($id2,$interf2) {}
+	array unset ::obj $id,*
+	# on sauvegarde les données obj
+	sauvegarder_projet
   
 }
 
@@ -45,7 +49,7 @@ proc supprimer_objet {id} {
   # suppression de l'objet
   array unset ::obj $id,*
   # on efface l'objet
-  canvas_delete $id
+  $::c delete $id
   # on sauvegarde les données obj
   sauvegarder_projet
   
@@ -165,7 +169,7 @@ proc demarre_ordinateur {id} {
   if {[lsearch $::obj($id,techno) "ethernet"]  != {-1}} {
     for  {set i 0} {$i < $::obj($id,nb_eth)} {incr i} {
       	# démarrage du socket VDE pour l'interface
-		eval exec $::vde(mswitch) -d --nostdin -hub -n 2 -p $::rep_proj/datas/$id/com/pid-eth$i -l $::rep_proj/logs/$id.log -s $::rep_tmp/vde/$id-eth$i
+		eval exec $::vde(switch) -d --nostdin -hub -n 2 -p $::rep_proj/datas/$id/com/pid-eth$i -l /dev/null -s $::rep_tmp/vde/$id-eth$i
 		#eval exec $::vde(switch) -d -nostdin -hub -n 3 -p $::rep_proj/datas/$id/com/pid-eth$i -s $::rep_tmp/vde/$id-eth$i
 		after 1000 get_interf_pid $id $i
 		
@@ -218,13 +222,14 @@ proc demarre_switch {id} {
 	switch $famille {
 		{hub} {
 			#eval exec $::vde(switch) -d -nostdin -hub -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
-    		eval exec $::vde(mswitch) -d --nostdin -hub -l /dev/null -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
+    		eval exec $::vde(switch) -d --nostdin -hub -l /dev/null -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
 		}
 		{switch} {
-			eval exec $::vde(mswitch) -d --nostdin -n $::obj($id,nb_eth) -l $::rep_proj/logs/$id.log -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
+			eval exec $::vde(switch) -d --nostdin -n $::obj($id,nb_eth) -l $::rep_proj/logs/$id.log -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
 		}
 		{mswitch} {
 			set f_conf $::rep_proj/datas/$id/init.conf
+			#eval exec $::vde(mswitch) -d --nostdin -n $::obj($id,nb_eth) --macaddr $::obj($id,mac) -M $::rep_tmp/terminal/$id -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
 			eval exec $::vde(mswitch) -d --nostdin -n $::obj($id,nb_eth) --macaddr $::obj($id,mac) -w $f_conf -f $f_conf -M $::rep_tmp/terminal/$id -l $::rep_proj/logs/$id.log -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
 			after 1000 boucle_scan_mswitch $id
 		}
@@ -259,74 +264,115 @@ proc get_switch_pid {id} {
 }
 
 
+# Retourne l'état de la connexion (1 OK 0 non OK)
+################################################################################
+proc etat_connexion {id} {
+	
+	set ret 0
+	if {$id != {}} {
+		#Les 2 objets liés par ce cable
+		set id1 $::obj($id,id1)
+		set id2 $::obj($id,id2)
+    	
+		switch $::obj($id,type) {
+    		{straight} {
+    			if {$::obj($id1,categorie) != $::obj($id2,categorie)} {
+    				set ret 1
+    			}
+    		}
+    		{cross} {
+    			if {$::obj($id1,categorie) == $::obj($id2,categorie)} {
+    				set ret 1
+    			}
+    		}
+    	} 
+	}
+	
+	return $ret
+	
+}
+
+
 # etablissement d'une connexion entre deux éléments
 ################################################################################
 proc demarre_connexion {id} {
-    
-  if {$id == {}} {return}
 	
-  #Les 2 objets liés par ce cable
-  set id1 $::obj($id,id1)
-  set id2 $::obj($id,id2)
+	#Les 2 objets liés par ce cable
+	set id1 $::obj($id,id1)
+	set id2 $::obj($id,id2)
 	
-  # Si le choix de la connexion est mauvais, on sort
-	switch $::obj($id,type) {
-		{straight} {
-			if {$::obj($id1,categorie) == $::obj($id2,categorie)} {
-  			set valid false
-  		} else  {
-  			set valid true
-  		}
+	if {![etat_connexion $id]} {
+		puts "Bad cable $id between $id1 and $id2"
+		return
+	}
+	
+	puts "Starting connection $id1 - $id2 : $::tmp($id1,etat)/$::tmp($id2,etat)"
+	
+	if {$::tmp($id1,etat) && $::tmp($id2,etat) && ($::tmp(capture,id) != $id)} {
+		
+		# Cas d'un cable normal et les 2 matériels sont démarrés > on établit la connexion
+		set rep1 [get_vde_rep $id 1]
+		set rep2 [get_vde_rep $id 2]
+		# On branche !
+		set ::tmp($id,pid) [exec $::vde(dpipe) $::vde(plug) $rep1 = $::vde(plug) $rep2 &]
+		puts "Connection $id1 - $id2 established"
+		
+		#Mise à jour étiquettes infos
+		maj_infos_connexion $id
+		
+	} elseif {$::tmp(capture,id) == $id} {
+		
+		# Cable avec point de mesure, on branche l'interface TAP de mesure entre les 2
+		set rep_capture $::rep_tmp/vde/capture
+		if {$::tmp($id1,etat) && $::tmp(capture,pid1) == {}} {
+			# On branche le matériel 1 s'il est actif et si le câbles n'est pas déjà branché
+			set rep1 [get_vde_rep $id 1]
+			set ::tmp(capture,pid1) [exec $::vde(dpipe) $::vde(plug) $rep1 = $::vde(plug) $rep_capture &]
+			puts "Capture point established between $id1 (ON) and $id2"
 		}
-		{cross} {
-			if {$::obj($id1,categorie) == $::obj($id2,categorie)} {
-				set valid true
-			} else  {
-				set valid false
-			}
+		if {$::tmp($id2,etat) && $::tmp(capture,pid2) == {}} {
+			# On branche le matériel 2 s'il est actif et si le câbles n'est pas déjà branché
+			set rep2 [get_vde_rep $id 2]
+			set ::tmp(capture,pid2) [exec $::vde(dpipe) $::vde(plug) $rep2 = $::vde(plug) $rep_capture &]
+			puts "Capture point established between $id1 and $id2 (ON)"
 		}
+		
 	} 
 	
-  if {!$valid} {
-    return
-  }
+}
+
+
+# retourne le rep du vde de connexion pour la machine $n de la connexion $id
+################################################################################
+proc get_vde_rep {id n} {
 	
-	puts "Starting connection $id1 : $::tmp($id1,etat) ; $id2 : $::tmp($id2,etat)"
+	#n = 1 ou 2
+	set rep {}
+	set idn $::obj($id,id$n)
 	
-  if {$::tmp($id1,etat) && $::tmp($id2,etat)} {
-    set n 0
-    foreach i "$id1 $id2" {
-      incr n
-      switch $::obj($i,famille) {
-        {computer} {set rep$n $::rep_tmp/vde/$i-$::obj($id,interf$n)}
-        {router} {set rep$n $::rep_tmp/vde/$i-$::obj($id,interf$n)}
-        {switch} {set rep$n $::rep_tmp/vde/$i}
+	  switch $::obj($idn,famille) {
+		{computer} {set rep $::rep_tmp/vde/$idn-$::obj($id,interf$n)}
+		{router} {set rep $::rep_tmp/vde/$idn-$::obj($id,interf$n)}
+		{switch} {set rep $::rep_tmp/vde/$idn}
 		{mswitch} {
 			regexp -expanded {[0-9]+} $::obj($id,interf$n) port
 			#Num de port démarre à 1 dans vde_switch
 			incr port
-			set rep$n "$::rep_tmp/vde/$i\[$port\]"}
-        {hub} {set rep$n $::rep_tmp/vde/$i}
-        {output} {
-			switch $::obj($i,type) {
-				{nat} {set rep$n $::rep_tmp/vde/switch_nat}
-				{bridge} {set rep$n $::rep_tmp/vde/$i}
+			set rep "$::rep_tmp/vde/$idn\[$port\]"}
+		{hub} {set rep $::rep_tmp/vde/$idn}
+		{output} {
+			switch $::obj($idn,type) {
+				{nat} {set rep $::rep_tmp/vde/switch_nat}
+				{bridge} {set rep $::rep_tmp/vde/$idn}
 			}
-        }
-        {vm} {
-            switch $::obj($i,type) {
-                {virtualbox} {set rep$n $::rep_tmp/vde/$i}
-            }
-        } 
-      }
-    }
-    # On branche !
-    set ::tmp($id,pid) [exec $::vde(dpipe) $::vde(plug) $rep1 = $::vde(plug) $rep2 &]
-	puts "Connection $id1 - $id2 established"
-	#Mise à jour étiquettes infos
-	maj_infos_connexion $id
-  }
-	
+		}
+		{vm} {
+			switch $::obj($idn,type) {
+				{virtualbox} {set rep $::rep_tmp/vde/$idn}
+			}
+		} 
+	  }
+	  return $rep
 }
 
 
@@ -449,13 +495,21 @@ proc dupliquer_mswitch {parent} {
 proc arrete_connexion {id} {
 	
 	if {$id == {}} {return}
-
+	
+	if {$::tmp(capture,id) == $id} {
+		puts "JE TUE $::tmp(capture,pid1)  $::tmp(capture,pid2)"
+		kill $::tmp(capture,pid1)
+		kill $::tmp(capture,pid2)
+		set ::tmp(capture,pid1) {}
+		set ::tmp(capture,pid2) {}
+	} else {
+        kill $::tmp($id,pid)
+		set ::tmp($id,pid) {}
+	}
 	set id1 $::obj($id,id1)
-	set id2 $::obj($id,id2)
+    set id2 $::obj($id,id2)
 	puts "Connection $id1 - $id2 stopped"
-    kill $::tmp($id,pid)
-    set ::tmp($id,pid) {}
-  
+    
 }
 
 
@@ -632,7 +686,7 @@ proc clean_machine_context {id} {
 		set ::tmp($id,etat_eth$i) {}
 		#on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
 		set id_liaison $::obj($id,eth$i)
-		if {$id_liaison != "" && $::tmp($id_liaison,infos_connexion)} {
+		if {$id_liaison != {} && $::tmp($id_liaison,infos_connexion)} {
 			maj_infos_connexion $id_liaison
 		}
 	}
@@ -878,16 +932,16 @@ proc sauvegarder_projet {} {
 proc restaurer_projet {} {
 	
 	set liste_types {desktop laptop server linux switch4 switch8 mswitch16 hub4 hub8 router2 router4 straight cross nat bridge virtualbox}
-  
+	set ::tmp(capture,id) {}
+	set ::tmp(capture,add) 0
+	set ::tmp(capture,exe_pid) {}
+	set ::tmp(capture,pid1) {}
+	set ::tmp(capture,pid2) {}
+	
 	#récupération de la structure
 	xml_structure_read $::rep_proj/structure.xml
 	#puts [array get ::tmp]
 	#puts [array get ::obj]
-	
-	# Adaptation ports switchs à la version 2.1 de Network-In
-	if {$::tmp(structure_version) < 1.1} {
-		#maj_1.1	
-	}
 
 	# mise à jour du titre
 	maj_titre
@@ -939,30 +993,6 @@ proc restaurer_projet {} {
 }
 
 
-proc maj_1.1 {} {
-	for  {set i 1} {$i <= $::tmp(lastid)} {incr i} {
-		set id m$i
-		if [info exists ::obj($id,famille)] {
-        	if {$::obj($id,famille) == "switch" || $::obj($id,famille) == "hub"} {
-        		for {set j $::obj($id,nb_eth)} {$j > 0} {incr j -1} {
-        			set ::obj($id,eth$j) $::obj($id,eth[expr $j-1])
-        		}
-				set ::obj($id,eth0) {}
-        	}
-			if {$::obj($id,famille) == "connexion"} {
-				foreach n "1 2" {
-					set id$n $::obj($id,id$n)
-    				if {$::obj(id$n,famille) == "switch" || $::obj(id$n,famille) == "hub"} {
-    					regexp -expanded {[0-9]+} $::obj($id,interf$n) port
-    					incr port
-    					set ::obj($id,interf$n) eth$port
-    				}
-				}
-			}
-        }
-	}
-}
-
 #Initialisation ou réinitialisation d'un projet
 #efface tout si projet existant
 ################################################################################
@@ -979,6 +1009,11 @@ proc init_projet {} {
 	set ::tmp(date) $::tmp(cdate)
 	set ::tmp(id1) {}
 	set ::tmp(id2) {}
+	set ::tmp(capture,id) {}
+	set ::tmp(capture,add) 0
+	set ::tmp(capture,exe_pid) {}
+	set ::tmp(capture,pid1) {}
+	set ::tmp(capture,pid2) {}
 	
 	# mise à jour du titre
 	set ::tmp(file) "[::msgcat::mc "unnamed"].net"
@@ -989,7 +1024,7 @@ proc init_projet {} {
 	change_niveau_detail $::niveau(defaut)
 	
 	# effacement des objets sur le canvas
-	canvas_delete all
+	$::c delete all
 	
 	#On ramène la barre de séparation au milieu
 	if {$::orientation == "vertical"} {
@@ -1001,7 +1036,6 @@ proc init_projet {} {
 	
 	# nettoyage et creation du nouveau répertoire de projet
 	catch {file delete -force $::rep_proj/datas}
-	#catch {file delete -force $::rep_proj/logs/m*.log}
 	file_delete_motif $::rep_proj/logs/m*.log
 	catch {file delete -force $::rep_proj/structure.xml}
 	catch {file delete -force $::rep_proj/structure.sav}
@@ -1285,6 +1319,48 @@ proc boucle_maj_clipboard {} {
 		set ::tmp(clip) $clip
 	}
 	after 2000 {boucle_maj_clipboard}
+	
+}
+
+
+# Création connexion pour capture
+#################################################################################
+proc creation_capture {id} {
+	
+	# On supprime l'ancienne capture
+	supprimer_capture
+	
+	# On lance la capture actuelle et la connexion
+	arrete_connexion $id
+	catch {exec sudo $::rep/bin/conf_capture start}
+	set ::tmp(capture,id) $id
+	demarre_connexion $id
+	dessine_capture $id
+	
+	if {$::tmp(capture,exe_pid) == {}} {
+		demarrer_capture_exe
+	}
+}
+
+# Démarrage outil de capture (Wireshark) et sauvegarde de son pid
+#################################################################################
+proc demarrer_capture_exe {} {
+	
+	set ::tmp(capture,exe_pid) [eval exec $::capture(exe) &]
+	
+}
+
+# Suppression connexion pour capture
+#################################################################################
+proc supprimer_capture {} {
+	
+	if {$::tmp(capture,id) != {}} {
+		set id $::tmp(capture,id)
+		arrete_connexion $id
+		$::c delete capture
+		set ::tmp(capture,id) {}
+		demarre_connexion $id
+	}
 	
 }
 

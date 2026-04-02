@@ -14,6 +14,8 @@ N_SCREEN_0=$(sed -r 's/:([0-9]).*/\1/' <<< $DISPLAY)
 X_PORT_0=$((6000 + $N_SCREEN_0))
 N_SCREEN=$(grep -E  '^[^#]*set screen' /etc/network-in.cfg | grep -o '[0-9]')
 X_PORT=$((6000 + $N_SCREEN))
+TAP=netkin_com
+
 
 #Création du répertoire temporaire pour les sockets
 mkdir -p $TMP/vde $TMP/terminal
@@ -23,14 +25,14 @@ chmod -R 777 $TMP
 killall vde_switch 2> /dev/null
 
 #Création de l'interface et du switch de communication avec les machines virtuelles
-$VDE_PATH/vde_switch -d --nostdin --tap networkin_com -l /dev/null -s $TMP/vde/switch_com -m 666
-/sbin/ip a add $IP_HOST/$MASK_HOST dev networkin_com
-/sbin/ip link set networkin_com up
+$VDE_PATH/vde_switch -d --nostdin --tap $TAP -l /dev/null -s $TMP/vde/switch_com -m 666
+/sbin/ip a add $IP_HOST/$MASK_HOST dev $TAP
+/sbin/ip link set $TAP up
 ip route del default dev network_com 2> /dev/null
 
 #On vide les regles du pare-feu (encore actives en cas de crash)
 /sbin/iptables -F NETWORKIN 2> /dev/null
-/sbin/iptables -D INPUT -i networkin_com -j NETWORKIN
+/sbin/iptables -D INPUT -i $TAP -j NETWORKIN
 
 #On empèche les machines virtuelles UML de sortir par l'interface de com
 /sbin/iptables -N NETWORKIN
@@ -38,7 +40,7 @@ ip route del default dev network_com 2> /dev/null
 /sbin/iptables -A NETWORKIN -p tcp --dport $X_PORT_0 -j ACCEPT
 /sbin/iptables -A NETWORKIN -j DROP
 /sbin/iptables -A NETWORKIN -j RETURN
-/sbin/iptables -I INPUT -i networkin_com -j NETWORKIN
+/sbin/iptables -I INPUT -i $TAP -j NETWORKIN
 
 #Activation du routage des paquets (indispensable pour passerelle nat)
 sysctl -w net.ipv4.ip_forward=1

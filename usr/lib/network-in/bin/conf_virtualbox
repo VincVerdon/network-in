@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20260312
+#version 20260328
 ####################################################################
 TMP=/tmp/network-in
 VDE_PATH=/usr/lib/network-in/vde4networkin
@@ -18,7 +18,7 @@ case "$ACTION" in
 	start)
 		
 		#Configuration interface sur un switch VDE
-		vde_switch -d -nostdin -hub -n 3 -p $TMP/vbox_$ID_PID -s $TMP/vde/$ID &>/dev/null
+		$VDE_PATH/vde_switch -d --nostdin -hub -n 2 -p $TMP/vbox_$ID_PID -l /dev/null -s $TMP/vde/$ID &>/dev/null
 		vboxmanage modifyvm $VM --nic${NIC} generic
 		vboxmanage modifyvm $VM --nicgenericdrv${NIC} VDE
 		vboxmanage modifyvm $VM --nicproperty${NIC} network=$TMP/vde/$ID

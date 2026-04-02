@@ -302,3 +302,17 @@ proc initialisation_mswitch16 {id} {
 	set ::obj($id,mac) [aleatoire_mac]
 }
 
+
+################################################################################
+proc initialisation_measurement {id} {
+	set ::obj($id,reconf) false
+	set ::obj($id,famille) output
+	set ::obj($id,type) measurement
+	set ::obj($id,categorie) dte
+	set ::obj($id,techno) ethernet
+	set ::obj($id,nb_eth) 1
+	set ::obj($id,eth0) {}
+	#set ::obj($id,ip_eth0) {}
+	#set ::obj($id,netmask_eth0) {}
+	set ::obj($id,nom) measurement
+}
