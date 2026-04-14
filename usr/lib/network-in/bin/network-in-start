@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20260323
+#version 20260408
 ####################################################################
 
 TMP=/tmp/network-in
@@ -32,7 +32,7 @@ ip route del default dev network_com 2> /dev/null
 
 #On vide les regles du pare-feu (encore actives en cas de crash)
 /sbin/iptables -F NETWORKIN 2> /dev/null
-/sbin/iptables -D INPUT -i $TAP -j NETWORKIN
+/sbin/iptables -D INPUT -i $TAP -j NETWORKIN 2> /dev/null
 
 #On empèche les machines virtuelles UML de sortir par l'interface de com
 /sbin/iptables -N NETWORKIN

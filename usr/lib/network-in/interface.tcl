@@ -271,6 +271,9 @@ proc show_object {id} {
 			{router} {
 				show_computer $id
 			}
+    		{mswitch} {
+    			show_mswitch $id
+    		}
 			default {
 				#Rien
 			}
@@ -286,8 +289,7 @@ proc show_computer {id} {
 	set desk_wid {}
 	foreach wid $::tmp($id,win_id) {
 		if {$cpt != 1} {
-			#catch {env DISPLAY=:5 exec wmctrl -i -a $wid}
-			raise_x_window $wid
+			raise_x_window $wid $::screen
 		} else {
 			set desk_wid $wid
 		}
@@ -296,7 +298,7 @@ proc show_computer {id} {
 	#On met le bureau au premier plan
 	#catch {exec wmctrl -i -a $desk_wid}
 	if {$desk_wid != {}} {
-	raise_x_window $desk_wid
+	raise_x_window $desk_wid $::screen
 	}
 }
 
@@ -401,8 +403,11 @@ proc clic_gauche_canvas {x y} {
 		if {$id == 0} {
 			# On a cliqué sur le trait rouge de création on sélectionne l'id suivant
 			set id [lindex $tags 1]
+		} elseif {$id == {capture}} {
+			show_capture
+			return
+			
 		}
-		if {$id == {capture}} {return}
 		
 		if {[lindex $tags 1] == "note"} {
 			#Affichage d'une note car clic sur l'icone de note
@@ -422,7 +427,7 @@ proc clic_gauche_canvas {x y} {
 			#On est en mode création de liaison
 			creation_liaison $id
 		} else {
-			#on a cliqué sur un objet on veut mettre en avant ses fenêtres s'il est démarré ou le masquer
+			#on a cliqué sur un objet on veut mettre en avant ses fenêtres s'il est démarré
 			show_object $id
 			#Il passe en avant plan
 			$::c raise $id
@@ -480,7 +485,9 @@ proc menu_contextuel_objet {id x y} {
     menu $::c.mc -tearoff 0
 	
 	if {$id == {capture}} {
+		$::c.mc add command -label [::msgcat::mc "Lauch capture software"] -command "demarrer_capture_exe"
 		$::c.mc add command -label [::msgcat::mc "Delete capture point"] -command "supprimer_capture"
+		
 	} else {
 		set famille $::obj($id,famille)
 		set type $::obj($id,type)
@@ -619,7 +626,7 @@ proc menu_contextuel_objet {id x y} {
     			# actions sur l'objet sélectionné		
     			$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_switch $id" -state $etat3
     			$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_switch $id" -state $etat2
-    			$::c.mc add command -label [::msgcat::mc "CLI console"] -command "fen_manage_switch $id" -state $etat2
+    			$::c.mc add command -label [::msgcat::mc "CLI console"] -command "fenetre_manage_switch $id" -state $etat2
     			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
     			# infos sur l'objet sélectionné
     			$::c.mc add separator
@@ -652,17 +659,6 @@ proc menu_contextuel_objet {id x y} {
     $::c.mc post $X $Y
     
 }
-
-
-
-# Terminal de management d'un switch
-###############################################################
-proc fen_manage_switch {id} {
-	#exec xterm -e $::vde(term) $::rep_tmp/terminal/$id &
-	exec xterm +ai -title "Network-In! - xterm" -bg $::coul(bg_schema) \
-	-fg $::coul(texte) -fn 10x20  -e "$::vde(term) $::rep_tmp/terminal/$id" &
-}
-
 
 
 # Dialogue appelé lors de la demande de suppression d'un composant
@@ -1216,34 +1212,38 @@ proc traite_changement_panneau {} {
   set ::tmp(sel,type) {}
 }
 
+
 # creation des images utilisees
 ################################################################################
 proc creer_images_interface {} {
-  
-  image create photo im_network-in -file $::rep/images/network-in.gif
-  #image create photo im_zoom+ -file $::rep/images/zoom+.gif
-  #image create photo im_zoom- -file $::rep/images/zoom-.gif
-  image create photo im_quitter -file $::rep/images/quit.gif
-  image create photo im_select -file $::rep/images/select.gif
-  image create photo im_off -file $::rep/images/off.gif
-  image create photo im_demarre -file $::rep/images/start.gif
-  image create photo im_on -file $::rep/images/on.gif
-  image create photo im_config -file $::rep/images/configure.gif
-  image create photo im_annuler -file $::rep/images/cancel.gif
-  image create photo im_valider -file $::rep/images/apply.gif
-  image create photo im_start_all -file $::rep/images/start_all.gif
-  image create photo im_stop_all -file $::rep/images/stop_all.gif
-  image create photo im_eteindre -file $::rep/images/shutdown.gif
-  image create photo im_del_infos -file $::rep/images/delete_infos.gif
-  image create photo im_carte -file $::rep/images/map.gif
-  image create photo im_note -file $::rep/images/note.gif
-  image create photo im_rafraichir -file $::rep/images/refresh.gif
-  image create photo im_info -file $::rep/images/info.gif
-  image create photo im_capture -file $::rep/images/capture.png
-  image create photo im_note_mini
-  im_note_mini copy im_note -subsample 2
+  	
+  	image create photo im_network-in -file $::rep/images/network-in.gif
+  	#image create photo im_zoom+ -file $::rep/images/zoom+.gif
+  	#image create photo im_zoom- -file $::rep/images/zoom-.gif
+  	image create photo im_quitter -file $::rep/images/quit.gif
+  	image create photo im_select -file $::rep/images/select.gif
+  	image create photo im_off -file $::rep/images/off.gif
+  	image create photo im_demarre -file $::rep/images/start.gif
+  	image create photo im_on -file $::rep/images/on.gif
+  	image create photo im_config -file $::rep/images/configure.gif
+  	image create photo im_annuler -file $::rep/images/cancel.gif
+  	image create photo im_valider -file $::rep/images/apply.gif
+  	image create photo im_start_all -file $::rep/images/start_all.gif
+  	image create photo im_stop_all -file $::rep/images/stop_all.gif
+  	image create photo im_eteindre -file $::rep/images/shutdown.gif
+  	image create photo im_del_infos -file $::rep/images/delete_infos.gif
+  	image create photo im_carte -file $::rep/images/map.gif
+  	image create photo im_note -file $::rep/images/note.gif
+  	image create photo im_rafraichir -file $::rep/images/refresh.gif
+  	image create photo im_info -file $::rep/images/info.gif
+  	image create photo im_capture -file $::rep/images/capture.gif
+	image create photo im_copy -file $::rep/images/copy.gif
+	image create photo im_paste -file $::rep/images/paste.gif
+	image create photo im_note_mini
+	im_note_mini copy im_note -subsample 2
 	
 }
+
 
 # creation des images utilisees
 ################################################################################
@@ -1447,26 +1447,6 @@ proc maj_infos_connexion {id} {
 	
 }
 	
-# Dessin icon measure au milieu du cable
-################################################################################
-proc dessine_capture {id} {
-	
-	$::c delete capture
-	
-	#Infos des 2 objets connectés par cette connexion
-	set id1 $::obj($id,id1)
-	set id2 $::obj($id,id2)
-	set x1 $::obj($id1,x)
-	set y1 $::obj($id1,y)
-	set x2 $::obj($id2,x)
-	set y2 $::obj($id2,y)
-	set XM [expr ($x1 + $x2) / 2]
-	set YM [expr ($y1 + $y2) / 2]
-	
-	$::c create image $XM $YM -tag "capture"  -image im_capture -anchor c
-	
-}
-
 
 # Dessin étiquette d'info côté interface de l'hôte d'un bridge
 # x1 et y1 sont les coordonnées du bridge
@@ -1762,8 +1742,10 @@ proc ouvrir_fichier_texte {fichier} {
 #Affichage d'une console xterm
 ################################################################################
 proc affiche_term {} {
-  exec xterm +ai -title "Network-In! - xterm" -bg $::coul(bg_schema) -fg $::coul(texte) -fn 10x20 &
+  #exec xterm +ai -title "Network-In! - xterm" -bg $::coul(bg_schema) -fg $::coul(texte) -fn 10x20 &
+	xterm_window
 }
+
 
 #Affichage des fichiers journaux (par défaut log général network-in.log)
 ################################################################################
@@ -1898,15 +1880,100 @@ proc calcul_position_desktop {id} {
 }
 
 
-# Dialogue proposant de créer un point de mesure
-################################################################################
-proc dialogue_creer_capture {} {
+# Mise en avant fenêtre machine
+#################################################################################
+proc raise_x_window {win_id {scr {}}} {
 	
-		set reponse [tk_messageBox -type okcancel -default ok -parent .main -icon info -title [::msgcat::mc "Info"] \
-		 -message [::msgcat::mc "Clic on a cable to select where the capture should be done"]]
-	  if {$reponse == "ok"} {
-		  set ::tmp(capture,add) 1
-		  $::c configure -cursor plus
-	  }
+	catch {exec $::rep/bin/raise_x_window $win_id $scr}
+	
+}
+
+
+# récupère l'id de fenêtre d'un exe à partir de son PID
+################################################################################
+proc winid_from_pid {pid {scr {}}} {
+	
+	after 500
+	return [exec $::rep/bin/win_id_from_pid $pid $scr]
+	
+}
+
+
+# Création d'une fenêtre xterm - retourne l'identifiant de la fenêtre
+################################################################################
+proc xterm_window {{exe {}}} {
+
+  	#Nom aléatoire pour le terminal, afin de pouvoir en démarrer plusieurs
+  	set term ".xterm[clock seconds]"
+	
+  	#image create photo im_term -file $::rep/images/xterm.gif
+  	toplevel $term
+  	wm title $term  "[::msgcat::mc "Terminal"] ([wm title .])"
+  	wm withdraw $term
+  	#wm iconphoto $term im_term
+	wm iconphoto $term im_network-in
+  	wm protocol $term WM_DELETE_WINDOW "destroy $term"
+  	positionne_fenetre $term
+  	wm geometry $term 640x480
+  	
+  	# Menus
+  	set m $term.menubar
+  	$term configure -menu $m
+  	menu $m
+  	# menu fichier
+  	$m add cascade -menu $m.file -label [::msgcat::mc "File"]
+  	menu $m.file -tearoff 0
+  	$m.file add command -label [::msgcat::mc "New terminal"] -command term::fenetre_term
+  	$m.file add command -label [::msgcat::mc "Quit"] -command "term::quit $term"
+  	
+  	# menu aide
+  	$m add cascade -menu $m.help -label [::msgcat::mc "Help"]
+  	menu $m.help -tearoff 0
+  	$m.help add command -label [::msgcat::mc "About"] -command a_propos
+  	
+  	# Barre de boutons
+  	frame $term.fb
+  	pack $term.fb -fill x
+  	button $term.fb.copy -compound right -relief flat -text [::msgcat::mc "Copy"] -image im_copy -command  "xterm_clipboard_copy $term.f"
+  	pack $term.fb.copy -side left
+  	button $term.fb.paste -compound right -relief flat -text [::msgcat::mc "Paste"] -image im_paste -command  "xterm_clipboard_paste $term.f"
+  	pack $term.fb.paste -side left
+  	button $term.fb.q -compound right -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  "destroy $term"
+  	pack $term.fb.q -side right
+  	frame $term.f -container 1
+  	pack $term.f -fill both -expand 1
+  	if {$exe != {}} {
+  		eval exec st -f $::font(xterm) -w [scan [winfo id $term.f] %x] -e $exe &
+  	} else {
+  		eval exec st -f $::font(xterm) -w [scan [winfo id $term.f] %x] &
+  	}
+  	wm deiconify $term
+  	#winid_maj [winid_parent [winfo id $term]]
+  	
+  	#On déplace le curseur sur le terminal pour avoir le focus, pas d'autre solution !
+  	after 100 "event generate $term.f <Motion> -x 50 -y 50 -warp 1"
+  	
+  	#Si st est fermé (commande exit ou logout) alors on détruit la fenêtre
+  	tkwait window $term.f
+  	destroy $term	
+	  
+	}
+
+# Place la sélection dans le presse papier des machines ET de l'hôte
+#######################################################
+proc xterm_clipboard_copy {widg} {
+	
+	set txt [exec xsel --primary -o]
+	eval exec echo -n $txt | xsel --clipboard -i &
+	
+}
+
+
+# Colle le contenu du presse papier dans le terminal
+#######################################################
+proc xterm_clipboard_paste {widg} {
+	
+	event generate $widg <Motion> -x 200 -y 200 -warp 1
+	after 10 {exec xdotool key ctrl+shift+v}
 	
 }

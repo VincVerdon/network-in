@@ -1,0 +1,24 @@
+#!/bin/bash
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
+#version 20260408
+####################################################################
+
+TMP=/tmp/network-in
+SCREEN=$1
+
+TXT=$(xsel --clipboard -o)
+if [ -e "$TMP/clip.txt" ]
+then	
+	if [ "$(cat $TMP/clip.txt)" != "$TXT" ]
+	then
+		#On vient de copier du texte dans le presse papier, dans ce cas on transmet aux machines du simulateur
+		xsel --display $SCREEN --clipboard -i <<< $TXT
+		echo -n $TXT > $TMP/clip.txt
+	fi
+else
+	echo -n $TXT > $TMP/clip.txt
+fi
+exit 0

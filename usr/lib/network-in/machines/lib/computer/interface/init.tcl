@@ -4,7 +4,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20250520
+# Version 20260414
 # Bureau version ordinateur
 
 encoding system utf-8
@@ -17,6 +17,7 @@ set rep_com $rep/../com
 
 # on source le fichier de config
 source [file join $rep interface.cfg]
+set font(name) [list $font(name)]
 
 # chargement du catalogue de messages
 package require msgcat 1.3

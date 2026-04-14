@@ -19,6 +19,7 @@ set rep_conf $rep/../routage
 
 # on source le fichier de config
 source [file join $rep interface.cfg]
+set font(name) [list $font(name)]
 
 # on force la langue à utiliser (appelée "en" dans tous les cas !)
 ::msgcat::mclocale en

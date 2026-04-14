@@ -444,52 +444,6 @@ proc dupliquer_ordinateur {parent} {
 }
 
 
-#Duplication d'un mswitch à partir d'un autre
-##################################################################################
-proc dupliquer_mswitch {parent} {
-	
-	# dimensions de l'image
-	#set imx [image width im_$type]
-	#set imy [image height im_$type]
-	
-	# on définit le numéro d'id de l'objet
-	incr ::tmp(lastid)
-	set id m$::tmp(lastid)
-	
-	# initialisation des données de l'objet
-	set ::obj($id,x) [expr $::obj($parent,x)+10]
-	set ::obj($id,y) [expr $::obj($parent,y)+10]
-	set ::obj($id,nom) $::obj($parent,nom)
-	set ::obj($id,famille) $::obj($parent,famille)
-	set ::obj($id,type) $::obj($parent,type)
-	set ::obj($id,techno) $::obj($parent,techno)
-	set ::obj($id,categorie) $::obj($parent,categorie)
-	set ::obj($id,reconf) $::obj($parent,reconf)
-	set ::obj($id,nb_eth) $::obj($parent,nb_eth)
-	init_eth $id
-	set ::obj($id,mac) [aleatoire_mac]
-		
-	# a la creation l'objet n'est pas démarré
-	set ::tmp($id,etat) 0
-	set ::tmp($id,win_id) {}
-	
-	# désarchivage éventuel d'une archive compressée
-	if {[file exists $::rep_proj/datas/$parent.tgz]} {
-		exec tar -C $::rep_proj --sparse -xzf $::rep_proj/datas/$parent.tgz
-		file delete $::rep_proj/datas/$parent.tgz
-	}
-	# Copie des fichiers
-	file copy $::rep_proj/datas/$parent $::rep_proj/datas/$id
-	
-	# on sauvegarde les données obj
-	sauvegarder_projet
-	
-	# dessin sur le canvas
-	dessine_objet $id
-	
-}
-
-
 # suppression d'une connexion entre deux éléments
 ################################################################################
 proc arrete_connexion {id} {
@@ -642,16 +596,16 @@ proc boucle_scan_objet {id} {
         
         #Machine en fonctionnement ou en train de redémarrer
         #récupération du nouveau nom de machine
-        set res  [lire_fichier_echange $id hostname]
-        if  {$res != {-1}} {
+        set res [lire_fichier_echange $id hostname 1]
+        if  {$res != {}} {
           set ::obj($id,nom) $res
           # on met à jour l'affichage
           dessine_objet $id
         }
         #récuperation de la configuration des interfaces
         for {set i 0} {$i<$::obj($id,nb_eth)} {incr i} {
-          set res [lire_fichier_echange $id interface_eth$i]
-          if {$res != {-1}} {
+          set res [lire_fichier_echange $id interface_eth$i 1]
+          if {$res != {}} {
             set ::tmp($id,etat_eth$i) $res
         	#on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
         	set id_liaison $::obj($id,eth$i)
@@ -662,6 +616,11 @@ proc boucle_scan_objet {id} {
         }
       	#récupération de la liste des winid de la machine
       	set ::tmp($id,win_id) [lire_fichier_echange $id window_id]
+		#récupération du presse papier de la machine
+		set res [lire_fichier_echange $id clip 1]
+		if  {$res != {}} {
+			eval exec echo -n $res | xsel --clipboard -i &
+		}
 		#on relance la boucle
     	after 2000 boucle_scan_objet $id
     		
@@ -699,28 +658,6 @@ proc clean_machine_context {id} {
 }
 
 
-# Boucle de scan lancée au démarrage d'un switch manageable
-################################################################################
-proc boucle_scan_mswitch {id} {
-	
-	if {[file exists $::rep_proj/datas/$id/com/pid]} {
-		#récupération du nouveau nom de machine
-		set res  [lire_fichier_echange $id hostname]
-		if  {$res != {-1}} {
-		  set ::obj($id,nom) $res
-		  # on met à jour l'affichage
-		  dessine_objet $id
-		}
-		after 2000 boucle_scan_mswitch $id
-	} else  {
-		arrete_switch $id
-		#On supprime le répertoire d'échange dans le rep du projet
-		file delete -force $::rep_proj/datas/$id/com
-	}
-	
-}
-
-
 # Ecriture fichier d'échange avec les machines UML
 ################################################################################
 proc ecrire_fichier_echange {id fic texte} {
@@ -731,12 +668,17 @@ proc ecrire_fichier_echange {id fic texte} {
 
 # Lecture fichier d'échange avec les machines UML
 ################################################################################
-proc lire_fichier_echange {id fic} {
-  if {![file exists $::rep_proj/datas/$id/com/$fic]} {return -1}
-  set f [open $::rep_proj/datas/$id/com/$fic r]
-  set texte [read $f]
-  close $f
-  return [string trim $texte]
+proc lire_fichier_echange {id fic {del 0}} {
+	set texte {}
+    if {[file exists $::rep_proj/datas/$id/com/$fic]} {
+    	set f [open $::rep_proj/datas/$id/com/$fic r]
+    	set texte [read $f]
+    	close $f
+    }
+	if {$del == 1} {
+		file delete $::rep_proj/datas/$id/com/$fic
+	}
+    return [string trim $texte]
 }
 
 # Création d'un câble droit ou croisé
@@ -932,6 +874,8 @@ proc sauvegarder_projet {} {
 proc restaurer_projet {} {
 	
 	set liste_types {desktop laptop server linux switch4 switch8 mswitch16 hub4 hub8 router2 router4 straight cross nat bridge virtualbox}
+	
+	# Init de la capture
 	set ::tmp(capture,id) {}
 	set ::tmp(capture,add) 0
 	set ::tmp(capture,exe_pid) {}
@@ -960,11 +904,12 @@ proc restaurer_projet {} {
         set ::tmp($id,etat) 0
         if [info exists ::obj($id,famille)] {
 			if {[lsearch -exact $liste_types $::obj($id,type)] >= 0} {
+				set ::tmp($id,pid) {}
                 if {$::obj($id,famille) == "connection"} {
-                	set ::tmp($id,pid) {}
     				set ::tmp($id,infos_connexion) 0
     				dessine_connexion $id
                 } else {
+					set ::tmp($id,win_id) {}
     				#On commence par nettoyer le répertoire d'échange dans le rep du projet
     				file delete -force $::rep_proj/datas/$id/com
     				#Vérification configuration VM virtualbox
@@ -979,13 +924,12 @@ proc restaurer_projet {} {
     							set ::tmp($id,name) $::obj($id,nom)
     						}
     					}
-    				}			
-    				set ::tmp($id,win_id) {}
+    				}
     				dessine_objet $id
                 }
             } else {
 				#Log info type inconnu
-				puts "Type unknown for $id : $::obj($id,type). Disabled"
+				puts "Unknown type for $id : $::obj($id,type). Disabled"
             }
         }
     }
@@ -1009,6 +953,8 @@ proc init_projet {} {
 	set ::tmp(date) $::tmp(cdate)
 	set ::tmp(id1) {}
 	set ::tmp(id2) {}
+	
+	# Init de la capture
 	set ::tmp(capture,id) {}
 	set ::tmp(capture,add) 0
 	set ::tmp(capture,exe_pid) {}
@@ -1259,15 +1205,6 @@ proc get_interface_ip {interf} {
 }
 
 
-# Mise en avant fenêtre machine
-#################################################################################
-proc raise_x_window {win_id} {
-	
-	catch {exec $::rep/bin/raise_x_window $win_id $::screen}
-	
-}
-
-
 # Récupération de la configuration clavier pour le serveur d'affichage Xephyr
 #################################################################################
 proc get_keyboard_conf {} {
@@ -1311,56 +1248,8 @@ proc start_x_server {window size} {
 #################################################################################
 proc boucle_maj_clipboard {} {
 	
-	set clip [exec xsel --clipboard -o]
-	
-	if {$::tmp(clip) != $clip} {
-		#On vient de copier du texte dans le presse papier, dans ce cas on transmet aux machines du simulateur
-		exec echo -n $clip | xsel --display $::screen --clipboard -i
-		set ::tmp(clip) $clip
-	}
+	exec $::rep/bin/update_clipboard $::screen &
 	after 2000 {boucle_maj_clipboard}
-	
-}
-
-
-# Création connexion pour capture
-#################################################################################
-proc creation_capture {id} {
-	
-	# On supprime l'ancienne capture
-	supprimer_capture
-	
-	# On lance la capture actuelle et la connexion
-	arrete_connexion $id
-	catch {exec sudo $::rep/bin/conf_capture start}
-	set ::tmp(capture,id) $id
-	demarre_connexion $id
-	dessine_capture $id
-	
-	if {$::tmp(capture,exe_pid) == {}} {
-		demarrer_capture_exe
-	}
-}
-
-# Démarrage outil de capture (Wireshark) et sauvegarde de son pid
-#################################################################################
-proc demarrer_capture_exe {} {
-	
-	set ::tmp(capture,exe_pid) [eval exec $::capture(exe) &]
-	
-}
-
-# Suppression connexion pour capture
-#################################################################################
-proc supprimer_capture {} {
-	
-	if {$::tmp(capture,id) != {}} {
-		set id $::tmp(capture,id)
-		arrete_connexion $id
-		$::c delete capture
-		set ::tmp(capture,id) {}
-		demarre_connexion $id
-	}
 	
 }
 

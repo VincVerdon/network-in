@@ -45,6 +45,7 @@ if {[file exists $::rep_conf/network-in.cfg]} {
 	puts $f "#This overrides /etc/network-in.cfg parameters"
 	close $f
 }
+set font(xterm) [list $font(xterm)]
 
 # Rep courant initial
 set ::tmp(current_dir) $::rep_home
@@ -89,7 +90,6 @@ set ::vde(mswitch) /home/vincent/workspace/vde4network-in/vde4network-in/build/s
 set ::vde(term) $rep_vde/vdeterm
 set ::vde(dpipe) $rep_vde/dpipe
 set ::vde(plug) $rep_vde/vde_plug
-
 unset rep_vde
 
 
@@ -99,9 +99,11 @@ source [file join $rep interface.tcl]
 source [file join $rep interface_composants.tcl]
 source [file join $rep init_composants.tcl]
 source [file join $rep traitement.tcl]
-source [file join $rep machines nat config_passerelle.tcl]
-source [file join $rep machines virtualbox config_virtualbox.tcl]
-source [file join $rep machines bridge config_bridge.tcl]
+source [file join $rep capture.tcl]
+source [file join $rep machines nat nat.tcl]
+source [file join $rep machines virtualbox virtualbox.tcl]
+source [file join $rep machines bridge bridge.tcl]
+source [file join $rep machines mswitch mswitch.tcl]
 
 # Package fsdialog pour amélioration des boites de gestion des fichiers (remplacement tk_getOpenFile et tk_SaveFile)
 lappend auto_path $::rep/fsdialog

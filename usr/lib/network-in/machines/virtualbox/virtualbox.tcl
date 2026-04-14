@@ -54,7 +54,7 @@ proc supprime_fenetre_config_vbox {id} {
 }
 
 
-# Fait passer la fenêtre de la passerelle en avant-plan
+# Fait passer la fenêtre de la Vbox config en avant-plan
 ################################################################################
 proc show_vbox {id} {
 	if [winfo exists .vbox$id] {

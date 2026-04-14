@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20260203
+#Version 20260408
 #############################
 REP_INS=$(dirname $0)
 #Software directory
@@ -22,7 +22,6 @@ tclsh;tcl
 wish;tk
 vde_switch;vde2
 sudo;sudo
-lsof;lsof
 wmctrl;wmctrl
 iptables;iptables
 xfwm4;xfwm4
@@ -31,6 +30,7 @@ xsel;xsel
 hsetroot;hsetroot
 xterm;xterm
 xhost;x11-xserver-utils
+bridge-utils;bridge-utils
 "
 
 ARRET=false
