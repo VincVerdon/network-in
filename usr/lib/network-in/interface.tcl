@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20260326
+# Version 20260420
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -37,7 +37,7 @@ proc fenetre_principale {} {
 	creation_menu_niveau $m.tools.niv
 	$m.tools add separator
 	$m.tools add command -label [::msgcat::mc "Messages"] -command fenetre_affiche_logs
-	$m.tools add command -label [::msgcat::mc "Terminal"] -command affiche_term
+	$m.tools add command -label [::msgcat::mc "Terminal"] -command {xterm_window .xterm[clock seconds]}
 	# menu aide
 	$m add cascade -menu $m.help -label [::msgcat::mc "Help"]
 	menu $m.help -tearoff 0
@@ -144,7 +144,7 @@ proc panel_simulation {l h} {
 	
 	ttk::scrollbar .main.sim.hbar -command {.main.sim.f0.t xview} -orient horizontal
 	ttk::scrollbar .main.sim.f0.vbar -command {.main.sim.f0.t yview} -orient vertical
-	canvas .main.sim.f0.t -background $::coul(bg_simul) -scrollregion "0 0 $l $h" \
+	canvas .main.sim.f0.t -scrollregion "0 0 $l $h" \
 	-yscrollcommand {.main.sim.f0.vbar set} -xscrollcommand {.main.sim.hbar set}
 	pack .main.sim.f0.t -side right -fill both -expand 1
 	pack .main.sim.hbar -fill x
@@ -153,7 +153,7 @@ proc panel_simulation {l h} {
 	.main.sim.f0.t create window [expr $l / 2] [expr $h / 2] -window .main.sim.f0.f
 	update
 	# Démarrage serveur d'affichage Xephyr et le WM associé
-	start_x_server [scan [winfo id .main.sim.f0.f] %x] "${l}x${h}"
+	start_x_server [winfo id .main.sim.f0.f] "${l}x${h}"
 	
 }
 
@@ -302,29 +302,6 @@ proc show_computer {id} {
 	}
 }
 
-
-# réduit les fenêtres de l'objet
-################################################################################
-proc hide_object {id} {
-    
-	switch $::obj($id,type) {
-		{nat} {
-			hide_passerelle
-		}
-		{virtualbox} {
-			hide_vbox
-		}
-		{bridge} {
-			hide_bridge
-		}
-		default {
-			foreach wid $::tmp($id,win_id) {
-				catch {exec wmctrl -i -r $wid -b add,hidden &}
-			}
-		}
-	}
-    
-}
 
 # proc de gestion des clics de création d'une liaison entre 2 éléments
 ################################################################################
@@ -1150,7 +1127,7 @@ proc menu_choix_connexion {id} {
 		set n [expr $i + 1]
       } else  {
         set type "eth"
-		set n i
+		set n $i
       }
       if {$::obj($id,eth$i) == {}} {
         # la connexion n'est pas utilisée
@@ -1901,69 +1878,54 @@ proc winid_from_pid {pid {scr {}}} {
 
 # Création d'une fenêtre xterm - retourne l'identifiant de la fenêtre
 ################################################################################
-proc xterm_window {{exe {}}} {
-
-  	#Nom aléatoire pour le terminal, afin de pouvoir en démarrer plusieurs
-  	set term ".xterm[clock seconds]"
+proc xterm_window {term {exe {}}} {
 	
-  	#image create photo im_term -file $::rep/images/xterm.gif
-  	toplevel $term
-  	wm title $term  "[::msgcat::mc "Terminal"] ([wm title .])"
+	toplevel $term
+  	wm title $term  "[::msgcat::mc "Terminal"]"
   	wm withdraw $term
   	#wm iconphoto $term im_term
 	wm iconphoto $term im_network-in
   	wm protocol $term WM_DELETE_WINDOW "destroy $term"
-  	positionne_fenetre $term
-  	wm geometry $term 640x480
-  	
-  	# Menus
-  	set m $term.menubar
-  	$term configure -menu $m
-  	menu $m
-  	# menu fichier
-  	$m add cascade -menu $m.file -label [::msgcat::mc "File"]
-  	menu $m.file -tearoff 0
-  	$m.file add command -label [::msgcat::mc "New terminal"] -command term::fenetre_term
-  	$m.file add command -label [::msgcat::mc "Quit"] -command "term::quit $term"
-  	
-  	# menu aide
-  	$m add cascade -menu $m.help -label [::msgcat::mc "Help"]
-  	menu $m.help -tearoff 0
-  	$m.help add command -label [::msgcat::mc "About"] -command a_propos
+	positionne_fenetre $term
+  	wm geometry $term 800x600
   	
   	# Barre de boutons
   	frame $term.fb
   	pack $term.fb -fill x
-  	button $term.fb.copy -compound right -relief flat -text [::msgcat::mc "Copy"] -image im_copy -command  "xterm_clipboard_copy $term.f"
+  	button $term.fb.copy -compound right -relief flat -text [::msgcat::mc "Copy"] -image im_copy -command  "mswitch_term_clipboard_copy $term.f"
   	pack $term.fb.copy -side left
-  	button $term.fb.paste -compound right -relief flat -text [::msgcat::mc "Paste"] -image im_paste -command  "xterm_clipboard_paste $term.f"
+  	button $term.fb.paste -compound right -relief flat -text [::msgcat::mc "Paste"] -image im_paste -command  "mswitch_term_clipboard_paste $term.f"
   	pack $term.fb.paste -side left
   	button $term.fb.q -compound right -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  "destroy $term"
   	pack $term.fb.q -side right
-  	frame $term.f -container 1
+	button $term.fb.about -compound right -relief flat -text [::msgcat::mc "About"] -image im_info -command  "a_propos {} $term"
+	pack $term.fb.about -side right -padx {0 10}
+  	
+	# Frame contenant le terminal st
+	frame $term.f -container 1
   	pack $term.f -fill both -expand 1
   	if {$exe != {}} {
-  		eval exec st -f $::font(xterm) -w [scan [winfo id $term.f] %x] -e $exe &
+  		eval exec st -f $::font(xterm) -w [winfo id $term.f] -e $exe &
   	} else {
-  		eval exec st -f $::font(xterm) -w [scan [winfo id $term.f] %x] &
+  		eval exec st -f $::font(xterm) -w [winfo id $term.f] &
   	}
   	wm deiconify $term
-  	#winid_maj [winid_parent [winfo id $term]]
   	
   	#On déplace le curseur sur le terminal pour avoir le focus, pas d'autre solution !
   	after 100 "event generate $term.f <Motion> -x 50 -y 50 -warp 1"
   	
   	#Si st est fermé (commande exit ou logout) alors on détruit la fenêtre
   	tkwait window $term.f
-  	destroy $term	
-	  
-	}
+	destroy $term
+	
+}
+
 
 # Place la sélection dans le presse papier des machines ET de l'hôte
 #######################################################
-proc xterm_clipboard_copy {widg} {
+proc mswitch_term_clipboard_copy {widg} {
 	
-	set txt [exec xsel --primary -o]
+	set txt [exec xsel --display $::screen --primary -o]
 	eval exec echo -n $txt | xsel --clipboard -i &
 	
 }
@@ -1971,7 +1933,7 @@ proc xterm_clipboard_copy {widg} {
 
 # Colle le contenu du presse papier dans le terminal
 #######################################################
-proc xterm_clipboard_paste {widg} {
+proc mswitch_term_clipboard_paste {widg} {
 	
 	event generate $widg <Motion> -x 200 -y 200 -warp 1
 	after 10 {exec xdotool key ctrl+shift+v}

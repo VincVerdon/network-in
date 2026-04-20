@@ -3,7 +3,7 @@ Version: 2.1.0
 Section: base
 Priority: optional
 Architecture: amd64
-Depends: bash, vde2, sudo, tcl(>=8.6), tk(>=8.6), wmctrl, x11-utils, iptables, xfwm4, xserver-xephyr, xsel, hsetroot, x11-xserver-utils, bridge-utils, xterm
+Depends: bash, vde2, sudo, tcl(>=8.6), tk(>=8.6), wmctrl, x11-utils, iptables, xfwm4, xserver-xephyr, xsel, hsetroot, x11-xserver-utils, bridge-utils, st
 Maintainer: Vincent Verdon <network-in@vverdon.fr>
 Description: A network simulator software
 Homepage: https://network-in.vverdon.fr

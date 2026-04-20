@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la bridge nat
 ####################################################################
-# Version 20260411
+# Version 20260414
 set ::version(mswitch) 1.0
 
 
@@ -36,7 +36,6 @@ proc dupliquer_mswitch {parent} {
 		
 	# a la creation l'objet n'est pas démarré
 	set ::tmp($id,etat) 0
-	set ::tmp($id,win_id) {}
 	
 	# désarchivage éventuel d'une archive compressée
 	if {[file exists $::rep_proj/datas/$parent.tgz]} {
@@ -59,16 +58,54 @@ proc dupliquer_mswitch {parent} {
 ###############################################################
 proc fenetre_manage_switch {id} {
 	
-	if {$::tmp($id,pid) != {}} {
-		set ::tmp($id,win_id) [winid_from_pid $::tmp($id,pid) $::screen]
-	}
-	if {$::tmp($id,win_id) != {}} {
+	if [winfo exists .mswitch$id] {
 		show_mswitch $id
 	} else {
-		set ::tmp($id,pid) [exec xterm +ai -title "Network-In! - Switch $::obj($id,nom) ($id)" -bg $::coul(bg_schema) \
-		-fg $::coul(texte) -fn 10x20 -display $::screen -e "$::vde(term) $::rep_tmp/terminal/$id" &]
-		set ::tmp($id,win_id) [winid_from_pid $::tmp($id,pid) $::screen]
+		term_switch_window $id
 	}
+	
+}
+
+
+# Terminal de management d'un switch
+###############################################################
+proc term_switch_window {id} {
+	
+	set term .mswitch$id
+	toplevel $term -screen $::screen
+	maj_nom_mswitch $id
+	wm withdraw $term
+	wm iconphoto $term im_mswitch16
+	wm protocol $term WM_DELETE_WINDOW "destroy $term"
+	positionne_fenetre_principale $id $term
+	wm geometry $term 640x480
+	
+	# Barre de boutons
+	frame $term.fb
+	pack $term.fb -fill x
+	button $term.fb.copy -compound right -relief flat -text [::msgcat::mc "Copy"] -image im_copy -command  "mswitch_term_clipboard_copy $term.f"
+	pack $term.fb.copy -side left
+	button $term.fb.paste -compound right -relief flat -text [::msgcat::mc "Paste"] -image im_paste -command  "mswitch_term_clipboard_paste $term.f"
+	pack $term.fb.paste -side left
+	button $term.fb.q -compound right -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  "destroy $term"
+	pack $term.fb.q -side right
+	button $term.fb.about -compound right -relief flat -text [::msgcat::mc "About"] -image im_info -command  "a_propos_sim $::version(mswitch) $term"
+	pack $term.fb.about -side right -padx {0 10}
+	
+	# Frame contenant le terminal st
+	frame $term.f -container 1
+	pack $term.f -fill both -expand 1
+	
+	eval exec $::rep/bin/mswitch_term $id $::screen [winfo id $term.f] "$::font(xterm)" &
+
+	wm deiconify $term
+	
+	#On déplace le curseur sur le terminal pour avoir le focus, pas d'autre solution !
+	after 100 "event generate $term.f <Motion> -x 50 -y 50 -warp 1"
+	
+	#Si st est fermé (commande exit ou logout) alors on détruit la fenêtre
+	tkwait window $term.f
+	destroy $term
 	
 }
 
@@ -77,8 +114,19 @@ proc fenetre_manage_switch {id} {
 #############################################################################
 proc show_mswitch {id} {
 	
-	raise_x_window $::tmp($id,win_id) $::screen
+	if [winfo exists .mswitch$id] {
+	raise .mswitch$id
+	}
 
+}
+
+#MAJ du nom du mswitch dans l'interface Term
+#############################################################################
+proc maj_nom_mswitch {id} {
+	
+	set term .mswitch$id
+	wm title $term  "[::msgcat::mc "Switch CLI"] ($::obj($id,nom))"
+	
 }
 
 
@@ -90,9 +138,13 @@ proc boucle_scan_mswitch {id} {
 		#récupération du nouveau nom de machine
 		set res  [lire_fichier_echange $id hostname 1]
 		if  {$res != {}} {
-		  set ::obj($id,nom) $res
-		  # on met à jour l'affichage
-		  dessine_objet $id
+		  	set ::obj($id,nom) $res
+			if [winfo exists .mswitch$id] {
+			# mise à jour dans l'interface de la VM
+			wm title .mswitch$id $::obj($id,nom)
+			} 	
+			# on met à jour le schéma
+			dessine_objet $id
 		}
 		after 2000 boucle_scan_mswitch $id
 	} else  {

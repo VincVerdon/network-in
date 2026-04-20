@@ -3,7 +3,8 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-set version(xterm) 20260414
+# Version 20260416
+set version(xterm) 1.1
 
 # Lanceur de l'application
 #####################################
@@ -57,9 +58,9 @@ namespace eval term {
       frame $term.f -container 1
       pack $term.f -fill both -expand 1
       if {$exe != {}} {
-          eval exec st -f $::font(name) -w [scan [winfo id $term.f] %x] -e $exe &
+          eval exec st -f $::font(name) -w [winfo id $term.f] -e $exe &
       } else {
-          eval exec st -f $::font(name) -w [scan [winfo id $term.f] %x] &
+          eval exec st -f $::font(name) -w [winfo id $term.f] &
       }
       wm deiconify $term
       winid_maj [winid_parent [winfo id $term]]

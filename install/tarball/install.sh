@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20260408
+#Version 20260414
 #############################
 REP_INS=$(dirname $0)
 #Software directory
@@ -28,7 +28,7 @@ xfwm4;xfwm4
 Xephyr;xserver-xephyr
 xsel;xsel
 hsetroot;hsetroot
-xterm;xterm
+st;st
 xhost;x11-xserver-utils
 bridge-utils;bridge-utils
 "

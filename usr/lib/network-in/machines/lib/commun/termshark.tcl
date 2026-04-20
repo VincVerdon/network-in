@@ -3,7 +3,8 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-set ::version(termshark) 20260414
+# Version 20260416
+set ::version(termshark) 1.1
 
 
 # Lanceur de l'application
@@ -162,7 +163,7 @@ namespace eval capt {
         set ::tmp(fic_capture) [file join $capt::rep $interf--$date.pcap]
         set exe "tcpdump -i $interf -v -w $::tmp(fic_capture)"
         set font1 [list "DejaVu Sans Mono-9"]
-        set ::tmp(pid_capture) [eval exec st -f $font1 -w [scan [winfo id .cap.f.newcap.inf.f] %x] -e $exe &]
+        set ::tmp(pid_capture) [eval exec st -f $font1 -w [winfo id .cap.f.newcap.inf.f] -e $exe &]
         # on récupère l'id de fenêtre
         winid_maj [winid_from_pid $::tmp(pid_capture)]
     }
