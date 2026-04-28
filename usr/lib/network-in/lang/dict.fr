@@ -28,6 +28,7 @@ Cable  Câble
 "Choose file"  "Choix du fichier"
 "Choose the interface of VirtualBox VM to bind to Network-In simulator"  "Choisir l'interface de la VM VirtualBox à relier au simulateur Network-In"
 "CLI console" "Console CLI"
+"Clic on a cable to select where the capture should be done"  "Cliquer sur le câble où la capture est à faire"
 Close  Fermer
 CNAME  CNAME
 Complete  Complète
@@ -42,11 +43,13 @@ Confirm  Valider
 "Connected to simulator" "Connecté au simulateur"
 Console  Console
 Copy  Copier
+"Create capture point"  "Créer un point de capture"
 "Crossed cable"  "Câble croisé"
 "Current records"  "Enregistrements actuels"
 Cut  Couper
 dce  DCE
 "Delete capture"  "Supprimer la capture"
+"Delete capture point"  "Supprimer le point de capture"
 "Delete info labels"  "Effacer les étiquettes d'infos"
 "Delete network card" "Supprimer une carte réseau"
 "Desk computer"  "Ordinateur de bureau"
@@ -122,6 +125,7 @@ Kernel  Noyau
 "Kernel not found for this equipment"  "Pas de noyau disponible pour ce matériel"
 Laptop  "Ordinateur portable"
 "Last IP address"  "Dernière adresse IP"
+"Lauch capture software"  "Démarrer le logiciel de capture"
 License  Licence
 "Listening interface"  "Interface en écoute"
 "Linux text"  "Ordinateur Linux texte"
@@ -202,7 +206,7 @@ Static Statique
 "Static configuration"  "Configuration statique"
 "Static routing" "Routage statique"
 "Static routing configuration" "Configuration du routage statique"
-"STP informations"  "Informations STP"
+"STP infos"  "Informations STP"
 Stop  Arrêter
 Suppress  Supprimer
 Suppression Suppression
@@ -210,6 +214,7 @@ Suppression Suppression
 Switch  "Commutateur (switch)"
 switch4 "Switch simple à 4 ports"
 switch8 "Switch simple à 8 ports"
+"Switch CLI"  "Console Switch CLI"
 "Switch off" "Eteindre"
 System  Système
 "System disk"  "Disque système"

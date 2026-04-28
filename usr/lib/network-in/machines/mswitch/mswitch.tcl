@@ -78,7 +78,7 @@ proc term_switch_window {id} {
 	wm iconphoto $term im_mswitch16
 	wm protocol $term WM_DELETE_WINDOW "destroy $term"
 	positionne_fenetre_principale $id $term
-	wm geometry $term 640x480
+	wm geometry $term 750x500
 	
 	# Barre de boutons
 	frame $term.fb

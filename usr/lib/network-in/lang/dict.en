@@ -28,6 +28,7 @@ Cable  Cable
 "Choose file"  "Choose file"
 "Choose the interface of VirtualBox VM to bind to Network-In simulator"  "Choose the interface of VirtualBox VM to bind to Network-In simulator"
 "CLI console"  "CLI console"
+"Clic on a cable to select where the capture should be done"  "Clic on a cable to select where the capture should be done"
 Close Close
 CNAME  CNAME
 Complete  Complete
@@ -42,11 +43,13 @@ Confirm  Confirm
 "Connected to simulator" "Connected to simulator"
 Console  Console
 Copy  Copy
+"Create capture point"  "Create capture point"
 "Crossed cable"  "Crossed cable"
 "Current records"  "Current records"
 Cut  cut
 dce  DCE
 "Delete capture"  "Delete capture"
+"Delete capture point"  "Delete capture point"
 "Delete info labels"  "Delete info labels"
 "Delete network card"  "Delete network card"
 "Desk computer"  "Desk computer" 
@@ -120,6 +123,7 @@ Kernel  Kernel
 "Keys ctrl-shift-V : paste text"  "Keys ctrl-shift-V : PASTE"
 Laptop  Laptop
 "Last IP address"  "Last IP address"
+"Lauch capture software"  "Lauch capture software"
 License  License
 "Listening interface"  "Listening interface"
 "Linux text"  "Linux text computer"
@@ -201,13 +205,14 @@ Static Static
 "Static routing" "Static routing"
 "Static routing configuration" "Static routing configuration"
 Stop  Stop
-"STP informations"  "STP informations"
+"STP infos"  "STP informations"
 Suppress  Suppress
 Suppression  Suppression
 "Suppression of a selected record"  "Suppression of a selected record"
 Switch  Switch
 switch4 "Basic 4 ports switch"
 switch8 "Basic 8 ports switch"
+"Switch CLI"  "Switch CLI"
 "Switch off"  "Switch off"
 System  System
 "System disk"  "System disk"

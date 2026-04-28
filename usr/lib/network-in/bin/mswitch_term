@@ -3,9 +3,10 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20260416
+#version 20260420
 ####################################################################
 TMP=/tmp/network-in
+REP=/usr/lib/network-in
 VDE_PATH=/usr/lib/network-in/vde4networkin
 
 ID=$1
@@ -13,4 +14,4 @@ SCR=$2
 WID=$3
 FONT=$4
 
-DISPLAY=$SCR st -f "$FONT" -w $WID -e $VDE_PATH/vdeterm $TMP/terminal/$ID
+DISPLAY=$SCR $REP/bin/st -B "gray50" -F "white" -f "$FONT" -w $WID -e $VDE_PATH/vdeterm $TMP/terminal/$ID

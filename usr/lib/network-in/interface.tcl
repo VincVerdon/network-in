@@ -1905,9 +1905,9 @@ proc xterm_window {term {exe {}}} {
 	frame $term.f -container 1
   	pack $term.f -fill both -expand 1
   	if {$exe != {}} {
-  		eval exec st -f $::font(xterm) -w [winfo id $term.f] -e $exe &
+  		eval exec $::exe_st -B $::coul(bg_st) -F $::coul(fg_st) -f $::font(xterm) -w [winfo id $term.f] -e $exe &
   	} else {
-  		eval exec st -f $::font(xterm) -w [winfo id $term.f] &
+  		eval exec $::exe_st -B $::coul(bg_st) -F $::coul(fg_st) -f $::font(xterm) -w [winfo id $term.f] &
   	}
   	wm deiconify $term
   	
