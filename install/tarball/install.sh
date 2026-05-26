@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20260414
+#Version 20260525
 #############################
 REP_INS=$(dirname $0)
 #Software directory
@@ -18,19 +18,20 @@ fi
 ##############################################
 #exe_name;software_package_name
 LISTE_DEP="
-tclsh;tcl
-wish;tk
 vde_switch;vde2
 sudo;sudo
+tclsh;tcl
+wish;tk
 wmctrl;wmctrl
+xwinfo;x11-utils
 iptables;iptables
 xfwm4;xfwm4
 Xephyr;xserver-xephyr
 xsel;xsel
 hsetroot;hsetroot
-st;st
 xhost;x11-xserver-utils
 bridge-utils;bridge-utils
+wireshark:wireshark
 "
 
 ARRET=false
@@ -69,6 +70,9 @@ then
   echo "127.0.0.1  $HOSTNAME" >> /etc/hosts
 fi
 
+# Add networkin-cap account for captures
+useradd -g wireshark -s /bin/bash networkin-cap
+
 #Ajout d'entrées dans sudoers
 cat <<EOF>> /etc/sudoers
 
@@ -77,6 +81,8 @@ ALL  ALL=NOPASSWD:$REP/bin/network-in-start
 ALL  ALL=NOPASSWD:$REP/bin/network-in-stop
 ALL  ALL=NOPASSWD:$REP/bin/conf_gateway
 ALL  ALL=NOPASSWD:$REP/bin/conf_bridge
+ALL  ALL=NOPASSWD:/usr/lib/network-in/bin/conf_capture
+ALL  ALL=(networkin-cap) NOPASSWD:/usr/bin/wireshark
 EOF
 chmod 0440 /etc/sudoers
 sudo -v

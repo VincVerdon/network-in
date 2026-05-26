@@ -9,6 +9,7 @@
 # Delete entries in sudoers
 sed -i 's/.*Network-In!.*//' /etc/sudoers
 sed -i 's/.*network-in.*//' /etc/sudoers
+sed -i 's/.*networkin.*//' /etc/sudoers
 chmod 0440 /etc/sudoers
 sudo -v
 

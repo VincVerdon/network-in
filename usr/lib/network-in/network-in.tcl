@@ -4,7 +4,7 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-#version 20260420
+#version 20260525
 set version(network-in) pre-2.1
 
 # Démarrage de Network-in!
@@ -85,7 +85,7 @@ https://network-in.vverdon.fr
 # Définition des exe vde4networkin (vde2)
 set rep_vde $rep/vde4networkin
 set ::vde(switch) $rep_vde/vde_switch
-#set ::vde(mswitch) /home/vincent/tmp/vde/vde-2/build/src/vde_switch/vde_switch
+#set ::vde(mswitch) /home/vincent/tmp/vde/vde-2-master/build/src/vde_switch/vde_switch
 set ::vde(mswitch) /home/vincent/workspace/vde4network-in/vde4network-in/build/src/vde_switch/vde_switch
 set ::vde(term) $rep_vde/vdeterm
 set ::vde(dpipe) $rep_vde/dpipe
@@ -129,6 +129,12 @@ bind Button <Key-Return> {
 
 #On vérifie si Virtualbox est installé
 set ::tmp(vbox_found) [is_vbox_software_installed]
+
+#On définit si l'utilisateur a l'autorisation de faire des captures
+#Si non, on utilisera le compte générique networkin-cap
+if {![has_capture_rights]} {
+	set capture(exe) "sudo -u networkin-cap $capture(exe)" 
+}
 
 #Construction fenetre appli
 creer_images_interface

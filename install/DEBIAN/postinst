@@ -16,6 +16,9 @@ then
   echo "127.0.0.1  $HOSTNAME" >> /etc/hosts
 fi
 
+# Add networkin-cap account for captures
+useradd -g wireshark -s /bin/bash networkin-cap
+
 # Add lines in sudoers
 cat <<EOF>> /etc/sudoers
 
@@ -24,6 +27,8 @@ ALL  ALL=NOPASSWD:$REP/bin/network-in-start
 ALL  ALL=NOPASSWD:$REP/bin/network-in-stop
 ALL  ALL=NOPASSWD:$REP/bin/conf_gateway
 ALL  ALL=NOPASSWD:$REP/bin/conf_bridge
+ALL  ALL=NOPASSWD:/usr/lib/network-in/bin/conf_capture
+ALL  ALL=(networkin-cap) NOPASSWD:/usr/bin/wireshark
 EOF
 chmod 0440 /etc/sudoers
 sudo -v

@@ -462,7 +462,7 @@ proc menu_contextuel_objet {id x y} {
     menu $::c.mc -tearoff 0
 	
 	if {$id == {capture}} {
-		$::c.mc add command -label [::msgcat::mc "Lauch capture software"] -command "demarrer_capture_exe"
+		$::c.mc add command -label [::msgcat::mc "Lauch capture"] -command "demarrer_capture_exe"
 		$::c.mc add command -label [::msgcat::mc "Delete capture point"] -command "supprimer_capture"
 		
 	} else {
@@ -1716,13 +1716,6 @@ proc ouvrir_fichier_texte {fichier} {
   }
 }
 
-#Affichage d'une console xterm
-################################################################################
-proc affiche_term {} {
-  #exec xterm +ai -title "Network-In! - xterm" -bg $::coul(bg_schema) -fg $::coul(texte) -fn 10x20 &
-	xterm_window
-}
-
 
 #Affichage des fichiers journaux (par défaut log général network-in.log)
 ################################################################################
@@ -1892,9 +1885,9 @@ proc xterm_window {term {exe {}}} {
   	# Barre de boutons
   	frame $term.fb
   	pack $term.fb -fill x
-  	button $term.fb.copy -compound right -relief flat -text [::msgcat::mc "Copy"] -image im_copy -command  "mswitch_term_clipboard_copy $term.f"
+  	button $term.fb.copy -compound right -relief flat -text [::msgcat::mc "Copy"] -image im_copy -command  "term_clipboard_copy $term.f"
   	pack $term.fb.copy -side left
-  	button $term.fb.paste -compound right -relief flat -text [::msgcat::mc "Paste"] -image im_paste -command  "mswitch_term_clipboard_paste $term.f"
+  	button $term.fb.paste -compound right -relief flat -text [::msgcat::mc "Paste"] -image im_paste -command  "term_clipboard_paste $term.f"
   	pack $term.fb.paste -side left
   	button $term.fb.q -compound right -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  "destroy $term"
   	pack $term.fb.q -side right
@@ -1923,7 +1916,7 @@ proc xterm_window {term {exe {}}} {
 
 # Place la sélection dans le presse papier des machines ET de l'hôte
 #######################################################
-proc mswitch_term_clipboard_copy {widg} {
+proc term_clipboard_copy {widg} {
 	
 	set txt [exec xsel --display $::screen --primary -o]
 	eval exec echo -n $txt | xsel --clipboard -i &
@@ -1933,7 +1926,7 @@ proc mswitch_term_clipboard_copy {widg} {
 
 # Colle le contenu du presse papier dans le terminal
 #######################################################
-proc mswitch_term_clipboard_paste {widg} {
+proc term_clipboard_paste {widg} {
 	
 	event generate $widg <Motion> -x 200 -y 200 -warp 1
 	after 10 {exec xdotool key ctrl+shift+v}

@@ -123,7 +123,7 @@ Kernel  Kernel
 "Keys ctrl-shift-V : paste text"  "Keys ctrl-shift-V : PASTE"
 Laptop  Laptop
 "Last IP address"  "Last IP address"
-"Lauch capture software"  "Lauch capture software"
+"Lauch capture"  "Lauch capture"
 License  License
 "Listening interface"  "Listening interface"
 "Linux text"  "Linux text computer"

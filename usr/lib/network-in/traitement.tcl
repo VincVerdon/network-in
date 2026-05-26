@@ -203,6 +203,8 @@ proc get_interf_pid {id n} {
 
 ################################################################################
 proc demarre_routeur {id} {
+	# Suppression des rep inutiles désormais, il arrive qu'il n'ait pas été détruit !???
+	file delete -force $::rep_proj/datas/$id/com
  	demarre_ordinateur $id
 }
 
@@ -228,10 +230,7 @@ proc demarre_switch {id} {
 			eval exec $::vde(switch) -d --nostdin -n $::obj($id,nb_eth) -l $::rep_proj/logs/$id.log -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
 		}
 		{mswitch} {
-			set f_conf $::rep_proj/datas/$id/init.conf
-			#eval exec $::vde(mswitch) -d --nostdin -n $::obj($id,nb_eth) --macaddr $::obj($id,mac) -M $::rep_tmp/terminal/$id -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
-			eval exec $::vde(mswitch) -d --nostdin -n $::obj($id,nb_eth) --macaddr $::obj($id,mac) -w $f_conf -f $f_conf -M $::rep_tmp/terminal/$id -l $::rep_proj/logs/$id.log -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
-			after 1000 boucle_scan_mswitch $id
+			demarre_mswitch $id
 		}
 	}
 	#On récupère le PID du vde_switch
@@ -451,7 +450,6 @@ proc arrete_connexion {id} {
 	if {$id == {}} {return}
 	
 	if {$::tmp(capture,id) == $id} {
-		puts "JE TUE $::tmp(capture,pid1)  $::tmp(capture,pid2)"
 		kill $::tmp(capture,pid1)
 		kill $::tmp(capture,pid2)
 		set ::tmp(capture,pid1) {}
@@ -650,7 +648,6 @@ proc clean_machine_context {id} {
 		}
 	}
 	# Suppression des rep inutiles désormais
-	#On supprime le répertoire d'échange dans le rep du projet
 	file delete -force $::rep_proj/datas/$id/com
 	file delete $::rep_proj/datas/$id/interface/dict.actu
 	puts ">>>>MACHINE $id STOPPED"
@@ -1027,6 +1024,8 @@ proc archiver_projet {f} {
     		if {$fam=={computer} || $fam=={router} || $fam=={mswitch}} {
     			# on vérifie si l'archive existe déjà ou non
     			if {[file isdirectory $rep]} { 
+					# Suppression du rep temporaire com s'ils ne l'a pas été
+					file delete -force $::rep_proj/datas/$id/com
     			  	# création de l'archive pour la machine UML
     				exec tar --sparse -czf $rep.tgz $rep
     				update

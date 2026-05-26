@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la bridge nat
 ####################################################################
-# Version 20260414
+# Version 20260430
 set ::version(mswitch) 1.0
 
 
@@ -78,14 +78,14 @@ proc term_switch_window {id} {
 	wm iconphoto $term im_mswitch16
 	wm protocol $term WM_DELETE_WINDOW "destroy $term"
 	positionne_fenetre_principale $id $term
-	wm geometry $term 750x500
+	wm geometry $term 750x600
 	
 	# Barre de boutons
 	frame $term.fb
 	pack $term.fb -fill x
-	button $term.fb.copy -compound right -relief flat -text [::msgcat::mc "Copy"] -image im_copy -command  "mswitch_term_clipboard_copy $term.f"
+	button $term.fb.copy -compound right -relief flat -text [::msgcat::mc "Copy"] -image im_copy -command  "term_clipboard_copy $term.f"
 	pack $term.fb.copy -side left
-	button $term.fb.paste -compound right -relief flat -text [::msgcat::mc "Paste"] -image im_paste -command  "mswitch_term_clipboard_paste $term.f"
+	button $term.fb.paste -compound right -relief flat -text [::msgcat::mc "Paste"] -image im_paste -command  "term_clipboard_paste $term.f"
 	pack $term.fb.paste -side left
 	button $term.fb.q -compound right -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  "destroy $term"
 	pack $term.fb.q -side right
@@ -152,5 +152,22 @@ proc boucle_scan_mswitch {id} {
 		#On supprime le répertoire d'échange dans le rep du projet
 		file delete -force $::rep_proj/datas/$id/com
 	}
+	
+}
+
+
+# Démarrage d'un switch manageable mswitch
+################################################################################
+proc demarre_mswitch {id} {
+	
+	# désarchivage éventuel d'une archive compressée
+	if {[file exists $::rep_proj/datas/$id.tgz]} {
+		exec tar -C $::rep_proj --sparse -xzf $::rep_proj/datas/$id.tgz
+		file delete $::rep_proj/datas/$id.tgz
+	}
+	set f_conf $::rep_proj/datas/$id/init.conf
+	#eval exec $::vde(mswitch) -d --nostdin -n $::obj($id,nb_eth) --macaddr $::obj($id,mac) -M $::rep_tmp/terminal/$id -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
+	eval exec $::vde(mswitch) -d --nostdin -n $::obj($id,nb_eth) --macaddr $::obj($id,mac) -w $f_conf -f $f_conf -M $::rep_tmp/terminal/$id -l $::rep_proj/logs/$id.log -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
+	after 1000 boucle_scan_mswitch $id
 	
 }

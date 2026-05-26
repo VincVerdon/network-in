@@ -3,7 +3,7 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20260408
+# Version 20260525
 
 
 # Création connexion pour capture
@@ -36,7 +36,21 @@ proc demarrer_capture_exe {} {
 }
 
 
-# Dessin icon measure au milieu du cable
+# Contrôle si l'utilisateur a les droits de faire une capture (=appartient au group wireshark)
+#################################################################################
+proc has_capture_rights {} {
+	
+	set ret 0
+	set res [exec groups]
+	if {[lsearch $res "wireshark"] != -1} {
+		set ret 1
+	}
+	return $ret
+	
+}
+
+
+# Dessin icon capture au milieu du cable
 ################################################################################
 proc dessine_capture {id} {
 	
