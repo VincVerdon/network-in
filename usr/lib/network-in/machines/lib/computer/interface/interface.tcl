@@ -5,7 +5,7 @@
 # Interface bureau
 ####################################################################
 # Version 20250504
-set version(equipment) {2.0}
+set version(equipment) {2.1}
 
 # Création de l'interface principale (bureau)
 ################################################################################

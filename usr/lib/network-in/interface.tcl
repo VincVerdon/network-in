@@ -1914,12 +1914,12 @@ proc xterm_window {term {exe {}}} {
 }
 
 
-# Place la sélection dans le presse papier des machines ET de l'hôte
+# Place la sélection du terminal dans le presse papier
 #######################################################
 proc term_clipboard_copy {widg} {
 	
 	set txt [exec xsel --display $::screen --primary -o]
-	eval exec echo -n $txt | xsel --clipboard -i &
+	exec echo -n $txt | xsel --clipboard -i &
 	
 }
 

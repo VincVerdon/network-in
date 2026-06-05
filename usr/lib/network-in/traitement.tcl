@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20260314
+# Version 20260527
 
 # Suppression d'un câble
 ################################################################################
@@ -324,7 +324,7 @@ proc demarre_connexion {id} {
 		# Cable avec point de mesure, on branche l'interface TAP de mesure entre les 2
 		set rep_capture $::rep_tmp/vde/capture
 		if {$::tmp($id1,etat) && $::tmp(capture,pid1) == {}} {
-			# On branche le matériel 1 s'il est actif et si le câbles n'est pas déjà branché
+			# On branche le matériel 1 s'il est actif et si le câble n'est pas déjà branché
 			set rep1 [get_vde_rep $id 1]
 			set ::tmp(capture,pid1) [exec $::vde(dpipe) $::vde(plug) $rep1 = $::vde(plug) $rep_capture &]
 			puts "Capture point established between $id1 (ON) and $id2"
@@ -336,7 +336,9 @@ proc demarre_connexion {id} {
 			puts "Capture point established between $id1 and $id2 (ON)"
 		}
 		
-	} 
+	} else {
+		puts "Connection $id1 - $id2 aborted"
+	}
 	
 }
 
@@ -471,6 +473,20 @@ proc arrete_switch {id} {
   
 	kill $::tmp($id,pid_vde)
 	set ::tmp($id,pid_vde) {}
+	
+	#mise a 0 de la configuration des ports
+	for {set i 0} {$i<$::obj($id,nb_eth)} {incr i} {
+		set ::tmp($id,etat_eth$i) {}
+		#on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
+		set id_liaison $::obj($id,eth$i)
+		if {$id_liaison != {}} {
+			arrete_connexion $id_liaison
+			if {$::tmp($id_liaison,infos_connexion)} {
+				maj_infos_connexion $id_liaison
+			}
+		}
+	}
+	
 	# l'objet est déclaré inactif désormais
 	set ::tmp($id,etat) 0
 	affiche_objet_off $id
@@ -495,7 +511,7 @@ proc arrete_ordinateur {id} {
 ################################################################################
 proc force_arrete_ordinateur {id} {
 	
-	puts ">>>>Arrêt forcé MACHINE $id"
+	puts ">>>>MACHINE $id kill asked"
 	
 	#Arrêt forcé par la console uml
 	catch {exec /usr/bin/uml_mconsole $id halt &}
@@ -617,7 +633,8 @@ proc boucle_scan_objet {id} {
 		#récupération du presse papier de la machine
 		set res [lire_fichier_echange $id clip 1]
 		if  {$res != {}} {
-			eval exec echo -n $res | xsel --clipboard -i &
+			puts "FIC echange lu $id : $res"
+			exec echo -n $res | xsel --clipboard -i &
 		}
 		#on relance la boucle
     	after 2000 boucle_scan_objet $id
@@ -643,8 +660,11 @@ proc clean_machine_context {id} {
 		set ::tmp($id,etat_eth$i) {}
 		#on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
 		set id_liaison $::obj($id,eth$i)
-		if {$id_liaison != {} && $::tmp($id_liaison,infos_connexion)} {
-			maj_infos_connexion $id_liaison
+		if {$id_liaison != {}} {
+			arrete_connexion $id_liaison
+    		if {$::tmp($id_liaison,infos_connexion)} {
+    			maj_infos_connexion $id_liaison
+    		}
 		}
 	}
 	# Suppression des rep inutiles désormais
@@ -652,20 +672,25 @@ proc clean_machine_context {id} {
 	file delete $::rep_proj/datas/$id/interface/dict.actu
 	puts ">>>>MACHINE $id STOPPED"
 	after 2000 "set ::tmp($id,etat) 0 ; affiche_objet_off $id"
+	
 }
 
 
 # Ecriture fichier d'échange avec les machines UML
 ################################################################################
 proc ecrire_fichier_echange {id fic texte} {
+	
   set f [open $::rep_proj/datas/$id/com/$fic w]
   puts $f $texte
   close $f
+	
 }
+
 
 # Lecture fichier d'échange avec les machines UML
 ################################################################################
 proc lire_fichier_echange {id fic {del 0}} {
+	
 	set texte {}
     if {[file exists $::rep_proj/datas/$id/com/$fic]} {
     	set f [open $::rep_proj/datas/$id/com/$fic r]
@@ -676,7 +701,9 @@ proc lire_fichier_echange {id fic {del 0}} {
 		file delete $::rep_proj/datas/$id/com/$fic
 	}
     return [string trim $texte]
+	
 }
+
 
 # Création d'un câble droit ou croisé
 ################################################################################
@@ -703,6 +730,7 @@ proc creation_connexion {id1 id2 con1 con2 type} {
     demarre_connexion $id
   
 }
+
 
 # creation d'un objet du reseau
 ################################################################################
