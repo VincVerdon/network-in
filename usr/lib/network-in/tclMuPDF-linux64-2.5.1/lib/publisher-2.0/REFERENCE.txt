@@ -1,0 +1,75 @@
+publisher - 2.0
+
+NAME
+====
+ publisher - publisher-subscribers pattern
+ 
+SYNOPSIS
+========
+package require publisher
+
+::publisher new
+pubName declare  ?_event_ ...?
+pubName notify _event_ ?data ...?
+pubName destroy
+
+pubName register _event_ _tag_ _callback_
+pubName unregister _event_ _tag_ 
+pubName events ?pattern?
+
+Description
+===========
+The *publisher* package provides a general facility for implementing the publisher-subscribers pattern.
+
+A publisher is an object usually attached to a master-object (e.g. a complex data structure such a list, a graph, a table, a database ...) that can raise events of public interest. 
+These events usually occur when something in the master-object changes.
+The master-object knows nothing about its potentials subscribers; it simply tells the publisher to notify some events to all the (dynamically) registered subscribers.
+
+Subscribers (also referred as observers) are clients interested about changes occurring on that particular master-object. They inform the publisher they are interested on some events and give it a callback, i.e. a command  that publisher should call every time events are generated.
+Events may have parameters that will be passed to subscribers' callbacks.
+
+
+COMMANDS
+========
+
+::publisher new
+---------------
+Creates a new publisher object and returns its unique name (pubName).
+
+pubName declare  ?_event_ ...?
+------------------------------
+Adds one or more events to the list of declared events.
+This list of declared events is a sort of mini-interface that subscribers may query. 
+
+pubName notify _event_ ?data ...?
+---------------------------------
+Causes all the registered callback to be independently called, with zero or more event-data.
+
+pubName destroy
+---------------
+Destroys the publisher. A "!destroyed" event (with no event-data) is generated.
+
+pubName register _event_ _tag_ _callback_
+-----------------------------------------
+Registers a _callback_  for a specific _event_ .
+Each subscriber should provide a different string _tag_ .
+
+pubName unregister _event_ _tag_ 
+--------------------------------
+Un-registers the callback previously set for the {_event_ _tag_) pair.
+_event_ may be "*" or any other glob-style pattern.
+
+pubName events ?_pattern_?
+------------------------
+If _pattern_ is not specified, then lists all the declared events.
+Else lists all the *registered* glob-style matching events with their tag and callbacks
+e.g. 
+{!ev1 tag1 {callback1 callback2} !ev1 tag2 callback3  !evX tagY callbackZ }
+
+
+CREDITS and COPYRIGHT
+=====================
+publisher - Copyright(c) 2012-2022 <Irrational Numbers> : <aldo.w.buratti@gmail.com> 
+
+This package is free software; you can use, modify, and redistribute it for any purpose, provided that existing copyright notices are retained in all copies and that this notice is included verbatim in any distributions.
+ 

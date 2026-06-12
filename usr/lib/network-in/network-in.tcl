@@ -4,7 +4,7 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-#version 20260525
+#version 20260610
 set version(network-in) pre-2.1
 
 # Démarrage de Network-in!
@@ -106,6 +106,7 @@ source [file join $rep machines nat nat.tcl]
 source [file join $rep machines virtualbox virtualbox.tcl]
 source [file join $rep machines bridge bridge.tcl]
 source [file join $rep machines mswitch mswitch.tcl]
+source [file join $rep pdf_viewer.tcl]
 
 # Package fsdialog pour amélioration des boites de gestion des fichiers (remplacement tk_getOpenFile et tk_SaveFile)
 lappend auto_path $::rep/fsdialog
@@ -114,9 +115,7 @@ package require fsdialog
 # Prise en compte des thèmes
 lappend auto_path $::rep/ScidLightTheme
 package require ttk-themes
-# styles possibles : clam alt default classic
 ttk::style theme use scidblue
-#ttk::style configure TRadiobutton -color  {green}
 ttk::style configure TButton -relief flat
 
 #Les boutons répondent à la touche Entrée en plus de la touche espace

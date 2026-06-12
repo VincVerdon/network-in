@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20260420
+# Version 20260612
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -41,6 +41,11 @@ proc fenetre_principale {} {
 	# menu aide
 	$m add cascade -menu $m.help -label [::msgcat::mc "Help"]
 	menu $m.help -tearoff 0
+	$m.help add command -label [::msgcat::mc "Documentation"] \
+	-command {fenetre_affiche_pdf /usr/share/doc/network-in/Network-In-Simulator.pdf [::msgcat::mc "Documentation"] 1.5}
+	$m.help add command -label [::msgcat::mc "Tuto"] \
+	-command {fenetre_affiche_pdf /usr/share/doc/network-in/Network-In-Tuto.pdf [::msgcat::mc "Tuto"] 1.5}
+	$m.help add separator
 	$m.help add command -label [::msgcat::mc "License"] \
       -command "affiche_texte $::rep/licence.txt"
     $m.help add separator
@@ -52,7 +57,7 @@ proc fenetre_principale {} {
 	ttk::frame .main.fb
 	pack .main.fb -fill x
 	#ttk::button .main.fb.zp -image im_zoom+ -command {$::c scale all 0 0 2 2}
-	#pack .main.schb.f.zp -side left
+	#pack .main.fb.zp -side left
 	#ttk::button .main.fb.zm -image im_zoom- -command {$::c scale all 0 0 0.5 0.5}
 	#pack .main.fb.zm -side left
 	ttk::button .main.fb.si -compound $comp -text [::msgcat::mc "Delete info labels"] -image im_del_infos -command {efface_infos_connexion}
@@ -1195,8 +1200,8 @@ proc traite_changement_panneau {} {
 proc creer_images_interface {} {
   	
   	image create photo im_network-in -file $::rep/images/network-in.gif
-  	#image create photo im_zoom+ -file $::rep/images/zoom+.gif
-  	#image create photo im_zoom- -file $::rep/images/zoom-.gif
+  	image create photo im_zoom+ -file $::rep/images/zoom+.gif
+  	image create photo im_zoom- -file $::rep/images/zoom-.gif
   	image create photo im_quitter -file $::rep/images/quit.gif
   	image create photo im_select -file $::rep/images/select.gif
   	image create photo im_off -file $::rep/images/off.gif
@@ -1931,4 +1936,11 @@ proc term_clipboard_paste {widg} {
 	event generate $widg <Motion> -x 200 -y 200 -warp 1
 	after 10 {exec xdotool key ctrl+shift+v}
 	
+}
+
+
+proc fenetre_affiche_pdf {fichier titre zoom} {
+  
+  pdfviewer::createViewer .pdf $fichier $titre 1
+  
 }
