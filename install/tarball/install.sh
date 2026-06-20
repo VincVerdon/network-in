@@ -18,7 +18,6 @@ fi
 ##############################################
 #exe_name;software_package_name
 LISTE_DEP="
-vde_switch;vde2
 sudo;sudo
 tclsh;tcl
 wish;tk
@@ -88,8 +87,10 @@ chmod 0440 /etc/sudoers
 sudo -v
 
 #Création lien vers libvde
-LIBVDE=$(find /usr/lib -name 'libvdeplug.so.*' -type f 2>/dev/null | sort | tail -n 1)
-ln -s $LIBVDE $(dirname $LIBVDE)/libvdeplug.so 2>/dev/null
+#LIBVDE=$(find /usr/lib -name 'libvdeplug.so.*' -type f 2>/dev/null | sort | tail -n 1)
+#ln -s $LIBVDE $(dirname $LIBVDE)/libvdeplug.so 2>/dev/null
+#Prise en compte des path lib de /etc/ld.so.conf.d/network-in.conf
+ldconfig
 
 #root devient propriétaire des fichiers
 #chown -R root:root $REP

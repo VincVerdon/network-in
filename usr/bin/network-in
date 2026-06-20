@@ -8,6 +8,7 @@
 
 #Rep d'installation
 REP=/usr/lib/network-in
+VDE_PATH=$REP/vde4networkin
 SIM_FILE=''
 
 # Option de la ligne de commande

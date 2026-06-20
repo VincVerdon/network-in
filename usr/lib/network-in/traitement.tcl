@@ -175,19 +175,21 @@ proc demarre_ordinateur {id} {
 		
       # ajout de la carte eth à la ligne de commande de l'uml
       set exe [concat $exe eth$i=vde,$::rep_tmp/vde/$id-eth$i,$::obj($id,mac_eth$i)]
+	  #set exe [concat $exe eth$i=vde,eth0=vde,vde://$::rep_tmp/vde/$id-eth$i,$::obj($id,mac_eth$i)]
       if {$::obj($id,eth$i) != {}} {
         demarre_connexion $::obj($id,eth$i)
       }
     }
   }
   set exe [concat $exe eth99=vde,$::rep_tmp/vde/switch_com]
-  
+  #set exe [concat $exe eth99=vde,vde://$::rep_tmp/vde/switch_com]
+	
   # démarrage du pc
   set ::tmp($id,pid) [eval exec $exe >& $::rep_proj/logs/$id.log &]
-  
+  update
   # démarrage de la boucle de surveillance de machine
   boucle_demarre_objet $id
-
+  
 }
 
 
@@ -471,7 +473,7 @@ proc arrete_connexion {id} {
 ################################################################################
 proc arrete_switch {id} {
   
-	kill $::tmp($id,pid_vde)
+	catch {kill $::tmp($id,pid_vde)}
 	set ::tmp($id,pid_vde) {}
 	
 	#mise a 0 de la configuration des ports

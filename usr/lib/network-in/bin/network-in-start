@@ -16,7 +16,6 @@ N_SCREEN=$(grep -E  '^[^#]*set screen' /etc/network-in.cfg | grep -o '[0-9]')
 X_PORT=$((6000 + $N_SCREEN))
 TAP=netkin_com
 
-
 #Création du répertoire temporaire pour les sockets
 mkdir -p $TMP/vde $TMP/terminal
 chmod -R 777 $TMP

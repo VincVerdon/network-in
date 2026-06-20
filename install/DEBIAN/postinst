@@ -34,8 +34,10 @@ chmod 0440 /etc/sudoers
 sudo -v
 
 # Symlink libvde creation
-LIBVDE=$(find /usr/lib -name 'libvdeplug.so.*' -type f 2>/dev/null | sort | tail -n 1)
-ln -s $LIBVDE $(dirname $LIBVDE)/libvdeplug.so 2> /dev/null
+#LIBVDE=$(find /usr/lib -name 'libvdeplug.so.*' -type f 2>/dev/null | sort | tail -n 1)
+#ln -s $LIBVDE $(dirname $LIBVDE)/libvdeplug.so 2> /dev/null
+# Prise en compte des path lib de /etc/ld.so.conf.d/network-in.conf
+ldconfig
 
 # Symlink networkin
 ln -s /usr/bin/network-in /usr/bin/networkin 2> /dev/null
