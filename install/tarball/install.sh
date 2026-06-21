@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20260525
+#Version 20260621
 #############################
 REP_INS=$(dirname $0)
 #Software directory
@@ -22,18 +22,19 @@ sudo;sudo
 tclsh;tcl
 wish;tk
 wmctrl;wmctrl
-xwinfo;x11-utils
+xwininfo;x11-utils (Debian family) or xwinfo (fedora family)
 iptables;iptables
 xfwm4;xfwm4
 Xephyr;xserver-xephyr
 xsel;xsel
 hsetroot;hsetroot
 xhost;x11-xserver-utils
-bridge-utils;bridge-utils
-wireshark:wireshark
+brctl;bridge-utils
+wireshark;wireshark
 "
 
 ARRET=false
+IFS=$'\n'
 for L in $LISTE_DEP
 do
 	EXE=$(echo $L| cut -d ';' -f 1)
@@ -55,6 +56,7 @@ then
 	exit 2
 fi
 
+exit
 #Installation stage
 ##############################################
 #Extraction fichiers de l'archive
@@ -69,8 +71,9 @@ then
   echo "127.0.0.1  $HOSTNAME" >> /etc/hosts
 fi
 
-# Add networkin-cap account for captures
-useradd -g wireshark -s /bin/bash networkin-cap
+#Capabilities modification for capture by anyone
+chmod 0755 /usr/bin/dumpcap
+setcap cap_net_raw,cap_net_admin=ep $(which dumpcap)
 
 #Ajout d'entrées dans sudoers
 cat <<EOF>> /etc/sudoers
@@ -81,7 +84,7 @@ ALL  ALL=NOPASSWD:$REP/bin/network-in-stop
 ALL  ALL=NOPASSWD:$REP/bin/conf_gateway
 ALL  ALL=NOPASSWD:$REP/bin/conf_bridge
 ALL  ALL=NOPASSWD:/usr/lib/network-in/bin/conf_capture
-ALL  ALL=(networkin-cap) NOPASSWD:/usr/bin/wireshark
+
 EOF
 chmod 0440 /etc/sudoers
 sudo -v
@@ -92,11 +95,17 @@ sudo -v
 #Prise en compte des path lib de /etc/ld.so.conf.d/network-in.conf
 ldconfig
 
+#vde_plug must be in executable path for linux.uml lauch
+ln -s $REP/vde4networkin/vde_plug /usr/bin
+
 #root devient propriétaire des fichiers
 #chown -R root:root $REP
 #chown root:root /etc/network-in.cfg
 #chown root:root /usr/bin/network-in
-ln -s /usr/bin/network-in /usr/bin/networkin
+
+# Symlink networkin alternative to launch the simulator
+ln -s /usr/bin/network-in /usr/bin/networkin 2> /dev/null
+
 chmod +x $REP/bin/*
 
 exit 0

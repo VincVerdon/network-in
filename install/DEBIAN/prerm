@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20260619
+#version 20260621
 ####################################################################
 
 # Delete entries in sudoers
@@ -15,8 +15,9 @@ sudo -v
 
 # Delete networkin symlink
 rm /usr/bin/networkin
+rm /usr/bin/vde_plug
 
 # Delete Wireshark account for Network-In
-userdel -r networkin-cap
+#userdel -r networkin-cap
 
 exit 0

@@ -86,7 +86,6 @@ https://network-in.vverdon.fr
 set rep_vde $rep/vde4networkin
 set ::vde(switch) $rep_vde/vde_switch
 set ::vde(mswitch) $rep_vde/vde_switch
-#set ::vde(mswitch) /home/vincent/workspace/vde4network-in/vde4network-in/build/src/vde_switch/vde_switch
 set ::vde(term) $rep_vde/vdeterm
 set ::vde(dpipe) $rep_vde/dpipe
 set ::vde(plug) $rep_vde/vde_plug
@@ -131,9 +130,9 @@ set ::tmp(vbox_found) [is_vbox_software_installed]
 
 #On définit si l'utilisateur a l'autorisation de faire des captures
 #Si non, on utilisera le compte générique networkin-cap
-if {![has_capture_rights]} {
-	set capture(exe) "sudo -u networkin-cap $capture(exe)" 
-}
+#if {![has_capture_rights]} {
+#	set capture(exe) "sudo -u networkin-cap $capture(exe)"
+#}
 
 #Construction fenetre appli
 creer_images_interface

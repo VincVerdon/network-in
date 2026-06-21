@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20250425
+#Version 20260621
 #############################
 REP_INS=$(dirname $0)
 #Repertoire de l'application
@@ -25,7 +25,11 @@ sudo -v
 rm -rf $REP
 rm -f /etc/network-in.cfg
 rm -f /usr/bin/network-in
+rm -f /usr/bin/vde_plug
 rm -f /usr/share/applications/network-in.desktop
 rm -rf /usr/share/doc/network-in
+
+# Delete Wireshark account for Network-In
+#userdel -r networkin-cap
 
 exit 0
