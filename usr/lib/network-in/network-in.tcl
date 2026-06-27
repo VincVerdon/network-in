@@ -105,7 +105,6 @@ source [file join $rep machines nat nat.tcl]
 source [file join $rep machines virtualbox virtualbox.tcl]
 source [file join $rep machines bridge bridge.tcl]
 source [file join $rep machines mswitch mswitch.tcl]
-source [file join $rep pdf_viewer.tcl]
 
 # Package fsdialog pour amélioration des boites de gestion des fichiers (remplacement tk_getOpenFile et tk_SaveFile)
 lappend auto_path $::rep/fsdialog

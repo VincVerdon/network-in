@@ -3,7 +3,7 @@ Version: 2.1.0
 Section: base
 Priority: optional
 Architecture: amd64
-Depends: bash, sudo, tcl, tk, wmctrl, xwininfo, iptables-legacy, xfwm4, xorg-x11-server-Xephyr, xsel, hsetroot, xhost, bridge-utils, wireshark
+Depends: bash, sudo, tcl, tk, wmctrl, xwininfo, iptables-legacy, xfwm4, xorg-x11-server-Xephyr, xsel, hsetroot, xhost, bridge-utils, wireshark, evince
 Maintainer: Vincent Verdon <network-in@vverdon.fr>
 Description: A network simulator software
 Homepage: https://network-in.vverdon.fr

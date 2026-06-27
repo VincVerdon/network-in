@@ -42,9 +42,9 @@ proc fenetre_principale {} {
 	$m add cascade -menu $m.help -label [::msgcat::mc "Help"]
 	menu $m.help -tearoff 0
 	$m.help add command -label [::msgcat::mc "Documentation"] \
-	-command {fenetre_affiche_pdf /usr/share/doc/network-in/Network-In-Simulator.pdf [::msgcat::mc "Documentation"] 1.5}
+	-command {fenetre_affiche_pdf Network-In-Simulator.pdf}
 	$m.help add command -label [::msgcat::mc "Tuto"] \
-	-command {fenetre_affiche_pdf /usr/share/doc/network-in/Network-In-Tuto.pdf [::msgcat::mc "Tuto"] 1.5}
+	-command {fenetre_affiche_pdf Network-In-Tuto.pdf}
 	$m.help add separator
 	$m.help add command -label [::msgcat::mc "License"] \
       -command "affiche_texte $::rep/licence.txt"
@@ -1200,8 +1200,8 @@ proc traite_changement_panneau {} {
 proc creer_images_interface {} {
   	
   	image create photo im_network-in -file $::rep/images/network-in.gif
-  	image create photo im_zoom+ -file $::rep/images/zoom+.gif
-  	image create photo im_zoom- -file $::rep/images/zoom-.gif
+  	#image create photo im_zoom+ -file $::rep/images/zoom+.gif
+  	#image create photo im_zoom- -file $::rep/images/zoom-.gif
   	image create photo im_quitter -file $::rep/images/quit.gif
   	image create photo im_select -file $::rep/images/select.gif
   	image create photo im_off -file $::rep/images/off.gif
@@ -1938,9 +1938,11 @@ proc term_clipboard_paste {widg} {
 	
 }
 
-
-proc fenetre_affiche_pdf {fichier titre zoom} {
+# Démarre le lecteur pdf pour lecture d'un fichier
+#######################################################
+proc fenetre_affiche_pdf {fichier} {
   
-  pdfviewer::createViewer .pdf $fichier $titre 1
+	set fichier "$::pdf(doc_dir)/$fichier"
+	exec $::pdf(exe) $fichier &
   
 }

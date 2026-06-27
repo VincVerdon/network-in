@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20260408
+#version 20260627
 ####################################################################
 TMP=/tmp/network-in
 VDE_PATH=/usr/lib/network-in/vde4networkin
@@ -28,8 +28,8 @@ then
 
 else
 		
-		iptables -D OUTPUT -o $TAP -j DROP
-		ip6tables -D OUTPUT -o $TAP -j DROP
+		iptables -D OUTPUT -o $TAP -j DROP 2> /dev/null
+		ip6tables -D OUTPUT -o $TAP -j DROP 2> /dev/null
 	    /sbin/ip link set $TAP down 2> /dev/null
 		/sbin/ip a flush dev $TAP 2> /dev/null
 		#déparamétrage et suppression du switch

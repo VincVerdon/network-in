@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20260408
+#version 20260627
 ####################################################################
 
 TMP=/tmp/network-in
@@ -23,11 +23,20 @@ chmod -R 777 $TMP
 #Nettoyage
 killall vde_switch 2> /dev/null
 
+#Arrêt avahi daemon obligatoire (le mieux est de le désinstaller)
+systemctl stop avahi-daemon 2> /dev/null
+
 #Création de l'interface et du switch de communication avec les machines virtuelles
 $VDE_PATH/vde_switch -d --nostdin --tap $TAP -l /dev/null -s $TMP/vde/switch_com -m 666
+#Attente création interface TAP - il arrive qu'elle ne soit pas prête assez tôt...
+while ! ip a show dev $TAP &> /dev/null
+do
+	sleep 0.5
+done
+
 /sbin/ip a add $IP_HOST/$MASK_HOST dev $TAP
 /sbin/ip link set $TAP up
-ip route del default dev network_com 2> /dev/null
+ip route del default dev $TAP 2> /dev/null
 
 #On vide les regles du pare-feu (encore actives en cas de crash)
 /sbin/iptables -F NETWORKIN 2> /dev/null

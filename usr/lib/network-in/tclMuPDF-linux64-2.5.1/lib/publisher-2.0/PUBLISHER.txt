@@ -1,7 +1,0 @@
-PUBLISHER is a tclOO-class providing  a general facility for implementing 
-the publisher-subscribers pattern.
-
-See 
-  USERGUIDE.txt
-and
-  REFERENCE.txt

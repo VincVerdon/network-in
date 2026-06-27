@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20260621
+#Version 20260627
 #############################
 REP_INS=$(dirname $0)
 #Software directory
@@ -22,15 +22,16 @@ sudo;sudo
 tclsh;tcl
 wish;tk
 wmctrl;wmctrl
-xwininfo;x11-utils (Debian family) or xwinfo (fedora family)
-iptables;iptables
+xwininfo;x11-utils or xwinfo
+iptables;iptables or iptables-legacy
 xfwm4;xfwm4
-Xephyr;xserver-xephyr
+Xephyr;xserver-xephyr or xorg-x11-server-Xephyr
 xsel;xsel
 hsetroot;hsetroot
-xhost;x11-xserver-utils
+xhost;xhost or x11-xserver-utils
 brctl;bridge-utils
 wireshark;wireshark
+evince;evince
 "
 
 ARRET=false
@@ -56,7 +57,7 @@ then
 	exit 2
 fi
 
-exit
+
 #Installation stage
 ##############################################
 #Extraction fichiers de l'archive
@@ -81,7 +82,7 @@ cat <<EOF>> /etc/sudoers
 # Network-In! Simulator sudo auth
 ALL  ALL=NOPASSWD:$REP/bin/network-in-start
 ALL  ALL=NOPASSWD:$REP/bin/network-in-stop
-ALL  ALL=NOPASSWD:$REP/bin/conf_gateway
+ALL  ALL=NOPASSWD:$REP/bin/conf_nat
 ALL  ALL=NOPASSWD:$REP/bin/conf_bridge
 ALL  ALL=NOPASSWD:/usr/lib/network-in/bin/conf_capture
 

@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250508
+# Version 20250627
 set ::version(nat) 2.0
 
 # Interface de configuration de base de la machine
@@ -201,7 +201,7 @@ proc applique_config_ip_passerelle {id} {
 proc exec_config_passerelle {id ip masque action} {
 
   set masque [calcul_mask_cidr2dec $masque]
-  catch {exec sudo $::rep/bin/conf_gateway $ip $masque $action}
+  catch {exec sudo $::rep/bin/conf_nat $ip $masque $action}
 	
   #Mise à jour étiquettes infos
   set id_liaison $::obj($id,eth0)
