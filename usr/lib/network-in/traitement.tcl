@@ -162,7 +162,7 @@ proc demarre_ordinateur {id} {
 		set modules_dd $::rep/kernels/$::kernel/modules.img
 		#dialogue_kernel_missing $exe_linux
 	}
-	set exe "$exe_linux $opts mem=$::obj($id,mem) ubd0=$disk root=/dev/ubda ubd1=$::rep_proj/datas/$id/modules.cow,$modules_dd umid=$id hostfs=$::rep_proj/datas/$id"
+	set exe "$exe_linux $opts mem=$::obj($id,mem) ubd0d=$disk root=/dev/ubda ubd1d=$::rep_proj/datas/$id/modules.cow,$modules_dd umid=$id hostfs=$::rep_proj/datas/$id"
 	
 	# activation des câbles réseau et des interfaces eth
 	set ::tmp($id,pid_vde) {}

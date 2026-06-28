@@ -55,6 +55,10 @@ fi
 
 echo Start at $(date) &> $LOG_FILE
 
+# Mise à jour des mtime des disques si nécessaire
+# Utile si lecture d'une maquette importée (contrôle mtime par linux.uml au démarrage VM)
+sudo $REP/bin/set_disks_mtime $REP/disks &>> $LOG_FILE
+
 #démarrage des interfaces et paramétrage du parefeu
 sudo $REP/bin/network-in-start &>> $LOG_FILE
 

@@ -1,0 +1,35 @@
+#!/bin/bash
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
+#version 20260628
+####################################################################
+
+DIR=$1
+
+echo
+echo Mtime disk images configuration in $DIR : 
+
+IFS=$' '
+for FIMG in ${DIR}/*.img
+do
+	NAME=$(basename $FIMG .img)
+	FTIME="${DIR}/${NAME}.time"
+	if [ -f $FTIME ]
+	then
+		TIME=$(head -n 1 $FTIME)
+		DTIME=$(stat -c %Y $FIMG)
+		if [ "$TIME" != "$DTIME" ]
+		then
+			TIME=$(date --date="@$TIME" +'%FT%T')
+			touch -m -d $TIME $FIMG
+			echo "Mtime modified for disk image $FIMG"
+		fi
+	else
+		echo "No time file found for disk image $FIMG. Can be a problem when a simulation is shared"
+	fi 
+done
+
+echo Done
+echo

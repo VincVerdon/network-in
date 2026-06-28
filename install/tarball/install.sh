@@ -85,6 +85,7 @@ ALL  ALL=NOPASSWD:$REP/bin/network-in-stop
 ALL  ALL=NOPASSWD:$REP/bin/conf_nat
 ALL  ALL=NOPASSWD:$REP/bin/conf_bridge
 ALL  ALL=NOPASSWD:/usr/lib/network-in/bin/conf_capture
+ALL  ALL=NOPASSWD:/usr/lib/network-in/bin/set_disks_mtime
 
 EOF
 chmod 0440 /etc/sudoers

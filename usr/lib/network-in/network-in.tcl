@@ -4,7 +4,7 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-#version 20260610
+#version 20260628
 set version(network-in) pre-2.1
 
 # Démarrage de Network-in!
@@ -24,13 +24,16 @@ set rep_tmp /tmp/network-in
 # Valeur de l'orientation par défaut de la fenêtre principale
 set ::orientation horizontal
 
-# On source le fichier de config général et personnel s'il existe
+# On source le fichier de config général
 source /etc/network-in.cfg
 
-# Création des rep de config et de stockage d'images disque s'il n'existent pas
+# Création des rep de config et de stockage d'images disque perso s'ils n'existent pas
 if ![file exists $::rep_conf/disks] {
 	file mkdir $::rep_conf/disks
-	file mkdir $::rep_conf/kernels
+} else {
+	# Mise à jour des mtime des disques si nécessaire
+	# Utile si lecture d'une maquette importée (contrôle mtime par linux.uml au démarrage VM)
+	puts [exec $rep/bin/set_disks_mtime $::rep_conf/disks]
 }
 if ![file exists $::rep_conf/kernels] {
 	file mkdir $::rep_conf/kernels
@@ -41,7 +44,7 @@ if {[file exists $::rep_conf/network-in.cfg]} {
   source $::rep_conf/network-in.cfg
 } else {
 	set f [open $::rep_conf/network-in.cfg w]
-	puts $f "#Insert here your own parameters configuration"
+	puts $f "#Insert here your own configuration parameters"
 	puts $f "#This overrides /etc/network-in.cfg parameters"
 	close $f
 }
