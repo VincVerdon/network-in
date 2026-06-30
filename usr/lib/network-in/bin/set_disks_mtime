@@ -11,8 +11,8 @@ DIR=$1
 echo
 echo Mtime disk images configuration in $DIR : 
 
-IFS=$' '
-for FIMG in ${DIR}/*.img
+LIST=$(ls ${DIR}/*.img 2> /dev/null)
+for FIMG in $LIST
 do
 	NAME=$(basename $FIMG .img)
 	FTIME="${DIR}/${NAME}.time"
@@ -27,7 +27,7 @@ do
 			echo "Mtime modified for disk image $FIMG"
 		fi
 	else
-		echo "No time file found for disk image $FIMG. Can be a problem when a simulation is shared"
+		echo "No time file found for disk image $FIMG. Can be a problem when a simulation file is loaded"
 	fi 
 done
 

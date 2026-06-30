@@ -5,11 +5,12 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
 #version 20260628
-set version(network-in) pre-2.1
+set version(network-in) 2.1.0-beta1
 
 # Démarrage de Network-in!
 ################################################################################
 ################################################################################
+puts "Starting user program network-in.tcl"
 
 encoding system utf-8
 
@@ -161,3 +162,4 @@ if {[file exists $::rep_proj/structure.xml]} {
 	}
 }
 
+puts "network-in.tcl started"

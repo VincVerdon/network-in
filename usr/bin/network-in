@@ -53,7 +53,7 @@ else
   	mkdir $REP_PROJ/datas
 fi
 
-echo Start at $(date) &> $LOG_FILE
+echo Starting at $(date) &> $LOG_FILE
 
 # Mise à jour des mtime des disques si nécessaire
 # Utile si lecture d'une maquette importée (contrôle mtime par linux.uml au démarrage VM)
@@ -67,3 +67,5 @@ wish $REP/network-in.tcl $SIM_FILE &>> $LOG_FILE
 
 #Arrêt des interfaces et déparamétrage du parefeu
 sudo $REP/bin/network-in-stop &>> $LOG_FILE
+
+echo NETWORK-IN STOPPED &>> $LOG_FILE

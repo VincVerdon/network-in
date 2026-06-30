@@ -6,6 +6,9 @@
 #version 20260331
 ####################################################################
 
+echo
+echo "Stopping network configuration"
+
 REP=$(dirname $0)
 TMP=/tmp/network-in
 IP_HOST=$(grep -E  '^[^#]*set ip_hote' /etc/network-in.cfg | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]')
@@ -34,4 +37,6 @@ killall vde_switch
 #Suppression du répertoire temporaire
 rm -rf $TMP
 
-echo NETWORK-IN STOPPED
+echo "Network configuration down"
+echo
+

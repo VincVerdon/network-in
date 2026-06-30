@@ -6,6 +6,9 @@
 #version 20260627
 ####################################################################
 
+echo
+echo "Starting network configuration"
+
 TMP=/tmp/network-in
 VDE_PATH=/usr/lib/network-in/vde4networkin
 IP_HOST=$(grep -E  '^[^#]*set ip_hote' /etc/network-in.cfg | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]')
@@ -53,4 +56,5 @@ ip route del default dev $TAP 2> /dev/null
 #Activation du routage des paquets (indispensable pour passerelle nat)
 sysctl -w net.ipv4.ip_forward=1
 
-echo Network configuration ready
+echo "Network configuration ready"
+echo
