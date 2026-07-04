@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#Version 20250627
+#Version 20250702
 ####################################################################
 REP_INS=$(dirname $0)
 #Repertoire de l'application
@@ -26,7 +26,7 @@ fi
 #useradd -g wireshark -s /bin/bash networkin-cap
 #
 #Capabilities modification for capture by anyone
-chmod 0755 /usr/bin/dumpcap
+chmod 0755 $(which dumpcap)
 setcap cap_net_raw,cap_net_admin=ep $(which dumpcap)
 
 # Add lines in sudoers

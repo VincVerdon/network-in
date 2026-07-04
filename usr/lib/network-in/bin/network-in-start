@@ -6,7 +6,6 @@
 #version 20260627
 ####################################################################
 
-echo
 echo "Starting network configuration"
 
 TMP=/tmp/network-in
@@ -57,4 +56,3 @@ ip route del default dev $TAP 2> /dev/null
 sysctl -w net.ipv4.ip_forward=1
 
 echo "Network configuration ready"
-echo

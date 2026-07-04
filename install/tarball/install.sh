@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20260627
+#Version 20260702
 #############################
 REP_INS=$(dirname $0)
 #Software directory
@@ -73,7 +73,7 @@ then
 fi
 
 #Capabilities modification for capture by anyone
-chmod 0755 /usr/bin/dumpcap
+chmod 0755 $(which dumpcap)
 setcap cap_net_raw,cap_net_admin=ep $(which dumpcap)
 
 #Ajout d'entrées dans sudoers

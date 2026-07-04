@@ -1,5 +1,5 @@
 Package: network-in
-Version: 2.1.0-beta1
+Version: 2.1.0-beta2
 Section: base
 Priority: optional
 Architecture: amd64

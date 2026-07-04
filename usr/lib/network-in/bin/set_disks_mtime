@@ -8,14 +8,15 @@
 
 DIR=$1
 
-echo
 echo Mtime disk images configuration in $DIR : 
 
-LIST=$(ls ${DIR}/*.img 2> /dev/null)
+#LIST=$(ls ${DIR}/*.img 2> /dev/null)
+LIST=$(find ${DIR} -name '*.img' 2> /dev/null)
 for FIMG in $LIST
 do
 	NAME=$(basename $FIMG .img)
-	FTIME="${DIR}/${NAME}.time"
+	DIRTIME=$(dirname $FIMG)
+	FTIME="${DIRTIME}/${NAME}.time"
 	if [ -f $FTIME ]
 	then
 		TIME=$(head -n 1 $FTIME)
@@ -32,4 +33,3 @@ do
 done
 
 echo Done
-echo

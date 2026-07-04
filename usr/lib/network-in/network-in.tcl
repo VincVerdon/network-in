@@ -5,7 +5,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
 #version 20260628
-set version(network-in) 2.1.0-beta1
+set version(network-in) 2.1.0-beta2
 
 # Démarrage de Network-in!
 ################################################################################
@@ -32,13 +32,17 @@ source /etc/network-in.cfg
 if ![file exists $::rep_conf/disks] {
 	file mkdir $::rep_conf/disks
 } else {
-	# Mise à jour des mtime des disques si nécessaire
+	# Mise à jour des mtime des disques système si nécessaire
 	# Utile si lecture d'une maquette importée (contrôle mtime par linux.uml au démarrage VM)
 	puts [exec $rep/bin/set_disks_mtime $::rep_conf/disks]
 }
 if ![file exists $::rep_conf/kernels] {
 	file mkdir $::rep_conf/kernels
-}
+} else {
+	 # Mise à jour des mtime des disques modules si nécessaire
+	 # Utile si lecture d'une maquette importée (contrôle mtime par linux.uml au démarrage VM)
+	 puts [exec $rep/bin/set_disks_mtime $::rep_conf/kernels]
+ }
 
 # Prise en compte fichier de conf personnel s'il existe
 if {[file exists $::rep_conf/network-in.cfg]} {

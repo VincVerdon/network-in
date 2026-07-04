@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20260612
+# Version 20260704
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -1076,40 +1076,45 @@ proc clic_gauche_canvas_bouge {x y} {
   }
   
   set id [lindex $tags 0]
-	if {$id == 0} {
-		# On a cliqué sur le trait rouge de création on sélectionne l'id suivant
-		set id [lindex $tags 1]
-	}
 	
-  if {$::obj($id,famille) == {connection}} {
-    # cas où on a cliqué sur une connexion : rien à faire alors
-    return
-  }
-  
-  # déplacement de l'objet
-  $::c move $id [expr {$x-$::obj($id,x)}] [expr {$y-$::obj($id,y)}]
-  
-  # on met à jour la position de l'objet
-  set ::obj($id,x) $x
-  set ::obj($id,y) $y
-  
-  # on cherche si l'objet a des connexions avec d'autres
-  foreach techno $::obj($id,techno) {
-    if {$techno == {ethernet}} {
-      for  {set i 0} {$i < $::obj($id,nb_eth)} {incr i} {
-        set con $::obj($id,eth$i)
-        if {$con != {}} {
-          	# redessin de la connexion
-          	dessine_connexion $con
-			if {$::tmp(capture,id) == $con} {
-				dessine_capture $con
+	# Cas où on clique sur un icône de capture : on n'a rien à faire, sinon on traite
+	if {$id != {capture}} {
+		if {$id == 0} {
+			# On a cliqué sur le trait rouge de création on sélectionne l'id suivant
+			set id [lindex $tags 1]
+		}
+			
+		if {$::obj($id,famille) == {connection}} {
+			# cas où on a cliqué sur une connexion : rien à faire alors
+			return
+		}
+		  
+		# déplacement de l'objet
+		$::c move $id [expr {$x-$::obj($id,x)}] [expr {$y-$::obj($id,y)}]
+		  
+		# on met à jour la position de l'objet
+		set ::obj($id,x) $x
+		set ::obj($id,y) $y
+		
+		# on cherche si l'objet a des connexions avec d'autres
+		  foreach techno $::obj($id,techno) {
+			if {$techno == {ethernet}} {
+			  for  {set i 0} {$i < $::obj($id,nb_eth)} {incr i} {
+				set con $::obj($id,eth$i)
+				if {$con != {}} {
+					  # redessin de la connexion
+					  dessine_connexion $con
+					if {$::tmp(capture,id) == $con} {
+						dessine_capture $con
+					}
+				}
+			  }
 			}
-        }
-      }
-    }
-  }
+		  }
+		}
   
 }
+
 
 # création d'un menu contextuel pour sélectionner une interface réseau sur un matériel
 # (création d'une connexion)

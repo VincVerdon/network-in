@@ -1,0 +1,22 @@
+How to add a new kernel usermode-linux for Network-In! computers
+------------------------------------------------------
+
+A) Stage 1 : get usermode kernel 
+-----------
+When get a kernel, get also modules
+Create a directory named with the version number of the kernel.
+Put into the directory the executable kernel called linux.uml
+
+
+B) Stage 2 : create the modules image
+-----------
+Create a new file disk called modules.img in the directory :
+dd if=/dev/zero of=modules.img bs=1M count=150
+mkfs.ext4 modules.img
+mount -o loop modules.img /mnt
+
+
+E) Stage 3 : time control creation
+-----------
+Create time control file with the command :
+stat -c %Y modules.img > modules.time

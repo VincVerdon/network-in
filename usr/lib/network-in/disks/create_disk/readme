@@ -10,7 +10,8 @@ cp -a /usr/lib/network-in/disks/create_disk/ /mnt/root
 
 B) Stage 2 : Base system Linux text
 -----------
-Copy the new disk in ~/rep_conf/disks/new.img
+Copy the new disk in ~/.network-in/disks/new.img
+The name MUST be new.img
 
 Start a new simulation and create a computer. Don't start the computer. Exit from Network-In! simulator.
 Edit structure.xml file and modify disk paramètre to new.img
@@ -37,4 +38,5 @@ Example : bookworm_1.0_linux.img   (for a Linux text disk)
 Example : bookworm_1.0_main.img   (for a main disk : general usage)
 Create time control file with the command :
 stat -c %Y bookworm_1.0_main.img > bookworm_1.0_main.time (basename MUST be identical)
+
 
