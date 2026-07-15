@@ -1,11 +1,14 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20260702
+#Version 20260715
 #############################
+VERSION=2.1.0-beta3
 REP_INS=$(dirname $0)
 #Software directory
 REP=/usr/lib/network-in
 
+echo "Starting Network-In! $VERSION installation..."
+echo
 
 #Script must be executed by root
 if [ $(id -u) -ne 0 ]
@@ -31,6 +34,7 @@ hsetroot;hsetroot
 xhost;xhost or x11-xserver-utils
 brctl;bridge-utils
 wireshark;wireshark
+xdotool;xdotool
 evince;evince
 "
 
@@ -109,5 +113,7 @@ ln -s $REP/vde4networkin/vde_plug /usr/bin
 ln -s /usr/bin/network-in /usr/bin/networkin 2> /dev/null
 
 chmod +x $REP/bin/*
+
+echo "Installation completed. Enjoy !"
 
 exit 0

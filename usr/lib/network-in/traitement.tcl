@@ -981,13 +981,6 @@ proc init_projet {} {
 	set ::tmp(id1) {}
 	set ::tmp(id2) {}
 	
-	# Init de la capture
-	set ::tmp(capture,id) {}
-	set ::tmp(capture,add) 0
-	set ::tmp(capture,exe_pid) {}
-	set ::tmp(capture,pid1) {}
-	set ::tmp(capture,pid2) {}
-	
 	# mise à jour du titre
 	set ::tmp(file) "[::msgcat::mc "unnamed"].net"
 	maj_titre
@@ -1000,12 +993,7 @@ proc init_projet {} {
 	$::c delete all
 	
 	#On ramène la barre de séparation au milieu
-	if {$::orientation == "vertical"} {
-		.main.pan sashpos 0 [expr [winfo height .main] / 2]
-	} else {
-		.main.pan sashpos 0 [expr [winfo width .main] / 2]
-	}
-	update
+	set_pan_pos
 	
 	# nettoyage et creation du nouveau répertoire de projet
 	catch {file delete -force $::rep_proj/datas}
@@ -1266,7 +1254,7 @@ proc start_x_server {window size} {
 	set ::tmp(x_pid) [exec Xephyr -background none -ac -xkb-model $keyb(model) -xkb-layout $keyb(layout) -xkb-variant $keyb(variant) -no-host-grab -parent $window -listen tcp -listen local -screen $size $::screen &]	
 	update
 	after 500 {
-		eval exec $::x_wm &
+		eval exec $::exe(x_wm) &
 		after 500 "exec $::rep/bin/conf_wm $::screen $::coul(bg_simul)"
 	}
 	

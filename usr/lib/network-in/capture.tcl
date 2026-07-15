@@ -15,24 +15,23 @@ proc creation_capture {id} {
 	
 	# On lance la capture actuelle et la connexion
 	arrete_connexion $id
-	catch {exec sudo $::rep/bin/conf_capture start}
+	catch {exec sudo $::rep/bin/conf_capture $id start}
 	set ::tmp(capture,id) $id
 	demarre_connexion $id
 	dessine_capture $id
 	
 	if {$::tmp(capture,exe_pid) == {}} {
-		demarrer_capture_exe
+		demarrer_capture_exe $id
 	}
 }
 
 
 # Démarrage outil de capture (Wireshark) et sauvegarde de son pid
 #################################################################################
-proc demarrer_capture_exe {} {
+proc demarrer_capture_exe {id} {
 	
-	set pid [eval exec $::capture(exe) &]
-	append ::tmp(capture,win_id) [winid_from_pid $pid]
-	
+	set pid [eval exec $::exe(capture) &]
+	lappend ::tmp(capture,win_id) [winid_from_pid $pid]
 }
 
 

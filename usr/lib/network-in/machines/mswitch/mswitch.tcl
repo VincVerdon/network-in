@@ -83,9 +83,9 @@ proc term_switch_window {id} {
 	# Barre de boutons
 	frame $term.fb
 	pack $term.fb -fill x
-	button $term.fb.copy -compound right -relief flat -text [::msgcat::mc "Copy"] -image im_copy -command  "term_clipboard_copy $term.f"
+	button $term.fb.copy -compound right -relief flat -text [::msgcat::mc "Copy"] -image im_copy -command  "term_clipboard_copy $term.f $::screen"
 	pack $term.fb.copy -side left
-	button $term.fb.paste -compound right -relief flat -text [::msgcat::mc "Paste"] -image im_paste -command  "term_clipboard_paste $term.f"
+	button $term.fb.paste -compound right -relief flat -text [::msgcat::mc "Paste"] -image im_paste -command  "term_clipboard_paste $term.f $::screen"
 	pack $term.fb.paste -side left
 	button $term.fb.q -compound right -relief flat -text [::msgcat::mc "Quit"] -image im_quitter -command  "destroy $term"
 	pack $term.fb.q -side right

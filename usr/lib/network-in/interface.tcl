@@ -467,8 +467,8 @@ proc menu_contextuel_objet {id x y} {
     menu $::c.mc -tearoff 0
 	
 	if {$id == {capture}} {
-		$::c.mc add command -label [::msgcat::mc "Lauch capture"] -command "demarrer_capture_exe"
-		$::c.mc add command -label [::msgcat::mc "Delete capture point"] -command "supprimer_capture"
+		$::c.mc add command -label [::msgcat::mc "Lauch capture"] -command "demarrer_capture_exe $id"
+		$::c.mc add command -label [::msgcat::mc "Delete capture point"] -command "supprimer_capture $id"
 		
 	} else {
 		set famille $::obj($id,famille)
@@ -1926,9 +1926,13 @@ proc xterm_window {term {exe {}}} {
 
 # Place la sélection du terminal dans le presse papier
 #######################################################
-proc term_clipboard_copy {widg} {
+proc term_clipboard_copy {widg {scr {}}} {
 	
-	set txt [exec xsel --display $::screen --primary -o]
+	if {$scr != {}} {
+		set txt [exec xsel --display $scr --primary -o]
+	} else {
+		set txt [exec xsel --primary -o]
+	}
 	exec echo -n $txt | xsel --clipboard -i &
 	
 }
@@ -1936,7 +1940,7 @@ proc term_clipboard_copy {widg} {
 
 # Colle le contenu du presse papier dans le terminal
 #######################################################
-proc term_clipboard_paste {widg} {
+proc term_clipboard_paste {widg {scr {}}} {
 	
 	event generate $widg <Motion> -x 200 -y 200 -warp 1
 	after 10 {exec xdotool key ctrl+shift+v}
@@ -1947,7 +1951,21 @@ proc term_clipboard_paste {widg} {
 #######################################################
 proc fenetre_affiche_pdf {fichier} {
   
-	set fichier "$::pdf(doc_dir)/$fichier"
-	exec $::pdf(exe) $fichier &
+	set fichier "$::doc_dir/$fichier"
+	exec $::exe(pdf) $fichier &
   
+}
+
+
+# Règle la position du séparateur des panneaux schéma/simu
+#######################################################
+proc set_pan_pos {} {
+	
+	if {$::orientation == "vertical"} {
+		.main.pan sashpos 0 [expr [winfo height .main] / 2]
+	} else {
+		.main.pan sashpos 0 [expr [winfo width .main] / 2]
+	}
+	update
+	
 }

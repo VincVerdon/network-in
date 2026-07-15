@@ -7,8 +7,9 @@
 ####################################################################
 TMP=/tmp/network-in
 VDE_PATH=/usr/lib/network-in/vde4networkin
-ACTION=$1
-TAP=netkin_capture
+ID=$1
+ACTION=$2
+TAP=netkin_cap_$ID
 
 
 #besoin de bridge-utils pour faire fonctionner le mode promiscuite
