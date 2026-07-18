@@ -125,7 +125,7 @@ Kernel  Noyau
 "Kernel not found for this equipment"  "Pas de noyau disponible pour ce matériel"
 Laptop  "Ordinateur portable"
 "Last IP address"  "Dernière adresse IP"
-"Lauch capture"  "Démarrer la capture"
+"Lauch capture"  "Démarrer une nouvelle capture"
 License  Licence
 "Listening interface"  "Interface en écoute"
 "Linux text"  "Ordinateur Linux texte"

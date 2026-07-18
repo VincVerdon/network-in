@@ -3,14 +3,14 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20260527
+# Version 20260718
 
 # Suppression d'un câble
 ################################################################################
 proc supprimer_connexion {id} {
   
-	if {$::tmp(capture,id) == $id} {
-		supprimer_capture
+	if {[array names ::capture $id,*] != {}} {
+		supprimer_capture $id
 	}
 	
 	# on debranche d'abord le câble
@@ -309,7 +309,7 @@ proc demarre_connexion {id} {
 	
 	puts "Starting connection $id1 - $id2 : $::tmp($id1,etat)/$::tmp($id2,etat)"
 	
-	if {$::tmp($id1,etat) && $::tmp($id2,etat) && ($::tmp(capture,id) != $id)} {
+	if {$::tmp($id1,etat) && $::tmp($id2,etat) && [array names ::capture $id,*] == {}} {
 		
 		# Cas d'un cable normal et les 2 matériels sont démarrés > on établit la connexion
 		set rep1 [get_vde_rep $id 1]
@@ -321,20 +321,20 @@ proc demarre_connexion {id} {
 		#Mise à jour étiquettes infos
 		maj_infos_connexion $id
 		
-	} elseif {$::tmp(capture,id) == $id} {
+	} elseif {[array names ::capture $id,*] != {}} {
 		
 		# Cable avec point de mesure, on branche l'interface TAP de mesure entre les 2
-		set rep_capture $::rep_tmp/vde/capture
-		if {$::tmp($id1,etat) && $::tmp(capture,pid1) == {}} {
+		set rep_capture $::rep_tmp/vde/capture_$id
+		if {$::tmp($id1,etat) && $::capture($id,pid1) == {}} {
 			# On branche le matériel 1 s'il est actif et si le câble n'est pas déjà branché
 			set rep1 [get_vde_rep $id 1]
-			set ::tmp(capture,pid1) [exec $::vde(dpipe) $::vde(plug) $rep1 = $::vde(plug) $rep_capture &]
+			set ::capture($id,pid1) [exec $::vde(dpipe) $::vde(plug) $rep1 = $::vde(plug) $rep_capture &]
 			puts "Capture point established between $id1 (ON) and $id2"
 		}
-		if {$::tmp($id2,etat) && $::tmp(capture,pid2) == {}} {
+		if {$::tmp($id2,etat) && $::capture($id,pid2) == {}} {
 			# On branche le matériel 2 s'il est actif et si le câbles n'est pas déjà branché
 			set rep2 [get_vde_rep $id 2]
-			set ::tmp(capture,pid2) [exec $::vde(dpipe) $::vde(plug) $rep2 = $::vde(plug) $rep_capture &]
+			set ::capture($id,pid2) [exec $::vde(dpipe) $::vde(plug) $rep2 = $::vde(plug) $rep_capture &]
 			puts "Capture point established between $id1 and $id2 (ON)"
 		}
 		
@@ -453,11 +453,11 @@ proc arrete_connexion {id} {
 	
 	if {$id == {}} {return}
 	
-	if {$::tmp(capture,id) == $id} {
-		kill $::tmp(capture,pid1)
-		kill $::tmp(capture,pid2)
-		set ::tmp(capture,pid1) {}
-		set ::tmp(capture,pid2) {}
+	if {[array names ::capture $id,*] != {}} {
+		kill $::capture($id,pid1)
+		kill $::capture($id,pid2)
+		set ::capture($id,pid1) {}
+		set ::capture($id,pid2) {}
 	} else {
         kill $::tmp($id,pid)
 		set ::tmp($id,pid) {}
@@ -902,12 +902,8 @@ proc restaurer_projet {} {
 	
 	set liste_types {desktop laptop server linux switch4 switch8 mswitch16 hub4 hub8 router2 router4 straight cross nat bridge virtualbox}
 	
-	# Init de la capture
-	set ::tmp(capture,id) {}
+	# Init capture
 	set ::tmp(capture,add) 0
-	set ::tmp(capture,exe_pid) {}
-	set ::tmp(capture,pid1) {}
-	set ::tmp(capture,pid2) {}
 	
 	#récupération de la structure
 	xml_structure_read $::rep_proj/structure.xml

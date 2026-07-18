@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20260704
+# Version 20260718
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -360,7 +360,6 @@ proc annule_creation_liaison {} {
 	$::c delete tmp_connection
 	$::c configure -cursor hand2
 	
-	
 }
 
 
@@ -378,26 +377,30 @@ proc clic_gauche_canvas {x y} {
 	set tags [$::c find closest $x $y 0]
 	set tags [$::c gettags $tags]
 	
+	puts $tags
 	if {[lindex $tags end] == {current}} {
 		
-		#On a cliqué sur un objet
+		#On a cliqué sur un objet on récupère son id
 		set id [lindex $tags 0]
-		if {$id == 0} {
-			# On a cliqué sur le trait rouge de création on sélectionne l'id suivant
-			set id [lindex $tags 1]
-		} elseif {$id == {capture}} {
-			show_capture
+		
+		#Clic sur icon capture : on montre la capture
+		if {[lindex $tags 1] == {capture}} {
+			show_capture $id
 			return
 			
 		}
 		
-		if {[lindex $tags 1] == "note"} {
+		#Clic sur icon note : on affiche la note
+		if {[lindex $tags 1] == {note}} {
 			#Affichage d'une note car clic sur l'icone de note
 			affiche_note $id
-		} elseif {$::obj($id,famille) == {connection}} {
+			return
+		}
+		
+		if {$::obj($id,famille) == {connection}} {
 			if {$::tmp(capture,add) == 1} {
 				#On a cliqué sur une connexion et on est en mode creation capture
-				creation_capture $id
+				creer_capture $id
 				set ::tmp(capture,add) 0
 				$::c configure -cursor hand2
 			} else {
@@ -453,7 +456,11 @@ proc clic_droit_canvas {x y} {
         # coordonnées dans le repère écran
         set X [winfo pointerx .main]
         set Y [winfo pointery .]
-        menu_contextuel_objet $id $X $Y
+		if {[lindex $tags 1] == {capture}} {
+			menu_contextuel_objet $id $X $Y capture
+		} else {
+			menu_contextuel_objet $id $X $Y {}
+		}
     }
   
 }
@@ -461,179 +468,185 @@ proc clic_droit_canvas {x y} {
 
 # Création menu contextuel pour un matériel
 ################################################################################
-proc menu_contextuel_objet {id x y} {
+proc menu_contextuel_objet {id x y option} {
 	
     destroy $::c.mc
     menu $::c.mc -tearoff 0
 	
-	if {$id == {capture}} {
-		$::c.mc add command -label [::msgcat::mc "Lauch capture"] -command "demarrer_capture_exe $id"
-		$::c.mc add command -label [::msgcat::mc "Delete capture point"] -command "supprimer_capture $id"
-		
+	set famille $::obj($id,famille)
+	set type $::obj($id,type)
+	#prise en compte du niveau de fonctionnalités autorisées en fonction du niveau de détails
+	if {$::def($type,voir) <= $::tmp(details)} {
+		set etat normal
 	} else {
-		set famille $::obj($id,famille)
-		set type $::obj($id,type)
-		#prise en compte du niveau de fonctionnalités autorisées en fonction du niveau de détails
-		if {$::def($type,voir) <= $::tmp(details)} {
-			set etat normal
-		} else {
-			set etat disabled
-		}
-		#prise en compte de l'état actuel du composant (actions impossibles si composant allumé)
-		if {$::tmp($id,etat)} {
-			set etat2 normal
-			set etat3 disabled
-		} else {
-			set etat2 disabled
-			set etat3 normal
-		}
-        # menu suivant le type d'objet
-        switch $famille {
-            
-            {connection} {
-        		# infos sur l'objet sélectionné
+		set etat disabled
+	}
+	#prise en compte de l'état actuel du composant (actions impossibles si composant allumé)
+	if {$::tmp($id,etat)} {
+		set etat2 normal
+		set etat3 disabled
+	} else {
+		set etat2 disabled
+		set etat3 normal
+	}
+    # menu suivant le type d'objet
+    switch $famille {
+        
+        {connection} {
+			if {$option == {capture}} {
+				if {[array names ::capture $id,*] != {}} {
+    				$::c.mc add command -label [::msgcat::mc "Lauch capture"] -command "demarrer_capture_exe $id"
+    				$::c.mc add command -label [::msgcat::mc "Delete capture point"] -command "supprimer_capture $id"
+    				
+    			} else {
+    				$::c.mc add command -label [::msgcat::mc "Lauch capture"] -command "demarrer_capture_exe $id" -state disabled
+    				$::c.mc add command -label [::msgcat::mc "Delete capture point"] -command "supprimer_capture $id" -state disabled
+    			}
+			} else {
+				# infos sur l'objet sélectionné
         		$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
         		#$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
         		$::c.mc add separator
     			
         		$::c.mc add command -label [::msgcat::mc "Suppress"] -command "supprimer_connexion $id"
     			$::c.mc add separator
-    			$::c.mc add command -label [::msgcat::mc "Create capture point"] -command "creation_capture $id"
-        	}
-        	
-        	{computer} {
-            	# actions sur l'objet sélectionné
-                $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_ordinateur $id" -state $etat3
-                $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_ordinateur $id" -state $etat2
-                $::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_ordinateur $id" -state $etat2
-    			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"			
-    			# infos sur l'objet sélectionné
-            	$::c.mc add separator
-    			$::c.mc add command -label [::msgcat::mc "Logs print"] -command "fenetre_affiche_logs $id"
-    			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-    			#Sous-menu de changement/ajout/suppression de carte et mac
-    			if $::obj($id,reconf) {
-    				menu_contextuel_gestion_cartes $id
-    			}
-    			$::c.mc add separator
-            	$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dialogue_dupliquer $id" -state $etat3
-            	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+				$::c.mc add command -label [::msgcat::mc "Create capture point"] -command "creer_capture $id"
+			}
+        }
+    	
+    	{computer} {
+        	# actions sur l'objet sélectionné
+            $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_ordinateur $id" -state $etat3
+            $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_ordinateur $id" -state $etat2
+            $::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_ordinateur $id" -state $etat2
+			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"			
+			# infos sur l'objet sélectionné
+        	$::c.mc add separator
+			$::c.mc add command -label [::msgcat::mc "Logs print"] -command "fenetre_affiche_logs $id"
+			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+			#Sous-menu de changement/ajout/suppression de carte et mac
+			if $::obj($id,reconf) {
+				menu_contextuel_gestion_cartes $id
+			}
+			$::c.mc add separator
+        	$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dialogue_dupliquer $id" -state $etat3
+        	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+        }
+        
+    	{router} {
+			# actions sur l'objet sélectionné
+            $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_routeur $id" -state $etat3
+            $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_routeur $id" -state $etat2
+        	$::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_ordinateur $id" -state $etat2
+        	$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+			# infos sur l'objet sélectionné
+        	$::c.mc add separator
+			$::c.mc add command -label [::msgcat::mc "Logs print"] -command "fenetre_affiche_logs $id"
+        	$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+        	$::c.mc add separator
+        	$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dialogue_dupliquer $id" -state $etat3
+        	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+            #Sous-menu de changement/ajout/suppression de carte et mac
+            if $::obj($id,reconf) {
+                menu_contextuel_gestion_cartes $id
             }
-            
-        	{router} {
-    			# actions sur l'objet sélectionné
-                $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_routeur $id" -state $etat3
-                $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_routeur $id" -state $etat2
-            	$::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_ordinateur $id" -state $etat2
-            	$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
-    			# infos sur l'objet sélectionné
-            	$::c.mc add separator
-    			$::c.mc add command -label [::msgcat::mc "Logs print"] -command "fenetre_affiche_logs $id"
-            	$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-            	$::c.mc add separator
-            	$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dialogue_dupliquer $id" -state $etat3
-            	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
-                #Sous-menu de changement/ajout/suppression de carte et mac
-                if $::obj($id,reconf) {
-                    menu_contextuel_gestion_cartes $id
-                }
-        	}
-        
-        	{output} {
-        		# actions sur l'objet sélectionné
-        		switch $type {
-        			{nat} {
-                        $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_passerelle $id" -state $etat3
-                        $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_passerelle $id" -state $etat2
-        			}
-        			{bridge} {
-        				$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_bridge $id" -state $etat3
-        				$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_bridge $id" -state $etat2
-        			}
-        		}
-    			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
-        		# infos sur l'objet sélectionné
-        		$::c.mc add separator
-        		$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-        		$::c.mc add separator
-        		$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
-        		
-        	}
-        
-        	{vm} {
-                switch $type {
-                    {virtualbox} {
-                        if {$::tmp(vbox_found)} {
-                            if {$::tmp($id,is_present)} {
-    							if [winfo exists .vbox$id] {
-    								$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_virtualbox $id" -state disabled
-    							} else {
-    								$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_virtualbox $id" -state $etat3
-    							}
-    							$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_virtualbox $id" -state $etat2
-                                $::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_virtualbox $id" -state $etat2
-                            } else {
-                                $::c.mc add command -label [::msgcat::mc "Start"] -state disabled
-                                $::c.mc add command -label [::msgcat::mc "Stop"] -state disabled
-                                $::c.mc add command -label [::msgcat::mc "Force stop"] -state disabled
-                            }
-    						$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
-                            $::c.mc add command -label [::msgcat::mc "Configuration"] -command "fenetre_config_vbox $id" -state $etat3
+    	}
+    
+    	{output} {
+    		# actions sur l'objet sélectionné
+    		switch $type {
+    			{nat} {
+                    $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_passerelle $id" -state $etat3
+                    $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_passerelle $id" -state $etat2
+    			}
+    			{bridge} {
+    				$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_bridge $id" -state $etat3
+    				$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_bridge $id" -state $etat2
+    			}
+    		}
+			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+    		# infos sur l'objet sélectionné
+    		$::c.mc add separator
+    		$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+    		$::c.mc add separator
+    		$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+    		
+    	}
+    
+    	{vm} {
+            switch $type {
+                {virtualbox} {
+                    if {$::tmp(vbox_found)} {
+                        if {$::tmp($id,is_present)} {
+							if [winfo exists .vbox$id] {
+								$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_virtualbox $id" -state disabled
+							} else {
+								$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_virtualbox $id" -state $etat3
+							}
+							$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_virtualbox $id" -state $etat2
+                            $::c.mc add command -label [::msgcat::mc "Force stop"] -command "force_arrete_virtualbox $id" -state $etat2
+                        } else {
+                            $::c.mc add command -label [::msgcat::mc "Start"] -state disabled
+                            $::c.mc add command -label [::msgcat::mc "Stop"] -state disabled
+                            $::c.mc add command -label [::msgcat::mc "Force stop"] -state disabled
                         }
+						$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+                        $::c.mc add command -label [::msgcat::mc "Configuration"] -command "fenetre_config_vbox $id" -state $etat3
                     }
                 }
-                # infos sur l'objet sélectionné
-                $::c.mc add separator
-                $::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-                $::c.mc add separator
-                $::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
-                
             }
-          
-            {switch} {
-            	# actions sur l'objet sélectionné
-                $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_switch $id" -state $etat3
-                $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_switch $id" -state $etat2
-            	$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
-    			# infos sur l'objet sélectionné
-            	$::c.mc add separator
-    			$::c.mc add command -label [::msgcat::mc "Logs print"] -command "fenetre_affiche_logs $id"
-            	$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-            	$::c.mc add separator
-            	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
-        		
-        	}
-    		
-    		{mswitch} {
-    			# actions sur l'objet sélectionné		
-    			$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_switch $id" -state $etat3
-    			$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_switch $id" -state $etat2
-    			$::c.mc add command -label [::msgcat::mc "CLI console"] -command "fenetre_manage_switch $id" -state $etat2
-    			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
-    			# infos sur l'objet sélectionné
-    			$::c.mc add separator
-    			$::c.mc add command -label [::msgcat::mc "Logs print"] -command "fenetre_affiche_logs $id"
-    			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-    			$::c.mc add separator
-    			$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dupliquer_mswitch $id" -state $etat3
-    			$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
-    			
-    		}
-        
-        	{hub} {
-    			# actions sur l'objet sélectionné
-                $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_switch $id" -state $etat3
-                $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_switch $id" -state $etat2
-    			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
-    			# infos sur l'objet sélectionné
-            	$::c.mc add separator
-    			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
-            	$::c.mc add separator
-            	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
-            	
-            }
+            # infos sur l'objet sélectionné
+            $::c.mc add separator
+            $::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+            $::c.mc add separator
+            $::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+            
         }
-	}
+      
+        {switch} {
+        	# actions sur l'objet sélectionné
+            $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_switch $id" -state $etat3
+            $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_switch $id" -state $etat2
+        	$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+			# infos sur l'objet sélectionné
+        	$::c.mc add separator
+			$::c.mc add command -label [::msgcat::mc "Logs print"] -command "fenetre_affiche_logs $id"
+        	$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+        	$::c.mc add separator
+        	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+    		
+    	}
+		
+		{mswitch} {
+			# actions sur l'objet sélectionné		
+			$::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_switch $id" -state $etat3
+			$::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_switch $id" -state $etat2
+			$::c.mc add command -label [::msgcat::mc "CLI console"] -command "fenetre_manage_switch $id" -state $etat2
+			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+			# infos sur l'objet sélectionné
+			$::c.mc add separator
+			$::c.mc add command -label [::msgcat::mc "Logs print"] -command "fenetre_affiche_logs $id"
+			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+			$::c.mc add separator
+			$::c.mc add command -label [::msgcat::mc "Duplicate"] -command "dupliquer_mswitch $id" -state $etat3
+			$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+			
+		}
+    
+    	{hub} {
+			# actions sur l'objet sélectionné
+            $::c.mc add command -label [::msgcat::mc "Start"] -command "demarre_switch $id" -state $etat3
+            $::c.mc add command -label [::msgcat::mc "Stop"] -command "arrete_switch $id" -state $etat2
+			$::c.mc add command -label [::msgcat::mc "Add or change comment"] -command "fenetre_modif_note $id"
+			# infos sur l'objet sélectionné
+        	$::c.mc add separator
+			$::c.mc add command -label [::msgcat::mc "Informations"] -command "fenetre_infos_objet $id"
+        	$::c.mc add separator
+        	$::c.mc add command -label [::msgcat::mc "Suppress"] -command "dialogue_supprimer_objet $id" -state $etat3
+        	
+        }
+    }
+	
     # coordonnées dans le repère écran
     set X [winfo pointerx .main]
     set Y [winfo pointery .main]
@@ -1034,11 +1047,11 @@ proc fenetre_infos_cable {id} {
 ###############################################################################
 proc canvas_bouge {x y} {
 	
-	$::c delete tmp_connection
 	#Cas où on est en train de créer un nouveau câble : affichage câble en rouge en direct
 	if {$::tmp(sel,type) != {} && $::tmp(id1) != {}} {
-			set x1 $::obj($::tmp(id1),x)
-			set y1 $::obj($::tmp(id1),y)
+		$::c delete tmp_connection
+		set x1 $::obj($::tmp(id1),x)
+		set y1 $::obj($::tmp(id1),y)
 		if {$x1 < $x} {
 			set x [expr $x - 10]
 		} else {
@@ -1102,9 +1115,9 @@ proc clic_gauche_canvas_bouge {x y} {
 			  for  {set i 0} {$i < $::obj($id,nb_eth)} {incr i} {
 				set con $::obj($id,eth$i)
 				if {$con != {}} {
-					  # redessin de la connexion
-					  dessine_connexion $con
-					if {$::tmp(capture,id) == $con} {
+					# redessin de la connexion
+					dessine_connexion $con
+					if {[array names ::capture $con,*] != {}} {
 						dessine_capture $con
 					}
 				}

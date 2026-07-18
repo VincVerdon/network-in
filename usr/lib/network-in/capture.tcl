@@ -3,26 +3,24 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20260525
+# Version 20260718
 
 
 # Création connexion pour capture
 #################################################################################
-proc creation_capture {id} {
-	
-	# On supprime l'ancienne capture
-	supprimer_capture
+proc creer_capture {id} {
 	
 	# On lance la capture actuelle et la connexion
 	arrete_connexion $id
+	
+	set ::capture($id,pid1) {}
+	set ::capture($id,pid2) {}
+	set ::capture($id,win_id) {}
 	catch {exec sudo $::rep/bin/conf_capture $id start}
-	set ::tmp(capture,id) $id
 	demarre_connexion $id
 	dessine_capture $id
+	demarrer_capture_exe $id
 	
-	if {$::tmp(capture,exe_pid) == {}} {
-		demarrer_capture_exe $id
-	}
 }
 
 
@@ -31,7 +29,8 @@ proc creation_capture {id} {
 proc demarrer_capture_exe {id} {
 	
 	set pid [eval exec $::exe(capture) &]
-	lappend ::tmp(capture,win_id) [winid_from_pid $pid]
+	lappend ::capture($id,win_id) [winid_from_pid $pid]
+	
 }
 
 
@@ -53,7 +52,7 @@ proc has_capture_rights {} {
 ################################################################################
 proc dessine_capture {id} {
 	
-	$::c delete capture
+	$::c delete capture-$id
 	
 	#Infos des 2 objets connectés par cette connexion
 	set id1 $::obj($id,id1)
@@ -62,10 +61,10 @@ proc dessine_capture {id} {
 	set y1 $::obj($id1,y)
 	set x2 $::obj($id2,x)
 	set y2 $::obj($id2,y)
-	set XM [expr ($x1 + $x2) / 2]
-	set YM [expr ($y1 + $y2) / 2]
+	set xm [expr ($x1 + $x2) / 2]
+	set ym [expr ($y1 + $y2) / 2]
 	
-	$::c create image $XM $YM -tag "capture"  -image im_capture -anchor c
+	$::c create image $xm $ym -tag "$id capture capture-$id"  -image im_capture -anchor c
 	update
 	
 }
@@ -73,15 +72,15 @@ proc dessine_capture {id} {
 
 # Suppression connexion pour capture
 #################################################################################
-proc supprimer_capture {} {
+proc supprimer_capture {id} {
 	
-	if {$::tmp(capture,id) != {}} {
-		set id $::tmp(capture,id)
-		arrete_connexion $id
-		$::c delete capture
-		set ::tmp(capture,id) {}
-		demarre_connexion $id
-	}
+	arrete_connexion $id
+	catch {exec sudo $::rep/bin/conf_capture $id stop}
+	$::c delete capture-$id
+	unset ::capture($id,pid1)
+	unset ::capture($id,pid2)
+	unset ::capture($id,win_id)
+	demarre_connexion $id
 	
 }
 
@@ -102,9 +101,9 @@ proc dialogue_creer_capture {} {
 
 #Mise en avant fenêtre Wireshark de capture
 #############################################################################
-proc show_capture {} {
+proc show_capture {id} {
 	
-	foreach wid $::tmp(capture,win_id) {
+	foreach wid $::capture($id,win_id) {
 		raise_x_window $wid
 	}
 
