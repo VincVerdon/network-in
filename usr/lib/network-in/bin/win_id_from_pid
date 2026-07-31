@@ -3,11 +3,17 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20260407
+#version 20260730
 ####################################################################
 TMP=/tmp/network-in
 PID=$1		#WIN is the window identifier
-DISP=$2		#DIS is virtual X screen to use
+DISP=$2		#DISP is virtual X screen to use
+
+#if Wayland, can't do nothing... exit !
+if [ "$XDG_SESSION_TYPE" = "wayland" ] || [ -n "$WAYLAND_DISPLAY" ]
+then
+	exit 0
+fi
 
 if [ -n "$DISP" ]
 then

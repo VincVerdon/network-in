@@ -1,6 +1,6 @@
 #!/bin/bash
 #V. Verdon Corp.! 
-#Version 20260715
+#Version 20260730
 #############################
 VERSION=2.1.0-beta3
 REP_INS=$(dirname $0)
@@ -54,6 +54,8 @@ do
 	fi
 done
 
+echo
+
 #Some executables are missing
 if $ARRET
 then
@@ -65,7 +67,6 @@ fi
 #Installation stage
 ##############################################
 #Extraction fichiers de l'archive
-echo
 echo 'Copying files... Please wait...'
 tar -xf $REP_INS/network-in.tar -C / --owner root --group root --no-overwrite-dir
 

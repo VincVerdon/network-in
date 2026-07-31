@@ -4,6 +4,11 @@ Création de l'installateur pour Windows
 1) Attention : supprimer le fichier /home/networkin/.network-in/network-in.cfg ainsi que le rep /home/networkin/network-in-proj
 2) Arrêter la VM WSL : wsl --shutdown
 3) Créer l'archive du disque : wsl --export NetworkIn networkin.tar
-4) Compresser l'archive avec gzip
+
+Sous linux
+4) Compresser l'archive avec gzip > networkin.tgz
 5)Pour construire l'installation NSIS pour Win, aller dans le rep nsis_install puis taper la commande :
 makensis networkin.nsi
+
+On peut monter l'archive avec archivemount
+archivemount /home/vincent/workspace/network-in/src/install/win/networkin.tgz /mnt

@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20260718
+# Version 20260728
 
 # creation de la fenetre principale du simulateur
 ################################################################################
@@ -377,7 +377,6 @@ proc clic_gauche_canvas {x y} {
 	set tags [$::c find closest $x $y 0]
 	set tags [$::c gettags $tags]
 	
-	puts $tags
 	if {[lindex $tags end] == {current}} {
 		
 		#On a cliqué sur un objet on récupère son id

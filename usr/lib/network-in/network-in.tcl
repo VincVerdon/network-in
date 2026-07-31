@@ -4,8 +4,8 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-#version 20260628
-set version(network-in) 2.1.0-beta2
+#version 20260728
+set version(network-in) 2.1.0
 
 # Démarrage de Network-in!
 ################################################################################
