@@ -3,7 +3,8 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20250208
+# Version 20260416
+set ::version(termshark) 1.1
 
 
 # Lanceur de l'application
@@ -160,8 +161,9 @@ namespace eval capt {
         update
         set date [clock format [clock seconds] -format %Y-%m-%d--%H:%M:%S]
         set ::tmp(fic_capture) [file join $capt::rep $interf--$date.pcap]
-        write_st_exec "tcpdump -i $interf -v -w $::tmp(fic_capture)"
-        set ::tmp(pid_capture) [exec st -f "DejaVu Sans Mono-9" -w [scan [winfo id .cap.f.newcap.inf.f] %x] -e "/tmp/termshark_exec" &]
+        set exe "tcpdump -i $interf -v -w $::tmp(fic_capture)"
+        set font1 [list "DejaVu Sans Mono-9"]
+        set ::tmp(pid_capture) [eval exec st -f $font1 -w [winfo id .cap.f.newcap.inf.f] -e $exe &]
         # on récupère l'id de fenêtre
         winid_maj [winid_from_pid $::tmp(pid_capture)]
     }
@@ -171,29 +173,19 @@ namespace eval capt {
     # Lecture d'un fichier pcap
     ########################################################
     proc exec_termshark_pcap {fic} {
-        #set pid [exec xterm  +ai -T [wm title .] -geometry 80x30+[winfo x .]+[winfo y .] -bg $::coul(fond) -fg $::coul(texte) -fn 10x20 -fa "DejaVu Sans Mono" -fs 12 -e "termshark -r $fic" &]
-        write_st_exec "termshark -r $fic"
-        set pid [exec st -t Termshark -g 90x30+[winfo x .]+[winfo y .] -f "DejaVu Sans Mono-12" -e "/tmp/termshark_exec" &]
+        set exe "termshark -r $fic"
+        set font2 [list "DejaVu Sans Mono-12"]
+        set pid [eval exec st -t Termshark -g 90x30+[winfo x .]+[winfo y .] -f $font2 -e $exe &]
         # on récupère l'id de fenêtre
         winid_maj [winid_from_pid $pid]
     }
-
-    # Creation script d'execution de st term
-    # Indispensable si st est utilisé avec un exe avec options
-    #######################################################
-    proc write_st_exec {exe} {
-        set f [open /tmp/termshark_exec w]
-        puts $f "#!/bin/bash"
-        puts $f $exe
-        close $f
-        file attributes /tmp/termshark_exec -permissions 700	
-    }
+    
 
     # A propos
     #######################################################
     proc apropos {} {
         set mess [::msgcat::mc "An interface to Termshark for Network-In!"]
-        set mess "$mess\nVersion 20241227\nV. Verdon Corp. !"
+        set mess "$mess\nVersion $::version(termshark)\nV. Verdon Corp. !"
         tk_messageBox -icon info -title "[::msgcat::mc "About"]..." \
                 -message $mess -parent .cap
     }

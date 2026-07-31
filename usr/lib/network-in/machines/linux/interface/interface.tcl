@@ -4,8 +4,8 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface bureau Linux texte
 ####################################################################
-# Version 20251029
-set version(equipment) {1.0}
+# Version 20260501
+set version(equipment) {1.1}
 
 # Création de l'interface principale machine type Linux
 ################################################################################
@@ -79,7 +79,8 @@ proc creation_onglet {nb} {
 	frame $onglet.f -container 1
 	pack $onglet.f -fill both -expand 1
     .not select .not.$nb
-	exec st -f $::font(name) -w [scan [winfo id $onglet.f] %x] -e $::rep/login.sh &
+	#eval exec st -B $::coul(bg_st) -F $::coul(fg_st) -f $::font(xterm) -w [winfo id $onglet.f] -e $::rep/login.sh &
+	eval exec st -f $::font(name) -w [winfo id $onglet.f] -e $::rep/login.sh &
     update
     
 }

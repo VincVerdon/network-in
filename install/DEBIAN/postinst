@@ -3,7 +3,7 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#Version 20250426
+#Version 20250702
 ####################################################################
 REP_INS=$(dirname $0)
 #Repertoire de l'application
@@ -16,23 +16,44 @@ then
   echo "127.0.0.1  $HOSTNAME" >> /etc/hosts
 fi
 
+#echo "Wireshark reconfiguration : say YES at the next stage if you want to use Wireshark capture in Network-In! simulator. Press any key to continue"
+#read REP
+#dpkg-reconfigure wireshark-common
+#Automatic configuration of wireshark dumpcap to permitt non root capture
+#groupadd wireshark 2> /dev/null
+#chgrp wireshark /usr/bin/dumpcap
+# Add networkin-cap account for captures
+#useradd -g wireshark -s /bin/bash networkin-cap
+#
+#Capabilities modification for capture by anyone
+chmod 0755 $(which dumpcap)
+setcap cap_net_raw,cap_net_admin=ep $(which dumpcap)
+
 # Add lines in sudoers
+#ALL  ALL=(networkin-cap) NOPASSWD:/usr/bin/wireshark
 cat <<EOF>> /etc/sudoers
 
 # Network-In! Simulator sudo auth
 ALL  ALL=NOPASSWD:$REP/bin/network-in-start
 ALL  ALL=NOPASSWD:$REP/bin/network-in-stop
-ALL  ALL=NOPASSWD:$REP/bin/conf_gateway
+ALL  ALL=NOPASSWD:$REP/bin/conf_nat
 ALL  ALL=NOPASSWD:$REP/bin/conf_bridge
+ALL  ALL=NOPASSWD:/usr/lib/network-in/bin/conf_capture
+ALL  ALL=NOPASSWD:/usr/lib/network-in/bin/set_disks_mtime
+
 EOF
 chmod 0440 /etc/sudoers
 sudo -v
 
 # Symlink libvde creation
-LIBVDE=$(find /usr/lib -name 'libvdeplug.so.*' -type f 2>/dev/null | sort | tail -n 1)
-ln -s $LIBVDE $(dirname $LIBVDE)/libvdeplug.so 2> /dev/null
+#LIBVDE=$(find /usr/lib -name 'libvdeplug.so.*' -type f 2>/dev/null | sort | tail -n 1)
+#ln -s $LIBVDE $(dirname $LIBVDE)/libvdeplug.so 2> /dev/null
+# Prise en compte des path lib de /etc/ld.so.conf.d/network-in.conf
+ldconfig 2> /dev/null
+#vde_plug must be in executable path for linux.uml
+ln -s $REP/vde4networkin/vde_plug /usr/bin
 
-# Symlink networkin
+# Symlink networkin alternative to launch the simulator
 ln -s /usr/bin/network-in /usr/bin/networkin 2> /dev/null
 
 exit 0

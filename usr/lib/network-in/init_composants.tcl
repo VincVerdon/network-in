@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20250523
+# Version 20260306
 # Ce fichier permet d'initialiser chaque type de composant
 
 
@@ -285,5 +285,20 @@ proc initialisation_virtualbox {id} {
 	set ::obj($id,vbox_interf) {1}
 	#A la création aucune VM attachée à l'objet
 	set ::tmp($id,is_present) 0
+}
+
+
+################################################################################
+proc initialisation_mswitch16 {id} {
+	set ::obj($id,reconf) false
+	set ::obj($id,famille) mswitch
+	set ::obj($id,type) mswitch16
+	set ::obj($id,categorie) dce
+	set ::obj($id,techno) ethernet
+	set ::obj($id,nb_eth) 16
+	init_eth $id
+	set ::obj($id,nom) $id
+	#MAC for for  stp root switch election
+	set ::obj($id,mac) [aleatoire_mac]
 }
 

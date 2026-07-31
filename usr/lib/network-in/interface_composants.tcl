@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-#Version du 20250225
+#Version du 20260306
 #ce fichier définit la façon dont sont présentés les différents composants dans l'interface
 
 # Définition de l'ordre d'apparition des familles de composants dans l'interface
@@ -12,7 +12,7 @@ set def(liste_familles) {computer hub switch router output connection}
 # Définition des composants et famille d'appartenance
 set def(computer,liste) {desktop laptop server linux virtualbox}
 set def(hub,liste) {hub4 hub8}
-set def(switch,liste) {switch4 switch8}
+set def(switch,liste) {switch4 switch8 mswitch16}
 set def(router,liste) {router2 router4}
 set def(output,liste) {nat bridge}
 set def(connection,liste) {straight cross}
@@ -29,6 +29,7 @@ set def(server,label)  [::msgcat::mc "Server"]
 set def(linux,label)  [::msgcat::mc "Linux text"]
 set def(switch4,label)  [::msgcat::mc "4 ports switch"]
 set def(switch8,label)  [::msgcat::mc "8 ports switch"]
+set def(mswitch16,label)  [::msgcat::mc "16 ports manageable switch"]
 set def(hub4,label)  [::msgcat::mc "4 ports hub"]
 set def(hub8,label)  [::msgcat::mc "8 ports hub"]
 set def(router2,label)  [::msgcat::mc "2 interfaces router"]
@@ -40,6 +41,7 @@ set def(nat,label)  [::msgcat::mc "Real network NAT router"]
 set def(bridge,label)  [::msgcat::mc "Bridge"]
 set def(vm,label)  [::msgcat::mc "Virtual machine"]
 set def(virtualbox,label)  [::msgcat::mc "Virtualbox VM"]
+set def(capture,label)  [::msgcat::mc "Capture point"]
 
 # Définition des éléments vus en fonction du niveau d'interface
 #familles
@@ -55,6 +57,7 @@ set def(laptop,voir) 1
 set def(server,voir) 1
 set def(switch4,voir) 1
 set def(switch8,voir) 1
+set def(mswitch16,voir) 2
 set def(hub4,voir) 1
 set def(hub8,voir) 1
 set def(router2,voir) 1

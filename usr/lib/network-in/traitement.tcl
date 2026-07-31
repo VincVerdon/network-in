@@ -3,27 +3,31 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
 ####################################################################
-# Version 20260202
+# Version 20260718
 
 # Suppression d'un câble
 ################################################################################
 proc supprimer_connexion {id} {
   
-  # on debranche d'abord le câble
-  arrete_connexion $id
-  
-  # on efface le câble
-  canvas_delete $id
-  # on supprime le câble
-  set id1 $::obj($id,id1)
-  set id2 $::obj($id,id2)
-  set interf1 $::obj($id,interf1)
-  set interf2 $::obj($id,interf2)
-  set ::obj($id1,$interf1) {}
-  set ::obj($id2,$interf2) {}
-  array unset ::obj $id,*
-  # on sauvegarde les données obj
-  sauvegarder_projet
+	if {[array names ::capture $id,*] != {}} {
+		supprimer_capture $id
+	}
+	
+	# on debranche d'abord le câble
+	arrete_connexion $id
+	
+	# on efface le câble
+	$::c delete $id
+	# on supprime le câble
+	set id1 $::obj($id,id1)
+	set id2 $::obj($id,id2)
+	set interf1 $::obj($id,interf1)
+	set interf2 $::obj($id,interf2)
+	set ::obj($id1,$interf1) {}
+	set ::obj($id2,$interf2) {}
+	array unset ::obj $id,*
+	# on sauvegarde les données obj
+	sauvegarder_projet
   
 }
 
@@ -45,7 +49,7 @@ proc supprimer_objet {id} {
   # suppression de l'objet
   array unset ::obj $id,*
   # on efface l'objet
-  canvas_delete $id
+  $::c delete $id
   # on sauvegarde les données obj
   sauvegarder_projet
   
@@ -158,37 +162,52 @@ proc demarre_ordinateur {id} {
 		set modules_dd $::rep/kernels/$::kernel/modules.img
 		#dialogue_kernel_missing $exe_linux
 	}
-	
 	set exe "$exe_linux $opts mem=$::obj($id,mem) ubd0=$disk root=/dev/ubda ubd1=$::rep_proj/datas/$id/modules.cow,$modules_dd umid=$id hostfs=$::rep_proj/datas/$id"
 	
 	# activation des câbles réseau et des interfaces eth
 	set ::tmp($id,pid_vde) {}
   if {[lsearch $::obj($id,techno) "ethernet"]  != {-1}} {
     for  {set i 0} {$i < $::obj($id,nb_eth)} {incr i} {
-      # démarrage du socket VDE pour l'interface
-			eval exec vde_switch -d -nostdin -hub -s $::rep_tmp/vde/$id-eth$i
-			set pid [string range [lindex [eval exec lsof -Fp $::rep_tmp/vde/$id-eth$i/ctl 2>/dev/null] end] 1 end]
-			lappend ::tmp($id,pid_vde) $pid
+      	# démarrage du socket VDE pour l'interface
+		eval exec $::vde(switch) -d --nostdin -hub -n 2 -p $::rep_proj/datas/$id/com/pid-eth$i -l /dev/null -s $::rep_tmp/vde/$id-eth$i
+		#eval exec $::vde(switch) -d -nostdin -hub -n 3 -p $::rep_proj/datas/$id/com/pid-eth$i -s $::rep_tmp/vde/$id-eth$i
+		after 1000 get_interf_pid $id $i
+		
       # ajout de la carte eth à la ligne de commande de l'uml
-			set exe [concat $exe eth$i=vde,$::rep_tmp/vde/$id-eth$i,$::obj($id,mac_eth$i)]
+      set exe [concat $exe eth$i=vde,$::rep_tmp/vde/$id-eth$i,$::obj($id,mac_eth$i)]
+	  #set exe [concat $exe eth$i=vde,eth0=vde,vde://$::rep_tmp/vde/$id-eth$i,$::obj($id,mac_eth$i)]
       if {$::obj($id,eth$i) != {}} {
         demarre_connexion $::obj($id,eth$i)
       }
     }
   }
-	set exe [concat $exe eth99=vde,$::rep_tmp/vde/switch_com]
+  set exe [concat $exe eth99=vde,$::rep_tmp/vde/switch_com]
+  #set exe [concat $exe eth99=vde,vde://$::rep_tmp/vde/switch_com]
 	
-	# démarrage du pc
-	set ::tmp($id,pid) [eval exec $exe >& $::rep_proj/logs/$id.log &]
-
+  # démarrage du pc
+  set ::tmp($id,pid) [eval exec $exe >& $::rep_proj/logs/$id.log &]
+  update
   # démarrage de la boucle de surveillance de machine
-	#Logguer démarrage objet
   boucle_demarre_objet $id
+  
 }
+
+
+# récupère et stocke le PID d'un vde_switch d'interface eth
+################################################################################
+proc get_interf_pid {id n} {
+	set fpid [open $::rep_proj/datas/$id/com/pid-eth$n r]
+	gets $fpid pid
+	close $fpid
+	lappend ::tmp($id,pid_vde) $pid
+}
+
 
 ################################################################################
 proc demarre_routeur {id} {
-  demarre_ordinateur $id
+	# Suppression des rep inutiles désormais, il arrive qu'il n'ait pas été détruit !???
+	file delete -force $::rep_proj/datas/$id/com
+ 	demarre_ordinateur $id
 }
 
 
@@ -197,99 +216,168 @@ proc demarre_switch {id} {
 	
 	puts ">>>>STARTING SWITCH $id"
 	
-  set famille $::obj($id,famille)
-  set type $::obj($id,type)
-  
-  # démarrage du vde_switch
-  if {$famille == {hub}} {
-    # cas d'un hub
-    eval exec vde_switch -d -nostdin --fstp -n [expr $::obj($id,nb_eth) + 1] -hub -s $::rep_tmp/vde/$id >& $::rep_proj/logs/$id.log
-  } else  {
-	eval exec vde_switch -d -nostdin --fstp -n [expr $::obj($id,nb_eth) + 1] -M $::rep_tmp/terminal/$id -s $::rep_tmp/vde/$id >& $::rep_proj/logs/$id.log
-  }
-	#set ::tmp($id,pid_vde) {}
-	set ::tmp($id,pid_vde) [string range [eval exec lsof -Fp $::rep_tmp/vde/$id/ctl 2>/dev/null] 1 end]
-  # l'objet est déclaré actif désormais
-  set ::tmp($id,etat) 1
-  affiche_objet_on $id
+	set famille $::obj($id,famille)
+	set type $::obj($id,type)
 	
-  # activation des câbles réseau
-  if {[lsearch $::obj($id,techno) "ethernet"]  != {-1}} {
-    for  {set i 0} {$i < $::obj($id,nb_eth)} {incr i} {
-      # valeur actu de la config ip de l'interface (sera toujours vide !)
-      set ::tmp($id,etat_eth$i) {}
-      # démarrage des connexions
-      if {$::obj($id,eth$i) != {}} {
-        demarre_connexion $::obj($id,eth$i)
-      }
+	# création du rep d'échanges avec la machine virtuelle
+	catch {file mkdir $::rep_proj/datas/$id/com}
+	
+	# démarrage du vde_switch
+	switch $famille {
+		{hub} {
+			#eval exec $::vde(switch) -d -nostdin -hub -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
+    		eval exec $::vde(switch) -d --nostdin -hub -l /dev/null -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
+		}
+		{switch} {
+			eval exec $::vde(switch) -d --nostdin -n $::obj($id,nb_eth) -l $::rep_proj/logs/$id.log -p $::rep_proj/datas/$id/com/pid -s $::rep_tmp/vde/$id &
+		}
+		{mswitch} {
+			demarre_mswitch $id
+		}
+	}
+	#On récupère le PID du vde_switch
+	after 500 get_switch_pid $id
+	
+	# l'objet est déclaré actif désormais
+	set ::tmp($id,etat) 1
+	affiche_objet_on $id
+	
+    # activation des câbles réseau
+    if {[lsearch $::obj($id,techno) "ethernet"]  != {-1}} {
+        for  {set i 0} {$i < $::obj($id,nb_eth)} {incr i} {
+          	# valeur actu de la config ip de l'interface (sera toujours vide !)
+          	set ::tmp($id,etat_eth$i) {}
+          	# démarrage des connexions
+          	if {$::obj($id,eth$i) != {}} {
+          		demarre_connexion $::obj($id,eth$i)
+          	}
+        }
     }
-  }
+}
+
+
+# récupère et stocke le PID d'un vde_switch
+################################################################################
+proc get_switch_pid {id} {
+	set fpid [open $::rep_proj/datas/$id/com/pid r]
+	gets $fpid ::tmp($id,pid_vde)
+	close $fpid
+}
+
+
+# Retourne l'état de la connexion (1 OK 0 non OK)
+################################################################################
+proc etat_connexion {id} {
+	
+	set ret 0
+	if {$id != {}} {
+		#Les 2 objets liés par ce cable
+		set id1 $::obj($id,id1)
+		set id2 $::obj($id,id2)
+    	
+		switch $::obj($id,type) {
+    		{straight} {
+    			if {$::obj($id1,categorie) != $::obj($id2,categorie)} {
+    				set ret 1
+    			}
+    		}
+    		{cross} {
+    			if {$::obj($id1,categorie) == $::obj($id2,categorie)} {
+    				set ret 1
+    			}
+    		}
+    	} 
+	}
+	
+	return $ret
+	
 }
 
 
 # etablissement d'une connexion entre deux éléments
 ################################################################################
 proc demarre_connexion {id} {
-    
-  if {$id == {}} {return}
 	
-  #Les 2 objets liés par ce cable
-  set id1 $::obj($id,id1)
-  set id2 $::obj($id,id2)
+	#Les 2 objets liés par ce cable
+	set id1 $::obj($id,id1)
+	set id2 $::obj($id,id2)
 	
-  # Si le choix de la connexion est mauvais, on sort
-	switch $::obj($id,type) {
-		{straight} {
-			if {$::obj($id1,categorie) == $::obj($id2,categorie)} {
-  			set valid false
-  		} else  {
-  			set valid true
-  		}
-		}
-		{cross} {
-			if {$::obj($id1,categorie) == $::obj($id2,categorie)} {
-				set valid true
-			} else  {
-				set valid false
-			}
-		}
-	} 
+	if {![etat_connexion $id]} {
+		puts "Bad cable $id between $id1 and $id2"
+		return
+	}
 	
-  if {!$valid} {
-    return
-  }
+	puts "Starting connection $id1 - $id2 : $::tmp($id1,etat)/$::tmp($id2,etat)"
 	
-	puts "Starting connection $id1 : $::tmp($id1,etat) ; $id2 : $::tmp($id2,etat)"
-  if {$::tmp($id1,etat) && $::tmp($id2,etat)} {
-    set n 0
-    foreach i "$id1 $id2" {
-      incr n
-      switch $::obj($i,famille) {
-        {computer} {set rep$n $::rep_tmp/vde/$i-$::obj($id,interf$n)}
-        {router} {set rep$n $::rep_tmp/vde/$i-$::obj($id,interf$n)}
-        {switch} {set rep$n $::rep_tmp/vde/$i}
-        {hub} {set rep$n $::rep_tmp/vde/$i}
-        {output} {
-			switch $::obj($i,type) {
-				{nat} {set rep$n $::rep_tmp/vde/switch_nat}
-				{bridge} {set rep$n $::rep_tmp/vde/$i}
-			}
-        }
-        {vm} {
-            switch $::obj($i,type) {
-                {virtualbox} {set rep$n $::rep_tmp/vde/$i}
-            }
-        } 
-      }
-    }
-    # On branche !
-    set ::tmp($id,pid) [exec dpipe vde_plug $rep1 = vde_plug $rep2 &]
+	if {$::tmp($id1,etat) && $::tmp($id2,etat) && [array names ::capture $id,*] == {}} {
+		
+		# Cas d'un cable normal et les 2 matériels sont démarrés > on établit la connexion
+		set rep1 [get_vde_rep $id 1]
+		set rep2 [get_vde_rep $id 2]
+		# On branche !
+		set ::tmp($id,pid) [exec $::vde(dpipe) $::vde(plug) $rep1 = $::vde(plug) $rep2 &]
 		puts "Connection $id1 - $id2 established"
+		
 		#Mise à jour étiquettes infos
 		maj_infos_connexion $id
-  }
+		
+	} elseif {[array names ::capture $id,*] != {}} {
+		
+		# Cable avec point de mesure, on branche l'interface TAP de mesure entre les 2
+		set rep_capture $::rep_tmp/vde/capture_$id
+		if {$::tmp($id1,etat) && $::capture($id,pid1) == {}} {
+			# On branche le matériel 1 s'il est actif et si le câble n'est pas déjà branché
+			set rep1 [get_vde_rep $id 1]
+			set ::capture($id,pid1) [exec $::vde(dpipe) $::vde(plug) $rep1 = $::vde(plug) $rep_capture &]
+			puts "Capture point established between $id1 (ON) and $id2"
+		}
+		if {$::tmp($id2,etat) && $::capture($id,pid2) == {}} {
+			# On branche le matériel 2 s'il est actif et si le câbles n'est pas déjà branché
+			set rep2 [get_vde_rep $id 2]
+			set ::capture($id,pid2) [exec $::vde(dpipe) $::vde(plug) $rep2 = $::vde(plug) $rep_capture &]
+			puts "Capture point established between $id1 and $id2 (ON)"
+		}
+		
+	} else {
+		puts "Connection $id1 - $id2 aborted"
+	}
 	
 }
+
+
+# retourne le rep du vde de connexion pour la machine $n de la connexion $id
+################################################################################
+proc get_vde_rep {id n} {
+	
+	#n = 1 ou 2
+	set rep {}
+	set idn $::obj($id,id$n)
+	
+	  switch $::obj($idn,famille) {
+		{computer} {set rep $::rep_tmp/vde/$idn-$::obj($id,interf$n)}
+		{router} {set rep $::rep_tmp/vde/$idn-$::obj($id,interf$n)}
+		{switch} {set rep $::rep_tmp/vde/$idn}
+		{mswitch} {
+			regexp -expanded {[0-9]+} $::obj($id,interf$n) port
+			#Num de port démarre à 1 dans vde_switch
+			incr port
+			set rep "$::rep_tmp/vde/$idn\[$port\]"}
+		{hub} {set rep $::rep_tmp/vde/$idn}
+		{output} {
+			switch $::obj($idn,type) {
+				{nat} {set rep $::rep_tmp/vde/switch_nat}
+				{bridge} {set rep $::rep_tmp/vde/$idn}
+			}
+		}
+		{vm} {
+			switch $::obj($idn,type) {
+				{virtualbox} {set rep $::rep_tmp/vde/$idn}
+			}
+		} 
+	  }
+	  return $rep
+}
+
 
 #Duplication d'un ordinateur à partir d'un autre
 ##################################################################################
@@ -358,29 +446,52 @@ proc dupliquer_ordinateur {parent} {
 	
 }
 
+
 # suppression d'une connexion entre deux éléments
 ################################################################################
 proc arrete_connexion {id} {
 	
 	if {$id == {}} {return}
-
+	
+	if {[array names ::capture $id,*] != {}} {
+		kill $::capture($id,pid1)
+		kill $::capture($id,pid2)
+		set ::capture($id,pid1) {}
+		set ::capture($id,pid2) {}
+	} else {
+        kill $::tmp($id,pid)
+		set ::tmp($id,pid) {}
+	}
 	set id1 $::obj($id,id1)
-	set id2 $::obj($id,id2)
+    set id2 $::obj($id,id2)
 	puts "Connection $id1 - $id2 stopped"
-    kill $::tmp($id,pid)
-    set ::tmp($id,pid) {}
-  
+    
 }
+
 
 # Arrêt d'un switch ou hub virtuel VDE
 ################################################################################
 proc arrete_switch {id} {
   
-	kill $::tmp($id,pid_vde)
-  set ::tmp($id,pid_vde) {}
-  # l'objet est déclaré inactif désormais
-  set ::tmp($id,etat) 0
-  affiche_objet_off $id
+	catch {kill $::tmp($id,pid_vde)}
+	set ::tmp($id,pid_vde) {}
+	
+	#mise a 0 de la configuration des ports
+	for {set i 0} {$i<$::obj($id,nb_eth)} {incr i} {
+		set ::tmp($id,etat_eth$i) {}
+		#on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
+		set id_liaison $::obj($id,eth$i)
+		if {$id_liaison != {}} {
+			arrete_connexion $id_liaison
+			if {$::tmp($id_liaison,infos_connexion)} {
+				maj_infos_connexion $id_liaison
+			}
+		}
+	}
+	
+	# l'objet est déclaré inactif désormais
+	set ::tmp($id,etat) 0
+	affiche_objet_off $id
 	puts ">>>>SWITCH $id arrêté"
   
 }
@@ -402,7 +513,7 @@ proc arrete_ordinateur {id} {
 ################################################################################
 proc force_arrete_ordinateur {id} {
 	
-	puts ">>>>Arrêt forcé MACHINE $id"
+	puts ">>>>MACHINE $id kill asked"
 	
 	#Arrêt forcé par la console uml
 	catch {exec /usr/bin/uml_mconsole $id halt &}
@@ -501,16 +612,16 @@ proc boucle_scan_objet {id} {
         
         #Machine en fonctionnement ou en train de redémarrer
         #récupération du nouveau nom de machine
-        set res  [lire_fichier_echange $id hostname]
-        if  {$res != {-1}} {
+        set res [lire_fichier_echange $id hostname 1]
+        if  {$res != {}} {
           set ::obj($id,nom) $res
           # on met à jour l'affichage
           dessine_objet $id
         }
         #récuperation de la configuration des interfaces
         for {set i 0} {$i<$::obj($id,nb_eth)} {incr i} {
-          set res [lire_fichier_echange $id interface_eth$i]
-          if {$res != {-1}} {
+          set res [lire_fichier_echange $id interface_eth$i 1]
+          if {$res != {}} {
             set ::tmp($id,etat_eth$i) $res
         	#on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
         	set id_liaison $::obj($id,eth$i)
@@ -521,6 +632,12 @@ proc boucle_scan_objet {id} {
         }
       	#récupération de la liste des winid de la machine
       	set ::tmp($id,win_id) [lire_fichier_echange $id window_id]
+		#récupération du presse papier de la machine
+		set res [lire_fichier_echange $id clip 1]
+		if  {$res != {}} {
+			puts "FIC echange lu $id : $res"
+			exec echo -n $res | xsel --clipboard -i &
+		}
 		#on relance la boucle
     	after 2000 boucle_scan_objet $id
     		
@@ -545,36 +662,50 @@ proc clean_machine_context {id} {
 		set ::tmp($id,etat_eth$i) {}
 		#on met à jour l'affichage les infos sur l'IP si elles sont affichées actuellement
 		set id_liaison $::obj($id,eth$i)
-		if {$id_liaison != "" && $::tmp($id_liaison,infos_connexion)} {
-			maj_infos_connexion $id_liaison
+		if {$id_liaison != {}} {
+			arrete_connexion $id_liaison
+    		if {$::tmp($id_liaison,infos_connexion)} {
+    			maj_infos_connexion $id_liaison
+    		}
 		}
 	}
 	# Suppression des rep inutiles désormais
-	#On supprime le répertoire d'échange dans le rep du projet
 	file delete -force $::rep_proj/datas/$id/com
 	file delete $::rep_proj/datas/$id/interface/dict.actu
 	puts ">>>>MACHINE $id STOPPED"
 	after 2000 "set ::tmp($id,etat) 0 ; affiche_objet_off $id"
+	
 }
 
 
 # Ecriture fichier d'échange avec les machines UML
 ################################################################################
 proc ecrire_fichier_echange {id fic texte} {
+	
   set f [open $::rep_proj/datas/$id/com/$fic w]
   puts $f $texte
   close $f
+	
 }
+
 
 # Lecture fichier d'échange avec les machines UML
 ################################################################################
-proc lire_fichier_echange {id fic} {
-  if {![file exists $::rep_proj/datas/$id/com/$fic]} {return -1}
-  set f [open $::rep_proj/datas/$id/com/$fic r]
-  set texte [read $f]
-  close $f
-  return [string trim $texte]
+proc lire_fichier_echange {id fic {del 0}} {
+	
+	set texte {}
+    if {[file exists $::rep_proj/datas/$id/com/$fic]} {
+    	set f [open $::rep_proj/datas/$id/com/$fic r]
+    	set texte [read $f]
+    	close $f
+    }
+	if {$del == 1} {
+		file delete $::rep_proj/datas/$id/com/$fic
+	}
+    return [string trim $texte]
+	
 }
+
 
 # Création d'un câble droit ou croisé
 ################################################################################
@@ -602,6 +733,7 @@ proc creation_connexion {id1 id2 con1 con2 type} {
   
 }
 
+
 # creation d'un objet du reseau
 ################################################################################
 proc creation_objet {famille type x y} {
@@ -616,7 +748,7 @@ proc creation_objet {famille type x y} {
           return
         }
       }
-		}
+	}
   }
   
   # dimensions de l'image
@@ -653,7 +785,7 @@ proc verif_arret {} {
   # on vérifie si tout a été arrêté
   for  {set i 1} {$i <= $::tmp(lastid)} {incr i} {
     set id m$i
-    if {[array name ::obj $id,*] != {}} {
+    if {[array names ::obj $id,*] != {}} {
       if {$::tmp($id,etat)} {
           set ret 0
       }
@@ -697,6 +829,7 @@ proc arreter_tout {} {
             {computer} {arrete_ordinateur $id}
             {router} {arrete_ordinateur $id}
             {switch} {arrete_switch $id}
+			{mswitch} {arrete_switch $id}
             {hub} {arrete_switch $id}
             {output} {
         		if {$::obj($id,type) == {nat}} {arrete_passerelle $id}
@@ -726,6 +859,7 @@ proc demarrer_tout {} {
 			{computer} {demarre_ordinateur $id}
 			{router} {demarre_ordinateur $id}
 			{switch} {demarre_switch $id}
+			{mswitch} {demarre_switch $id}
 			{hub} {demarre_switch $id}
 			{output} {
 				if {$::obj($id,type) == {nat}} {demarre_passerelle $id}
@@ -766,13 +900,16 @@ proc sauvegarder_projet {} {
 ################################################################################
 proc restaurer_projet {} {
 	
-	set liste_types {desktop laptop server linux switch4 switch8 hub4 hub8 router2 router4 straight cross nat bridge virtualbox}
-  
+	set liste_types {desktop laptop server linux switch4 switch8 mswitch16 hub4 hub8 router2 router4 straight cross nat bridge virtualbox}
+	
+	# Init capture
+	set ::tmp(capture,add) 0
+	
 	#récupération de la structure
 	xml_structure_read $::rep_proj/structure.xml
 	#puts [array get ::tmp]
 	#puts [array get ::obj]
-	
+
 	# mise à jour du titre
 	maj_titre
 	
@@ -790,11 +927,12 @@ proc restaurer_projet {} {
         set ::tmp($id,etat) 0
         if [info exists ::obj($id,famille)] {
 			if {[lsearch -exact $liste_types $::obj($id,type)] >= 0} {
+				set ::tmp($id,pid) {}
                 if {$::obj($id,famille) == "connection"} {
-                	set ::tmp($id,pid) {}
     				set ::tmp($id,infos_connexion) 0
     				dessine_connexion $id
                 } else {
+					set ::tmp($id,win_id) {}
     				#On commence par nettoyer le répertoire d'échange dans le rep du projet
     				file delete -force $::rep_proj/datas/$id/com
     				#Vérification configuration VM virtualbox
@@ -810,12 +948,11 @@ proc restaurer_projet {} {
     						}
     					}
     				}
-    				set ::tmp($id,win_id) {}
     				dessine_objet $id
                 }
             } else {
 				#Log info type inconnu
-				puts "Type unknown for $id : $::obj($id,type). Disabled"
+				puts "Unknown type for $id : $::obj($id,type). Disabled"
             }
         }
     }
@@ -849,19 +986,13 @@ proc init_projet {} {
 	change_niveau_detail $::niveau(defaut)
 	
 	# effacement des objets sur le canvas
-	canvas_delete all
+	$::c delete all
 	
 	#On ramène la barre de séparation au milieu
-	if {$::orientation == "vertical"} {
-		.main.pan sashpos 0 [expr [winfo height .main] / 2]
-	} else {
-		.main.pan sashpos 0 [expr [winfo width .main] / 2]
-	}
-	update
+	set_pan_pos
 	
 	# nettoyage et creation du nouveau répertoire de projet
 	catch {file delete -force $::rep_proj/datas}
-	#catch {file delete -force $::rep_proj/logs/m*.log}
 	file_delete_motif $::rep_proj/logs/m*.log
 	catch {file delete -force $::rep_proj/structure.xml}
 	catch {file delete -force $::rep_proj/structure.sav}
@@ -896,28 +1027,36 @@ proc archiver_projet {f} {
   # Création de l'archive contenant les machines virtuelles
   exec tar -C $::rep_proj -cf $f structure.xml
   update
-  # Sauvegarde de chaque machine UML
+	
+  # Sauvegarde de chaque machine
 	cd $::rep_proj
-  set l_rep_c [glob -nocomplain {datas/m[0-9]*}]
-  foreach rep_c $l_rep_c {
-    set rep [file tail $rep_c]
-    # on vérifie si l'archive existe déjà ou non
-    if {[file extension $rep] != ".tgz"} {
-      # création de l'archive pour la machine UML
-			exec tar --sparse -czf $rep_c.tgz $rep_c
-			update
-      # insertion dans l'archive du projet de cette nouvelle archive compressée
-      exec tar -rf $f $rep_c.tgz > /dev/null
-      update
-      file delete $rep_c.tgz
-      update
-    } else  {
-      # insertion dans l'archive du projet de l'archive compressée déjà existante
-      exec tar -rf $f $rep_c > /dev/null
-      update
-    }
-		
-  }
+	for {set i 1} {$i <= $::tmp(lastid)} {incr i} {
+		set id m$i
+		set rep datas/$id
+		if {[array name ::obj $id,*] != {}} {
+			set fam $::obj($id,famille)
+    		if {$fam=={computer} || $fam=={router} || $fam=={mswitch}} {
+    			# on vérifie si l'archive existe déjà ou non
+    			if {[file isdirectory $rep]} { 
+					# Suppression du rep temporaire com s'ils ne l'a pas été
+					file delete -force $::rep_proj/datas/$id/com
+    			  	# création de l'archive pour la machine UML
+    				exec tar --sparse -czf $rep.tgz $rep
+    				update
+    				# insertion dans l'archive du projet de cette nouvelle archive compressée
+    				exec tar -rf $f $rep.tgz > /dev/null
+    				update
+    				file delete $rep.tgz
+    				update
+    			} else  {
+    			  	# insertion dans l'archive du projet de l'archive compressée déjà existante
+    			  	exec tar -rf $f $rep.tgz > /dev/null
+    			  	update
+    			}
+    		}
+		}
+	}
+	
 }
 
 #Charge un projet à partir d'un fichier archive
@@ -1067,23 +1206,15 @@ proc get_interface_mac {interf} {
 # Renvoie l'adresse IP et masque d'une interface sur machine hôte
 #################################################################################
 proc get_interface_ip {interf} {
-	set ip_inf [exec /sbin/ip address show $interf]
-	set exp {inet ([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/([0-9]{1,2}).*}
-	if {[regexp $exp $ip_inf res ip mask]} { 
-		set ret [list $ip $mask]
-	} else {
-		set ret {}
+	set ret {}
+	set err [catch {set ip_inf [exec /sbin/ip address show $interf]}]
+	if {$err == {0}} {
+		set exp {inet ([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/([0-9]{1,2}).*}
+    	if {[regexp $exp $ip_inf res ip mask]} { 
+    		set ret [list $ip $mask]
+    	}
 	}
 	return $ret
-}
-
-
-# Mise en avant fenêtre machine
-#################################################################################
-proc raise_x_window {win_id} {
-	
-	catch {exec $::rep/bin/raise_x_window $win_id $::screen}
-	
 }
 
 
@@ -1111,33 +1242,26 @@ proc get_keyboard_conf {} {
 }
 
 
-
 # Démarrage serveur d'affichage Xéphyr + WM
 #################################################################################
 proc start_x_server {window size} {
 	
 	array set keyb [get_keyboard_conf]
-	#set ::tmp(x_pid) [exec Xephyr -background none -ac -xkb-rules [lindex $keyb 0] -xkb-model [lindex $keyb 1] -xkb-layout [lindex $keyb 2] -xkb-variant [lindex $keyb 3] -no-host-grab -parent $window -listen tcp -listen local -screen $size $::screen &]	
 	set ::tmp(x_pid) [exec Xephyr -background none -ac -xkb-model $keyb(model) -xkb-layout $keyb(layout) -xkb-variant $keyb(variant) -no-host-grab -parent $window -listen tcp -listen local -screen $size $::screen &]	
 	update
 	after 500 {
-		eval exec $::x_wm &
+		eval exec $::exe(x_wm) &
 		after 500 "exec $::rep/bin/conf_wm $::screen $::coul(bg_simul)"
 	}
 	
 }
 
+
 # Démarrage boucle de scan du presse papier
 #################################################################################
 proc boucle_maj_clipboard {} {
 	
-	set clip [exec xsel --clipboard -o]
-	
-	if {$::tmp(clip) != $clip} {
-		#On vient de copier du texte dans le presse papier, dans ce cas on transmet aux machines du simulateur
-		exec echo -n $clip | xsel --display $::screen --clipboard -i
-		set ::tmp(clip) $clip
-	}
+	exec $::rep/bin/update_clipboard $::screen &
 	after 2000 {boucle_maj_clipboard}
 	
 }

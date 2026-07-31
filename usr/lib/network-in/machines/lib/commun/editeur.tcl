@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20241227
+# Version 20260604
 
 # Lanceur de l'application
 #####################################
@@ -84,11 +84,11 @@ namespace eval ed {
 		#Barre d'icones
 		frame .$num.ic
 		pack .$num.ic -fill x
-	    button .$num.ic.cut -relief flat -compound top -text  [::msgcat::mc "Cut"] -image im_cut -command "[list event gen .$num.f.tex <<Cut>>]"
+	    button .$num.ic.cut -relief flat -compound top -text  [::msgcat::mc "Cut"] -image im_cut -command "ed::cut $num"
 		pack .$num.ic.cut -side left
-		button .$num.ic.copy -relief flat -image im_copy -compound top -text  [::msgcat::mc "Copy"] -command "[list event gen .$num.f.tex <<Copy>>]"
+		button .$num.ic.copy -relief flat -image im_copy -compound top -text  [::msgcat::mc "Copy"] -command "ed::copy $num"
 		pack .$num.ic.copy -side left
-		button .$num.ic.paste -relief flat -image im_paste -compound top -text  [::msgcat::mc "Paste"] -command "[list event gen .$num.f.tex <<Paste>>]"
+		button .$num.ic.paste -relief flat -image im_paste -compound top -text  [::msgcat::mc "Paste"] -command "ed::paste $num"
 		pack .$num.ic.paste -side left
 		button .$num.ic.quit -relief flat -image im_quitter -compound right -text  [::msgcat::mc "Quit"] -command "ed::quit $num"
 		pack .$num.ic.quit -side right
@@ -115,6 +115,25 @@ namespace eval ed {
 
         return $num
 	}
+
+
+    proc cut {num} {
+        set coord [.$num.f.tex tag ranges "sel"]
+        set txt [eval .$num.f.tex get $coord]
+        ::ecrire_fichier_echange clip $txt
+        event gen .$num.f.tex <<Cut>>
+    }
+
+    proc copy {num} {
+        set coord [.$num.f.tex tag ranges "sel"]
+        set txt [eval .$num.f.tex get $coord]
+        ::ecrire_fichier_echange clip $txt
+        event gen .$num.f.tex <<Copy>>
+    }
+
+    proc paste {num} {
+        event gen .$num.f.tex <<Paste>>
+    }
 	
 	#Appelé lors d'une modif du texte
 	###############################################################################

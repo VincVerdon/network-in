@@ -5,7 +5,7 @@
 # Interface de config de la bridge nat
 ####################################################################
 # Version 20250513
-set ::version(bridge) 1.0
+set ::version(bridge) 1.1
 
 # Interface de configuration de base de la machine
 ################################################################################
@@ -377,7 +377,10 @@ proc demarre_bridge {id} {
 	affiche_objet_on $id
     
 	# activation du câble réseau
-	demarre_connexion $::obj($id,eth0)
+	set id_liaison $::obj($id,eth0)
+	if {$id_liaison != {}} {
+		demarre_connexion $id_liaison
+	}
     
 	#Mise à jour affichage sur les étiquettes de câbles
 	set ::tmp($id,etat_eth0) {}
@@ -397,6 +400,7 @@ proc arrete_bridge {id} {
 
     # on débranche le câble de connexion
 	set id_liaison $::obj($id,eth0)
+	set ::tmp($id,etat_eth0) {}
 	arrete_connexion $id_liaison
     
     #Déconfiguration de l'interface TAP

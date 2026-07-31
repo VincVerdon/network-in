@@ -10,7 +10,8 @@ cp -a /usr/lib/network-in/disks/create_disk/ /mnt/root
 
 B) Stage 2 : Base system Linux text
 -----------
-Copy the new disk in ~/rep_conf/disks/new.img
+Copy the new disk in ~/.network-in/disks/new.img
+The name MUST be new.img
 
 Start a new simulation and create a computer. Don't start the computer. Exit from Network-In! simulator.
 Edit structure.xml file and modify disk paramètre to new.img
@@ -20,18 +21,22 @@ Start simulation and execute script from /var/networkin/ directory
 
 C) Stage 3 : Complete system with services and graphical software for pc, servers, routers
 -----------
-(If you don't want a preconfigure system but a simple linux text system ignore the stage)
+(If you don't want a preconfigure system but a simple linux text system ignore this stage)
 
 copy stage3 directory in ~/network-in-proj/datas/m1/
-execute script from /var/networkin/ directory
+Start simulation and execute script from /var/networkin/ directory
 
 D) Stage 4 : cleaning
 -----------
 copy stage4 directory in ~/network-in-proj/datas/m1/
 Start simulation and execute script from /var/networkin/ directory
 
-E) Stage 5 : disk renaming
+E) Stage 5 : disk renaming and time control creation
 -----------
 Name disk with the final name : DEB-VERSION_DISK-VERSION_SPEC.img
-Example : bookworm_1.01_linux.img   (for a Linux text disk)
-Example : bookworm_1.01_main.img   (for a main disk : general usage)
+Example : bookworm_1.0_linux.img   (for a Linux text disk)
+Example : bookworm_1.0_main.img   (for a main disk : general usage)
+Create time control file with the command :
+stat -c %Y bookworm_1.0_main.img > bookworm_1.0_main.time (basename MUST be identical)
+
+

@@ -3,16 +3,20 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20250830
+#version 20260627
 ####################################################################
 
+echo "Starting network configuration"
+
 TMP=/tmp/network-in
+VDE_PATH=/usr/lib/network-in/vde4networkin
 IP_HOST=$(grep -E  '^[^#]*set ip_hote' /etc/network-in.cfg | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]')
 MASK_HOST=$(grep -E  '^[^#]*set masque_hote' /etc/network-in.cfg | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]')
 N_SCREEN_0=$(sed -r 's/:([0-9]).*/\1/' <<< $DISPLAY)
 X_PORT_0=$((6000 + $N_SCREEN_0))
 N_SCREEN=$(grep -E  '^[^#]*set screen' /etc/network-in.cfg | grep -o '[0-9]')
 X_PORT=$((6000 + $N_SCREEN))
+TAP=netkin_com
 
 #Création du répertoire temporaire pour les sockets
 mkdir -p $TMP/vde $TMP/terminal
@@ -21,26 +25,34 @@ chmod -R 777 $TMP
 #Nettoyage
 killall vde_switch 2> /dev/null
 
+#Arrêt avahi daemon obligatoire (le mieux est de le désinstaller)
+systemctl stop avahi-daemon 2> /dev/null
+
 #Création de l'interface et du switch de communication avec les machines virtuelles
-vde_tunctl -t networkin_com
-/sbin/ip a add $IP_HOST/$MASK_HOST dev networkin_com
-/sbin/ip link set networkin_com up
-ip route del default dev network_com 2> /dev/null
-vde_switch -d -nostdin -tap networkin_com -s $TMP/vde/switch_com -m 666
+$VDE_PATH/vde_switch -d --nostdin --tap $TAP -l /dev/null -s $TMP/vde/switch_com -m 666
+#Attente création interface TAP - il arrive qu'elle ne soit pas prête assez tôt...
+while ! ip a show dev $TAP &> /dev/null
+do
+	sleep 0.5
+done
+
+/sbin/ip a add $IP_HOST/$MASK_HOST dev $TAP
+/sbin/ip link set $TAP up
+ip route del default dev $TAP 2> /dev/null
 
 #On vide les regles du pare-feu (encore actives en cas de crash)
-/sbin/iptables -D INPUT -i networkin_com -p tcp --dport $X_PORT -j ACCEPT 2>/dev/null
-/sbin/iptables -D INPUT -i networkin_com -p tcp --dport $X_PORT_0 -j ACCEPT 2>/dev/null
-/sbin/iptables -D INPUT -i networkin_com -j DROP 2>/dev/null
-/sbin/iptables -D FORWARD -i networkin_com -j DROP 2>/dev/null
+/sbin/iptables -F NETWORKIN 2> /dev/null
+/sbin/iptables -D INPUT -i $TAP -j NETWORKIN 2> /dev/null
 
 #On empèche les machines virtuelles UML de sortir par l'interface de com
-/sbin/iptables -A INPUT -i networkin_com -p tcp --dport $X_PORT -j ACCEPT
-/sbin/iptables -A INPUT -i networkin_com -p tcp --dport $X_PORT_0 -j ACCEPT
-/sbin/iptables -A INPUT -i networkin_com -j DROP
-/sbin/iptables -A FORWARD -i networkin_com -j DROP
+/sbin/iptables -N NETWORKIN
+/sbin/iptables -A NETWORKIN -p tcp --dport $X_PORT -j ACCEPT
+/sbin/iptables -A NETWORKIN -p tcp --dport $X_PORT_0 -j ACCEPT
+/sbin/iptables -A NETWORKIN -j DROP
+/sbin/iptables -A NETWORKIN -j RETURN
+/sbin/iptables -I INPUT -i $TAP -j NETWORKIN
 
 #Activation du routage des paquets (indispensable pour passerelle nat)
 sysctl -w net.ipv4.ip_forward=1
 
-echo Network configuration ready
+echo "Network configuration ready"

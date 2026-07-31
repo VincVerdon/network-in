@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions utilitaires interface bureau ordinateur et routeur
 ####################################################################
-# Version 20250520
+# Version 20260603
 
 # proc positionnant une toplevel à la position du bureau
 ###############################################################################
@@ -161,8 +161,9 @@ proc msg_box {path {title {}} {message {}} {parent .}} {
 #######################################################
 proc clipboard_copy {widg} {
 	
-	exec xsel --primary -o | xsel --display ${::ip_hote}${::display_hote} --clipboard -i &
-	exec xsel --primary -o | xsel --clipboard -i &
+	set txt [exec xsel --primary -o]
+	ecrire_fichier_echange clip $txt
+	exec echo -n $txt | xsel --clipboard -i &
 	
 }
 

@@ -4,8 +4,8 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de config de la passerelle nat
 ####################################################################
-# Version 20250510
-set ::version(vbox) 1.0
+# Version 20250527
+set ::version(vbox) 1.1
 
 # Interface de configuration de base de la machine
 ################################################################################
@@ -54,7 +54,7 @@ proc supprime_fenetre_config_vbox {id} {
 }
 
 
-# Fait passer la fenêtre de la passerelle en avant-plan
+# Fait passer la fenêtre de la Vbox config en avant-plan
 ################################################################################
 proc show_vbox {id} {
 	if [winfo exists .vbox$id] {
@@ -97,6 +97,7 @@ proc fenetre_select_vbox {id} {
 	labelframe .vbox2$id.fvm -text [::msgcat::mc "VMs list"]
 	pack .vbox2$id.fvm -fill both -expand 1
 	ttk::treeview .vbox2$id.fvm.t -columns {nom id} -show headings -yscroll ".vbox2$id.fvm.sv set"
+	.vbox2$id.fvm.t column nom -width 400
 	pack .vbox2$id.fvm.t -side left -fill both -expand 1
 	scrollbar .vbox2$id.fvm.sv -orient vertical -command ".vbox2$id.fvm.t yview"
 	pack .vbox2$id.fvm.sv -side left -fill y
@@ -396,21 +397,37 @@ proc demarre_virtualbox {id} {
 # Arrêt soft de la VM VirtualBox
 ################################################################################
 proc arrete_virtualbox {id} {
+	
 	catch {exec $::rep/bin/conf_virtualbox $id $::obj($id,vbox_id) stop}
+	
+	# on débranche le câble
+	set id_liaison $::obj($id,eth0)
+	set ::tmp($id,etat_eth0) {}
+	arrete_connexion $id_liaison
+	
 	# l'objet est déclaré inactif désormais
 	set ::tmp($id,etat) 0
 	affiche_objet_off $id
 	puts ">>>>VM Virtualbox $id STOPPED"
+	
 }
 
 # Arrêt hard de la VM VirtualBox
 ################################################################################
 proc force_arrete_virtualbox {id} {
-	puts ">>>>Arrêt forcé VM Virtualbox $id"
+	
+	puts ">>>>VM Virtualbox $id kill asked"
 	catch {exec $::rep/bin/conf_virtualbox $id $::obj($id,vbox_id) force}
+	
+	# on débranche le câble
+	set id_liaison $::obj($id,eth0)
+	set ::tmp($id,etat_eth0) {}
+	arrete_connexion $id_liaison
+	
 	# l'objet est déclaré inactif désormais
 	set ::tmp($id,etat) 0
 	affiche_objet_off $id
 	puts ">>>>VM Virtualbox $id arrêtée"
+	
 }
 

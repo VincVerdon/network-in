@@ -3,17 +3,18 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20250520
+# Version 20260416
+set version(xterm) 1.1
 
 # Lanceur de l'application
 #####################################
-proc xterm {} {
-	term::fenetre_term
+proc xterm {{exe {}}} {
+	term::fenetre_term $exe
 }
 
 
 namespace eval term {
-
+    
     # Fenetre de lancement de term
     #####################################
     proc fenetre_term {{exe {}}} {
@@ -56,11 +57,10 @@ namespace eval term {
       pack $term.fb.q -side right
       frame $term.f -container 1
       pack $term.f -fill both -expand 1
-      if {$exe != {}} { 
-          exec st -f $::font(name) -w [scan [winfo id $term.f] %x] -e $exe &
-          
+      if {$exe != {}} {
+          eval exec st -f $::font(name) -w [winfo id $term.f] -e $exe &
       } else {
-          exec st -f $::font(name) -w [scan [winfo id $term.f] %x] &
+          eval exec st -f $::font(name) -w [winfo id $term.f] &
       }
       wm deiconify $term
       winid_maj [winid_parent [winfo id $term]]
@@ -79,7 +79,7 @@ namespace eval term {
     #######################################################
     proc apropos {term} {
         set mess [::msgcat::mc "A terminal for Network-In!"]
-        set mess "$mess\nVersion 20250419\nV. Verdon Corp. !"
+        set mess "$mess\nVersion $::version(xterm)\nV. Verdon Corp. !"
         tk_messageBox -icon info -title "[::msgcat::mc "About"]..." \
                 -message $mess -parent $term
     }

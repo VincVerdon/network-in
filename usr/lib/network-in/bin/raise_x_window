@@ -3,10 +3,15 @@
 #Programme écrit par V. Verdon
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
-#version 20250419
+#version 20260402
 ####################################################################
 TMP=/tmp/network-in
 WIN=$1		#WIN is the window identifier
 DISP=$2		#DIS is virtual X screen to use
 
-DISPLAY=$DISP wmctrl -i -a $WIN
+if [ -n "$DISP" ]
+then
+	DISPLAY=$DISP wmctrl -i -a $WIN
+else
+	wmctrl -i -a $WIN
+fi

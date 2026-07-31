@@ -4,7 +4,7 @@
 
 Function .oninit
   Var /GLOBAL networkin_version
-  StrCpy $networkin_version "2.0"
+  StrCpy $networkin_version "2.1.0"
 FunctionEnd
 
 
@@ -21,7 +21,7 @@ FunctionEnd
 Name "Network-In! Simulateur $networkin_version"
 
 ; The file to write
-OutFile "network-in_2.0.exe"
+OutFile "network-in_2.1.0-0.exe"
 
 ; Request application privileges for Windows Vista and higher
 RequestExecutionLevel user

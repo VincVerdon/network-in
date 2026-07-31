@@ -1,0 +1,54 @@
+#!/bin/bash
+####################################################################
+#Programme écrit par V. Verdon
+#Network-in est un simulateur de réseau
+#placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt")
+#version 20260616
+####################################################################
+TMP=/tmp/network-in
+VDE_PATH=/usr/lib/network-in/vde4networkin
+IP=$1
+MASK=$2
+ACTION=$3
+TAP=netkin_nat
+
+if [ "$ACTION" = "start" ]
+then
+	
+	#Méthode avec slirp, pas de ping possible !
+    $VDE_PATH/vde_switch -d --nostdin -n 2 -l /dev/null -p $TMP/switch_nat_PID -s $TMP/vde/switch_nat -m 666
+    $VDE_PATH/slirpvde -d -nostdin --host $IP/$MASK -s $TMP/vde/switch_nat
+    ##$VDE_PATH/vde_plug vde://$TMP/vde/switch_nat slirp:///host=$IP/$MASK
+	exit
+	
+	$VDE_PATH/vde_switch -d --nostdin -n 2 --tap $TAP -l $TMP/log_nat -p $TMP/switch_nat_PID -s $TMP/vde/switch_nat -m 666
+	/sbin/ip a add $IP/$MASK dev $TAP
+	/sbin/ip link set $TAP up
+	
+	#Activation parefeu pour NAT et on empèche les sessions depuis l'extérieur
+	iptables -N NETWORKIN:NAT
+	iptables -t nat -N NETWORKIN:N-NAT
+	#iptables -t nat -A NETWORKIN:N-NAT ! -s $IP/$MASK -i $TAP -j DNAT --to-destination $IP
+	#iptables -t nat -A NETWORKIN:N-NAT ! -o $TAP -j MASQUERADE
+	iptables -t nat -A POSTROUTING ! -o $TAP -j MASQUERADE
+	#iptables -A NETWORKIN:NAT -s $IP/$MASK -m state --state established,related -j ACCEPT
+	#iptables -A NETWORKIN:NAT -d $IP/$MASK -j DROP
+	
+	#ip route add 192.168.0.0/255.255.255.0 via 10.0.9.1
+    
+else
+
+	#désactivation parefeu pour passerelle NAT
+	iptables -F NETWORKIN:NAT
+	iptables -t nat -F NETWORKIN:N-NAT
+	iptables -X NETWORKIN:NAT
+	iptables -t nat -X NETWORKIN:N-NAT
+	iptables -t nat -D POSTROUTING ! -o $TAP -j MASQUERADE
+	
+	#Arrêt interface
+	/sbin/ip link set $TAP down
+	/sbin/ip link delete $TAP
+    #déparamétrage et suppression du switch
+    /bin/kill $(cat $TMP/switch_nat_PID)
+    
+fi

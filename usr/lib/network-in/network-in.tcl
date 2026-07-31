@@ -4,12 +4,13 @@
 #Network-in est un logiciel de simulation de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-#version 20251022
-set version(network-in) 2.01
+#version 20260728
+set version(network-in) 2.1.0
 
 # Démarrage de Network-in!
 ################################################################################
 ################################################################################
+puts "Starting user program network-in.tcl"
 
 encoding system utf-8
 
@@ -24,27 +25,35 @@ set rep_tmp /tmp/network-in
 # Valeur de l'orientation par défaut de la fenêtre principale
 set ::orientation horizontal
 
-# On source le fichier de config général et personnel s'il existe
+# On source le fichier de config général
 source /etc/network-in.cfg
 
-# Création des rep de config et de stockage d'images disque s'il n'existent pas
+# Création des rep de config et de stockage d'images disque perso s'ils n'existent pas
 if ![file exists $::rep_conf/disks] {
 	file mkdir $::rep_conf/disks
-	file mkdir $::rep_conf/kernels
+} else {
+	# Mise à jour des mtime des disques système si nécessaire
+	# Utile si lecture d'une maquette importée (contrôle mtime par linux.uml au démarrage VM)
+	puts [exec $rep/bin/set_disks_mtime $::rep_conf/disks]
 }
 if ![file exists $::rep_conf/kernels] {
 	file mkdir $::rep_conf/kernels
-}
+} else {
+	 # Mise à jour des mtime des disques modules si nécessaire
+	 # Utile si lecture d'une maquette importée (contrôle mtime par linux.uml au démarrage VM)
+	 puts [exec $rep/bin/set_disks_mtime $::rep_conf/kernels]
+ }
 
 # Prise en compte fichier de conf personnel s'il existe
 if {[file exists $::rep_conf/network-in.cfg]} {
   source $::rep_conf/network-in.cfg
 } else {
 	set f [open $::rep_conf/network-in.cfg w]
-	puts $f "#Insert here your own parameters configuration"
+	puts $f "#Insert here your own configuration parameters"
 	puts $f "#This overrides /etc/network-in.cfg parameters"
 	close $f
 }
+set font(xterm) [list $font(xterm)]
 
 # Rep courant initial
 set ::tmp(current_dir) $::rep_home
@@ -81,6 +90,17 @@ set ::apropos "[::msgcat::mc "Network-In! is a network simulator"]
 V. Verdon Corp! - $::version(network-in)
 https://network-in.vverdon.fr
 "
+# Définition des exe vde4networkin (vde2)
+set rep_vde $rep/vde4networkin
+set ::vde(switch) $rep_vde/vde_switch
+set ::vde(mswitch) $rep_vde/vde_switch
+set ::vde(term) $rep_vde/vdeterm
+set ::vde(dpipe) $rep_vde/dpipe
+set ::vde(plug) $rep_vde/vde_plug
+unset rep_vde
+
+# Définition exe st
+set ::exe_st $rep/bin/st
 
 # on source les differents modules
 source [file join $rep xml_structure.tcl]
@@ -88,9 +108,11 @@ source [file join $rep interface.tcl]
 source [file join $rep interface_composants.tcl]
 source [file join $rep init_composants.tcl]
 source [file join $rep traitement.tcl]
-source [file join $rep machines nat config_passerelle.tcl]
-source [file join $rep machines virtualbox config_virtualbox.tcl]
-source [file join $rep machines bridge config_bridge.tcl]
+source [file join $rep capture.tcl]
+source [file join $rep machines nat nat.tcl]
+source [file join $rep machines virtualbox virtualbox.tcl]
+source [file join $rep machines bridge bridge.tcl]
+source [file join $rep machines mswitch mswitch.tcl]
 
 # Package fsdialog pour amélioration des boites de gestion des fichiers (remplacement tk_getOpenFile et tk_SaveFile)
 lappend auto_path $::rep/fsdialog
@@ -99,9 +121,7 @@ package require fsdialog
 # Prise en compte des thèmes
 lappend auto_path $::rep/ScidLightTheme
 package require ttk-themes
-# styles possibles : clam alt default classic
 ttk::style theme use scidblue
-#ttk::style configure TRadiobutton -color  {green}
 ttk::style configure TButton -relief flat
 
 #Les boutons répondent à la touche Entrée en plus de la touche espace
@@ -114,6 +134,12 @@ bind Button <Key-Return> {
 
 #On vérifie si Virtualbox est installé
 set ::tmp(vbox_found) [is_vbox_software_installed]
+
+#On définit si l'utilisateur a l'autorisation de faire des captures
+#Si non, on utilisera le compte générique networkin-cap
+#if {![has_capture_rights]} {
+#	set capture(exe) "sudo -u networkin-cap $capture(exe)"
+#}
 
 #Construction fenetre appli
 creer_images_interface
@@ -140,3 +166,4 @@ if {[file exists $::rep_proj/structure.xml]} {
 	}
 }
 
+puts "network-in.tcl started"
