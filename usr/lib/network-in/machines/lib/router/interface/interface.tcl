@@ -5,7 +5,7 @@
 # Interface routeur
 ####################################################################
 # Version 20250621
-set version(equipment) {2.1}
+set version(equipment) {2.1.0}
 
 # Création de l'interface de configuration principale
 ################################################################################

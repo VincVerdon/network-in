@@ -3,7 +3,7 @@
 #Network-in est un simulateur de réseau
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 ####################################################################
-# Version 20250612
+# Version 20260909
 # Ce module a besoin des libs réseau
 source [file join $::rep lib_reseau.tcl]
 
@@ -109,7 +109,7 @@ proc fenetre_config_dns {} {
 
     # Choix du type de config
     labelframe .sdns.f0 -text [::msgcat::mc "Server state"]
-    pack .sdns.f0 -fill both -expand 1
+    pack .sdns.f0 -fill x
     radiobutton .sdns.f0.1 -text [::msgcat::mc "On"]  -variable ::conf_dns(dns) -value 1
     pack .sdns.f0.1 -side left
     radiobutton .sdns.f0.2 -text [::msgcat::mc "Off"] -variable ::conf_dns(dns) -value 0
@@ -117,7 +117,7 @@ proc fenetre_config_dns {} {
 
     # Choix du domaine
     labelframe .sdns.f4 -text [::msgcat::mc "Domain name"]
-    pack .sdns.f4 -fill both -expand 1
+    pack .sdns.f4 -fill x
     label .sdns.f4.l1 -text "[::msgcat::mc "Domain"] :"
     grid .sdns.f4.l1 -row 1 -column 0 -sticky e
     entry .sdns.f4.e1 -background white -width 16 -textvariable ::conf_dns(domain)
@@ -127,14 +127,15 @@ proc fenetre_config_dns {} {
     labelframe .sdns.f1 -text [::msgcat::mc "Current records"]
     pack .sdns.f1 -fill both -expand 1
     ttk::treeview .sdns.f1.t -columns {nom type param} -show headings -yscroll {.sdns.f1.sv set} -height 5
-    pack .sdns.f1.t -side left  
+    pack .sdns.f1.t -side left -fill both -expand 1
     scrollbar .sdns.f1.sv -orient vertical -command {.sdns.f1.t yview}
     pack .sdns.f1.sv -side left -fill y
     .sdns.f1.t heading nom -text [::msgcat::mc "Name"]
     .sdns.f1.t heading type -text [::msgcat::mc "Type"]
     .sdns.f1.t heading param -text [::msgcat::mc "Parameters"]
+    
     labelframe .sdns.f3 -text [::msgcat::mc "Records suppression"]
-    pack .sdns.f3 -fill both -expand 1
+    pack .sdns.f3 -fill x
     label .sdns.f3.l2 -text "[::msgcat::mc "Suppression of a selected record"] :"
     grid .sdns.f3.l2 -row 0 -column 0 -sticky w
     button .sdns.f3.b2 -width 16 -text [::msgcat::mc "Suppress"] -command {
@@ -149,7 +150,7 @@ proc fenetre_config_dns {} {
     }
 
     labelframe .sdns.f2 -text [::msgcat::mc "Add records"]
-    pack .sdns.f2 -fill both -expand 1
+    pack .sdns.f2 -fill x
     # choix du type
     frame .sdns.f2.f
     pack .sdns.f2.f
@@ -385,7 +386,7 @@ proc fenetre_config_ftp {} {
 
     # Choix du type de config
     labelframe .sftp.f0 -text [::msgcat::mc "Server state"]
-    pack .sftp.f0 -fill both -expand 1
+    pack .sftp.f0 -fill x
     radiobutton .sftp.f0.1 -text [::msgcat::mc "On"]  -variable ::conf_ftp(ftp) -value 1
     pack .sftp.f0.1 -side left
     radiobutton .sftp.f0.2 -text [::msgcat::mc "Off"] -variable ::conf_ftp(ftp) -value 0
@@ -393,7 +394,7 @@ proc fenetre_config_ftp {} {
 
     # zone de choix des répertoires accessibles
     labelframe .sftp.f4 -text [::msgcat::mc "Reachable directories"]
-    pack .sftp.f4 -fill both -expand 1
+    pack .sftp.f4 -fill x
 
     frame .sftp.f4.f
     pack .sftp.f4.f -fill x
@@ -408,7 +409,7 @@ proc fenetre_config_ftp {} {
     labelframe .sftp.f1 -text [::msgcat::mc "Users accounts"]
     pack .sftp.f1 -fill both -expand 1
     ttk::treeview .sftp.f1.t -columns {nom passe} -show headings -yscroll {.sftp.f1.sv set} -height 3
-    pack .sftp.f1.t -side left
+    pack .sftp.f1.t -side left -fill both -expand 1
     scrollbar .sftp.f1.sv -orient vertical -command {.sftp.f1.t yview}
     pack .sftp.f1.sv -side left -fill y
     .sftp.f1.t heading nom -text [::msgcat::mc "Name"]
@@ -420,7 +421,7 @@ proc fenetre_config_ftp {} {
 
     # suppression de comptes
     labelframe .sftp.f3 -text [::msgcat::mc "Accounts suppression"]
-    pack .sftp.f3 -fill both -expand 1
+    pack .sftp.f3 -fill x
     label .sftp.f3.l2 -text "[::msgcat::mc "Selected account suppression"] :"
     grid .sftp.f3.l2 -row 0 -column 0 -sticky w
     button .sftp.f3.b2 -width 16 -text [::msgcat::mc "Suppress"] -command {
@@ -431,7 +432,7 @@ proc fenetre_config_ftp {} {
 
     # ajout de comptes
     labelframe .sftp.f2 -text [::msgcat::mc "Accounts addition"]
-    pack .sftp.f2 -fill both -expand 1
+    pack .sftp.f2 -fill x
     frame .sftp.f2.f1
     pack .sftp.f2.f1 -fill x
     label .sftp.f2.f1.l1 -text "[::msgcat::mc "Name"] :"
@@ -601,7 +602,7 @@ proc fenetre_config_dhcp {} {
 
     # Choix du type de config
     labelframe .sdhcp.f0 -text [::msgcat::mc "Server state"]
-    pack .sdhcp.f0 -fill both -expand 1
+    pack .sdhcp.f0 -fill x
     radiobutton .sdhcp.f0.1 -text [::msgcat::mc "On"]  -variable ::conf_dhcp(dhcp) -value 1
     pack .sdhcp.f0.1 -side left
     radiobutton .sdhcp.f0.2 -text [::msgcat::mc "Off"] -variable ::conf_dhcp(dhcp) -value 0
@@ -609,14 +610,14 @@ proc fenetre_config_dhcp {} {
 
     # zone de saisie
     labelframe .sdhcp.f3 -text [::msgcat::mc "Listening interface"]
-    pack .sdhcp.f3 -fill both -expand 1
+    pack .sdhcp.f3 -fill x
     for  {set i 0} {$i < $::tmp(nb_eth)} {incr i} {
         radiobutton .sdhcp.f3.$i -text eth$i  -variable ::conf_dhcp(eth) -value eth$i
         pack .sdhcp.f3.$i -side left
     }
 
     labelframe .sdhcp.f2 -text [::msgcat::mc "Configuration options"]
-    pack .sdhcp.f2 -fill both -expand 1
+    pack .sdhcp.f2 -fill x
     #label .sdhcp.f2.l2 -text "[::msgcat::mc "Network mask"] :"
     #grid .sdhcp.f2.l2 -row 1 -column 0 -sticky e
     #entry .sdhcp.f2.e2 -background white -width 16 -textvariable ::conf_dhcp(netmask)
@@ -635,7 +636,7 @@ proc fenetre_config_dhcp {} {
     grid .sdhcp.f2.e6 -row 4 -column 1 -sticky w
 
     labelframe .sdhcp.f1 -text [::msgcat::mc "IP address slot"]
-    pack .sdhcp.f1 -fill both -expand 1
+    pack .sdhcp.f1 -fill x
     label .sdhcp.f1.l1 -text "[::msgcat::mc "First IP address"] :"
     grid .sdhcp.f1.l1 -row 1 -column 0 -sticky e
     entry .sdhcp.f1.e1 -background white -width 16 -textvariable ::conf_dhcp(ip1)
@@ -737,13 +738,13 @@ proc fenetre_config_http {} {
 
     # Choix du type de config
     labelframe .shttp.f0 -text [::msgcat::mc "Server state"]
-    pack .shttp.f0 -fill both -expand 1
+    pack .shttp.f0 -fill x
 
     # zone de saisie
     labelframe .shttp.f1 -text [::msgcat::mc "index.html file content"]
     pack .shttp.f1 -fill both -expand 1
     text .shttp.f1.t1 -width 50 -height 10
-    pack .shttp.f1.t1
+    pack .shttp.f1.t1 -fill both -expand 1
     .shttp.f1.t1 insert end [lire_fichier /var/www/html/index.html]
 
     # Choix du type de config... Suite
@@ -813,11 +814,11 @@ proc fenetre_config_ssh {} {
     pack .sssh.ico
 
     label .sssh.l -text [::msgcat::mc "The SSH server offers ability to control the computer at distance "]
-    pack .sssh.l
+    pack .sssh.l -fill y -expand 1
 
     # Choix du type de config
     labelframe .sssh.f0 -text [::msgcat::mc "Server state"]
-    pack .sssh.f0 -fill both -expand 1
+    pack .sssh.f0 -fill x
 
     # Choix du type de config... Suite
     radiobutton .sssh.f0.1 -text [::msgcat::mc "On"]  -variable ::conf_ssh(ssh) -value 1
@@ -827,7 +828,7 @@ proc fenetre_config_ssh {} {
 
     # zone de choix de connexion root possible
     labelframe .sssh.f4 -text [::msgcat::mc "Security"]
-    pack .sssh.f4 -fill both -expand 1
+    pack .sssh.f4 -fill x
     frame .sssh.f4.f
     pack .sssh.f4.f -fill x
     label .sssh.f4.f.l -text "[::msgcat::mc "Direct admin (root) connexion"] :"

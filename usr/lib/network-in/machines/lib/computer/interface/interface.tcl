@@ -4,8 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface bureau
 ####################################################################
-# Version 20250504
-set version(equipment) {2.1}
+# Version 20260910
 
 # Création de l'interface principale (bureau)
 ################################################################################

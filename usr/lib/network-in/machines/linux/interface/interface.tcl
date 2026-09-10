@@ -5,7 +5,7 @@
 # Interface bureau Linux texte
 ####################################################################
 # Version 20260501
-set version(equipment) {1.1}
+set version(equipment) {1.1.0}
 
 # Création de l'interface principale machine type Linux
 ################################################################################

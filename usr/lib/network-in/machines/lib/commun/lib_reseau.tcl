@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions gestion réseau ordinateur et routeur
 ####################################################################
-# Version 20250527
+# Version 20260909
 
 # Ecriture du nom dans /etc/hostname
 ################################################################################
@@ -273,7 +273,7 @@ proc lire_dns_machine {} {
   set f [open /etc/resolv.conf r]
   while {![eof $f]} {
     gets $f ligne
-    if {[lindex $ligne 0] == "domain"} {
+    if {[lindex $ligne 0] == "search" || [lindex $ligne 0] == "domain"} {
       set domain [lindex $ligne 1]
     }
     if {[lindex $ligne 0] == "nameserver" && $i <4} {
