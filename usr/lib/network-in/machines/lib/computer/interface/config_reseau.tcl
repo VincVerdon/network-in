@@ -15,7 +15,7 @@ proc config_reseau {} {
     destroy .cfg
     toplevel .cfg
     wm title .cfg  [::msgcat::mc "Network configuration"]
-	wm protocol .cfg WM_DELETE_WINDOW quit_cfg
+    wm protocol .cfg WM_DELETE_WINDOW quit_cfg
     positionne_fenetre .cfg
 
     label .cfg.ico -image im_config
@@ -34,26 +34,26 @@ proc config_reseau {} {
 
     button .cfg.q -compound left -text [::msgcat::mc "Close"] -image im_annuler -command {quit_cfg}
     pack .cfg.q
-	focus .cfg.q
+    focus .cfg.q
 
     update
     winid_maj [winid_parent [winfo id .cfg]]
-	
-	bind Button <Key-Return> { 
-		%W invoke
-	}
-	
+    
+    bind Button <Key-Return> { 
+        %W invoke
+    }
+    
 }
 
 
 # Fenetre de config du nom
 ################################################################################
 proc quit_cfg {} {
-	destroy .cfg
-	destroy .cfgnom
-	destroy .cfgdns
-	destroy .cfgci
-	destroy .cfgcip
+    destroy .cfg
+    destroy .cfgnom
+    destroy .cfgdns
+    destroy .cfgci
+    destroy .cfgcip
 }
 
 
@@ -61,45 +61,45 @@ proc quit_cfg {} {
 ################################################################################
 proc fenetre_config_nom {} {
 
-	if [winfo exists .cfgnom] {
+    if [winfo exists .cfgnom] {
         raise .cfgnom
         return
     }
     
-	toplevel .cfgnom
-	wm title .cfgnom  [::msgcat::mc "Name configuration"]
-	wm transient .cfgnom .cfg
-	positionne_fenetre .cfgnom .cfg
-	
-	label .cfgnom.ico -image im_config
-	pack .cfgnom.ico
-	
-	# zone de saisie
-	labelframe .cfgnom.f
-	pack .cfgnom.f -fill both -expand 1
-	label .cfgnom.f.l -text "[::msgcat::mc "Name"] :"
-	pack .cfgnom.f.l -side left
-	entry .cfgnom.f.e -background white
-	pack .cfgnom.f.e -fill x -side left -expand 1
-	.cfgnom.f.e insert end [lire_nom_machine]
-	
-	# boutons
-	frame .cfgnom.fb
-	pack .cfgnom.fb
-	button .cfgnom.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command {
-		set ::tmp(nom) [.cfgnom.f.e get]
-		if {$::tmp(nom) == {}} {
-			tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "You must choose a name"]
-		} else  {
-			changer_nom_machine $::tmp(nom)
-			destroy .cfgnom
-		}
-	}
-	pack .cfgnom.fb.v -side left
-	button .cfgnom.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .cfgnom}
-	pack .cfgnom.fb.a -side left
-	focus .cfgnom.fb.a
-	
+    toplevel .cfgnom
+    wm title .cfgnom  [::msgcat::mc "Name configuration"]
+    wm transient .cfgnom .cfg
+    positionne_fenetre .cfgnom .cfg
+    
+    label .cfgnom.ico -image im_config
+    pack .cfgnom.ico
+    
+    # zone de saisie
+    labelframe .cfgnom.f
+    pack .cfgnom.f -fill both -expand 1
+    label .cfgnom.f.l -text "[::msgcat::mc "Name"] :"
+    pack .cfgnom.f.l -side left
+    entry .cfgnom.f.e -background white
+    pack .cfgnom.f.e -fill x -side left -expand 1
+    .cfgnom.f.e insert end [lire_nom_machine]
+    
+    # boutons
+    frame .cfgnom.fb
+    pack .cfgnom.fb
+    button .cfgnom.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command {
+        set ::tmp(nom) [.cfgnom.f.e get]
+        if {$::tmp(nom) == {}} {
+            tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "You must choose a name"]
+        } else  {
+            changer_nom_machine $::tmp(nom)
+            destroy .cfgnom
+        }
+    }
+    pack .cfgnom.fb.v -side left
+    button .cfgnom.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .cfgnom}
+    pack .cfgnom.fb.a -side left
+    focus .cfgnom.fb.a
+    
 }
 
 
@@ -113,12 +113,12 @@ proc fenetre_config_client_dns {} {
     }
 
     # lecture de la config ip pour savoir si on est en dhcp (alors DNS en lecture seule)
-    set ip [lire_interfaces]
-    if {[string first dhcp [array get ::tmp eth*]]  != {-1} || [string first dhcp [array get ::tmp wlan*]]  != {-1}} {
-        set mode dhcp
-    } else  {
-        set mode static
-    }
+    #set ip [lire_interfaces]
+    #if {[string first dhcp [array get ::tmp eth*]]  != {-1} || [string first dhcp [array get ::tmp wlan*]]  != {-1}} {
+    #    set mode dhcp
+    #} else  {
+    #    set mode static
+    #}
     # lecture de la config DNS
     set resolv [lire_dns_machine]
 
@@ -135,10 +135,10 @@ proc fenetre_config_client_dns {} {
     label .cfgdns.ico -image im_config
     pack .cfgdns.ico
 
-    if {$mode == {dhcp}} {
-        label .cfgdns.l -text [::msgcat::mc "DHCP : automatic DNS configuration"]
-        pack .cfgdns.l
-    }
+    #if {$mode == {dhcp}} {
+    #    label .cfgdns.l -text [::msgcat::mc "DHCP : automatic DNS configuration"]
+    #    pack .cfgdns.l
+    #}
 
     # zone de saisie
     labelframe .cfgdns.f
@@ -178,8 +178,8 @@ proc fenetre_config_client_dns {} {
     }
     button .cfgdns.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .cfgdns}
     pack .cfgdns.fb.a -side left
-	focus .cfgdns.fb.a
-	
+    focus .cfgdns.fb.a
+    
 }
 
 
@@ -187,18 +187,20 @@ proc fenetre_config_client_dns {} {
 proc config_interfaces {} {
 
     # lecture de toutes les interfaces
-    lire_interfaces
-
-    # si on a une seule interface, on n'a pas le choix !
-    if {[expr $::tmp(nb_eth) + $::tmp(nb_wlan)] <= {1}} {
-        if {$::tmp(nb_eth) == {1}} {
-            fenetre_config_ip eth0
-        } else  {
-            fenetre_config_ip wlan0
+    set liste [get_interfaces_list]
+    
+    # si on a une seule interface, on cherche si elle possède des interfaces virtuelles
+    if {[llength $liste] == {1}} {
+        set interf [lindex $liste 0]
+        if {[get_virtual_interfaces_vlan $interf] == {}} {
+            fenetre_config_ip $interf
+        } else {
+            fenetre_choix_interface
         }
     } else  {
         fenetre_choix_interface
     }
+    
 }
 
 
@@ -209,13 +211,7 @@ proc fenetre_choix_interface {} {
         raise .cfgci
         return
     }
-
-    # lecture de toutes les interfaces
-    lire_interfaces
-
-    set nb_eth $::tmp(nb_eth)
-    set nb_wlan $::tmp(nb_wlan)
-
+    
     toplevel .cfgci
     wm transient .cfgci .cfg
     wm title .cfgci [::msgcat::mc "IP configuration"]
@@ -224,26 +220,24 @@ proc fenetre_choix_interface {} {
     label .cfgci.ico -image im_config
     pack .cfgci.ico
 
-    if {$nb_eth > 0} {
-        labelframe .cfgci.f1 -text [::msgcat::mc "Ethernet interfaces"]
-        pack .cfgci.f1 -fill both -expand 1
-        for  {set i 0} {$i < $nb_eth} {incr i} {
-            button .cfgci.f1.$i -text eth$i -command "fenetre_config_ip eth$i"
-            pack .cfgci.f1.$i -fill x
-        }
-    }
-    if {$nb_wlan > 0} {
-        labelframe .cfgci.f2 -text [::msgcat::mc "Wifi interfaces"]
-        pack .cfgci.f2 -fill both -expand 1
-        for  {set i 0} {$i < $nb_wlan} {incr i} {
-            button .cfgci.f2.$i -text wlan$i -command "fenetre_config_ip wlan$i"
-            pack .cfgci.f2.$i -fill x
+    labelframe .cfgci.f1 -text [::msgcat::mc "Ethernet interfaces"]
+    pack .cfgci.f1 -fill both -expand 1
+    set i 0
+    foreach interf [get_interfaces_list] {
+        incr i
+        button .cfgci.f1.$i -text $interf -command "fenetre_config_ip $interf"
+        pack .cfgci.f1.$i -fill x
+        # On cherche si des interfaces virtuelles existent pour cette interface physique
+        set ::tmp($interf,liste_vlan) [get_virtual_interfaces_vlan $interf]
+        foreach vlan $::tmp($interf,liste_vlan) {
+            button .cfgci.f1.$i-$vlan -text "$interf.$vlan" -command "fenetre_config_ip $interf.$vlan"
+            pack .cfgci.f1.$i-$vlan -fill x
         }
     }
 
     button .cfgci.v -compound left -text [::msgcat::mc "Close"] -image im_annuler -command {destroy .cfgci}
     pack .cfgci.v
-	focus .cfgci.v
+    focus .cfgci.v
   
 }
 
@@ -257,14 +251,14 @@ proc fenetre_config_ip {interf} {
         return
     }
     
-    set ::tmp(interface) $interf
-    set ::tmp(mode) [lindex $::tmp($interf) 0]
-    set ::tmp(etat) [lindex $::tmp($interf) 4]
+    set ::tmp(interf) [lire_interface $interf]
+    set ::tmp(mode) [lindex $::tmp(interf) 0]
+    set ::tmp(etat) [lindex $::tmp(interf) 4]
 
     if {$::tmp(mode) == {static}} {
-        set ::tmp(ip) [lindex $::tmp($interf) 1]
-        set ::tmp(netmask) [lindex $::tmp($interf) 2]
-        set ::tmp(gateway) [lindex $::tmp($interf) 3]
+        set ::tmp(ip) [lindex $::tmp(interf) 1]
+        set ::tmp(netmask) [lindex $::tmp(interf) 2]
+        set ::tmp(gateway) [lindex $::tmp(interf) 3]
         set ::tmp(sauve_ip) $::tmp(ip)
         set ::tmp(sauve_netmask) $::tmp(netmask)
         set ::tmp(sauve_gateway) $::tmp(gateway)
@@ -351,6 +345,18 @@ proc fenetre_config_ip {interf} {
     }
     pack .cfgcip.f0.2 -side left
 
+    # Gestion interfaces virtuelles
+    if {[regexp {.+\.[0-9]+} $interf res]} {
+        #Interface virtuelle
+        button .cfgcip.bvirt -text [::msgcat::mc "Delete this virtual interface"] -command "fenetre_del_virtual_interface $interf"
+        pack .cfgcip.bvirt -fill x
+    } else {
+        label .cfgcip.lvirt -text "[get_virtual_interfaces_vlan $interf]"
+        pack .cfgcip.lvirt
+        button .cfgcip.bvirt -text [::msgcat::mc "Add a virtual interface"] -command "fenetre_add_virtual_interface $interf"
+        pack .cfgcip.bvirt -fill x
+    }
+    
     # boutons
     frame .cfgcip.fb
     pack .cfgcip.fb
@@ -363,7 +369,7 @@ proc fenetre_config_ip {interf} {
     pack .cfgcip.fb.a -side right
     button .cfgcip.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command "ch_ip $interf"
     focus .cfgcip.fb.a
-	
+    
     # prise en compte du mode
     set ::tmp(etat_config_ip) 0
     if { $::tmp(mode) == "static"} {
@@ -377,6 +383,66 @@ proc fenetre_config_ip {interf} {
         .cfgcip.f.e3 configure -state readonly
     }
 
+}
+
+
+# Fenetre ajout interface virtuelle
+################################################################################
+proc fenetre_add_virtual_interface {interf} {
+
+    destroy .cfgcip
+    
+    if [winfo exists .cfgvirt] {
+        raise .cfgvirt
+        return
+    }
+    
+    toplevel .cfgvirt
+    wm title .cfgvirt [::msgcat::mc "Virtual interface"]
+    wm transient .cfgvirt .cfg
+    positionne_fenetre .cfgvirt .cfg
+    
+    label .cfgvirt.ico -image im_config
+    pack .cfgvirt.ico
+
+    label .cfgvirt.l -text "[::msgcat::mc "Virtual interface add to "] $interf. Enter VLAN number"
+    pack .cfgvirt.l
+    
+    # zone de saisie
+    labelframe .cfgvirt.f
+    pack .cfgvirt.f -fill both -expand 1
+    label .cfgvirt.f.l -text "[::msgcat::mc "VLAN number"] :"
+    pack .cfgvirt.f.l -side left
+    entry .cfgvirt.f.e -background white
+    pack .cfgvirt.f.e -fill x -side left -expand 1
+    #.cfgvirt.f.e insert end [lire_nom_machine]
+    
+    # boutons
+    frame .cfgvirt.fb
+    pack .cfgvirt.fb
+    button .cfgvirt.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "add_virtual_interface $interf"
+    pack .cfgvirt.fb.v -side left
+    button .cfgvirt.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .cfgvirt}
+    pack .cfgvirt.fb.a -side left
+    focus .cfgvirt.fb.a
+    
+}
+
+
+# Ajout interface virtuelle
+################################################################################
+proc add_virtual_interface {interf} {
+
+    set vlan [.cfgvirt.f.e get]
+    if {$vlan == {}} {
+        tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "You must choose a VLAN number"]
+        raise .cfgvirt
+    } else  {
+        destroy .cfgvirt
+        lappend ::tmp($interf,liste_vlan) $vlan
+        fenetre_config_ip "$interf.$vlan"
+    }
+    
 }
 
 

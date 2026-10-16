@@ -4,23 +4,23 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions gestion réseau ordinateur et routeur
 ####################################################################
-# Version 20260909
+# Version 20261013
 
 # Ecriture du nom dans /etc/hostname
 ################################################################################
 proc changer_nom_machine {nom} {
-	# Mise à jour hostname
-	exec echo $nom > /etc/hostname
-	exec hostname $nom
-	
-	# On met à jour le nom dans le fichier hosts
-	exec sed -i s/$::nom_machine/$nom/ /etc/hosts
-	
-	# On sauvegarde le nouveau nom
-	set ::nom_machine $nom
-	
-	# Affichage
-	wm title . "$nom"
+    # Mise à jour hostname
+    exec echo $nom > /etc/hostname
+    exec hostname $nom
+    
+    # On met à jour le nom dans le fichier hosts
+    exec sed -i s/$::nom_machine/$nom/ /etc/hosts
+    
+    # On sauvegarde le nouveau nom
+    set ::nom_machine $nom
+    
+    # Affichage
+    wm title . "$nom"
 }
 
 
@@ -28,134 +28,157 @@ proc changer_nom_machine {nom} {
 # Enregistrement de la nouvelle config dans /etc/network/interfaces
 ################################################################################
 proc changer_ip_machine {} {
-	
-	# arret des interfaces
-	catch {exec systemctl stop networking.service}
-	for {set i 0} {$i < $::tmp(nb_eth)} {incr i} {
-        catch {exec ip a flush eth$i}
-    }
     
-	# mise à jour du fichier interfaces
-	set f [open /etc/network/interfaces w]
-	puts $f "#Automatic configuration by Network-In interface"
-	puts $f ""
-	# config de l'interface loopback
-	puts $f "#Interface lo"
-	puts $f "auto lo"
-	puts $f "iface lo inet loopback"
-	# config des ethernet
-	for {set i 0} {$i < $::tmp(nb_eth)} {incr i} {
-		set interface eth$i
-		set address [lindex $::tmp($interface) 1]
-		set mode [lindex $::tmp($interface) 0]
-		set etat  [lindex $::tmp($interface) 4]
-		if {$mode == {static} && $address != {}} {
-			puts $f ""
-			puts $f "#Interface $interface"
-			if {$etat == {1}} {
-				puts $f "auto $interface"
-			}
-			puts $f "iface $interface inet static"
-			set address [lindex $::tmp($interface) 1]
-			set netmask [lindex $::tmp($interface) 2]
-			set gateway [lindex $::tmp($interface) 3]
-			puts $f "address $address"
-			puts $f "netmask $netmask"
-			if {$gateway != {}} {
-				puts $f "gateway $gateway"
-			}
-		}
-		if {$mode == {dhcp}} {
-			puts $f ""
-			puts $f "#Interface $interface"
-			if {$etat == {1}} {
-				puts $f "auto $interface"
-			}
-			puts $f "iface $interface inet dhcp"
-		}
-	}
-	close $f
-	
-	# redémarrage des interfaces réseau
-	catch {exec systemctl start networking.service &}
-	
+    # arret des interfaces
+    catch {exec systemctl stop networking.service}
+    set l_interf [get_interfaces_list]
+    # mise à jour du fichier interfaces
+    set f [open /etc/network/interfaces w]
+    puts $f "#Automatic configuration by Network-In interface"
+    puts $f ""
+    # config de l'interface loopback
+    puts $f "#Interface lo"
+    puts $f "auto lo"
+    puts $f "iface lo inet loopback"
+    # config des interfaces physiques
+    foreach interf $l_interf {
+        catch {exec ip a flush $interf}
+        write_interf_conf $f $interf
+        foreach vlan [get_virtual_interfaces_vlan $interf] {
+            catch {exec ip a flush $interf.$vlan}
+            puts $interf.$vlan
+            #write_interf_conf $f $interf.$vlan
+        }
+    }
+    close $f
+    
+    # redémarrage des interfaces réseau
+    catch {exec systemctl start networking.service &}
+    
 }
 
 
-# Lit le fichier d'échange des interfaces et complète les données dans $tmp
-# $tmp(nb_eth) et $nb(nb_wlan) et les ip dans $tmp(eth0)... $tmp(wlan1)...
+# Enregistrement du bloc concernant l'interface dans /etc/network/interfaces
 ################################################################################
-proc lire_interfaces {} {
-	set ::tmp(nb_eth) 0
-	set ::tmp(nb_wlan) 0
-	
-	set l_int [lire_fichier_echange interfaces]
-	foreach {type nb} $l_int {
-		set ::tmp(nb_$type) $nb
-		for  {set i 0} {$i < $::tmp(nb_$type)} {incr i} {
-			# lecture de la config ip des interfaces
-			set ::tmp($type$i) [lire_interface $type$i]
-		}
-	}
+proc write_interf_conf {f interface} {
+    
+    set conf [lire_interface $interface]
+    puts $conf
+    set address [lindex $conf 1]
+    set mode [lindex $conf 0]
+    set etat  [lindex $conf 4]
+    if {$mode == {static} && $address != {}} {
+        puts $f ""
+        puts $f "#Interface $interface"
+        if {$etat == {1}} {
+            puts $f "auto $interface"
+        }
+        puts $f "iface $interface inet static"
+        set netmask [lindex $conf 2]
+        set gateway [lindex $conf 3]
+        puts $f "address $address"
+        puts $f "netmask $netmask"
+        if {$gateway != {}} {
+            puts $f "gateway $gateway"
+        }
+    }
+    if {$mode == {dhcp}} {
+        puts $f ""
+        puts $f "#Interface $interface"
+        if {$etat == {1}} {
+            puts $f "auto $interface"
+        }
+        puts $f "iface $interface inet dhcp"
+    }
+    
+}
+
+
+# Lit le fichier d'échange des interfaces et retourne la liste
+# Retourne également les interfaces virtuelles (lliste des vlans dans ::tmp(ethX,vlan)
+################################################################################
+proc get_interfaces_list {} {
+
+    set liste {}
+    set l_int [lire_fichier_echange interfaces]
+    foreach {type nb} $l_int {
+        for  {set i 0} {$i < $nb} {incr i} {
+            lappend liste $type$i
+            # initialisation liste des vlan interfaces virtuelles
+            set ::tmp($type$i,vlan) [get_virtual_interfaces_vlan $type$i]
+        }
+    }
+    return $liste
+    
 }
 
 
 # lecture du fichier hostname
 ################################################################################
 proc lire_nom_machine {} {
-	return [exec cat /etc/hostname]
+    return [exec cat /etc/hostname]
 }
 
 
 # lecture du fichier interfaces
 ################################################################################
 proc lire_interface {interface} {
-	
-	set mode {static}
-	set etat 0
-	set address {}
-	set netmask {}
-	set gateway {}
-	
-	set f [open /etc/network/interfaces r]
-	
-	# recherche de l'interface
-	while {![eof $f]} {
-		gets $f ligne
-		if {[lindex $ligne 0] == "auto" && [lindex $ligne 1] == $interface} {
-			set etat 1
-		} elseif {[lindex $ligne 0]  == "iface" && [lindex $ligne 1] == $interface} {
-			break
-		} else  {
-			set ligne {}
-		}
-	}
-	if {$ligne == {}} {
-		return [list $mode $address $netmask $gateway $etat]
-	}
-	
-	# si dhcp, alors on a finit de lire le fichier et on sort
-	set mode [lindex $ligne 3]
-	if {$mode == "dhcp"} {
-		close $f
-		return [list $mode $address $netmask $gateway $etat ]
-	}
-	
-	# recherche des autres paramètres
-	while {![eof $f]} {
-		gets $f ligne
-		switch [lindex $ligne 0] {
-			{iface} {
-				# on tombe sur la config d'une autre interface. On sort !
-				break
-			}
-			{address} {set address [lindex $ligne 1]}
-			{netmask} {set netmask [lindex $ligne 1]}
-			{gateway} {set gateway [lindex $ligne 1]}
-		}
-	}
-	close $f
-	return [list $mode $address $netmask $gateway $etat]
+    
+    set mode {static}
+    set etat 0
+    set address {}
+    set netmask {}
+    set gateway {}
+    set stop 0
+    set f [open /etc/network/interfaces r]
+    # recherche de l'interface
+    while {![eof $f] && $stop == 0} {
+        gets $f ligne
+        if {[lindex $ligne 0] == "auto" && [lindex $ligne 1] == $interface} {
+            set etat 1
+        } elseif {[lindex $ligne 0]  == "iface" && [lindex $ligne 1] == $interface} {
+            set mode [lindex $ligne 3]
+            if {$mode == "dhcp"} {
+                set stop 1
+            } else {
+                while {![eof $f] && $stop == 0} {
+                    gets $f ligne
+                    switch [lindex $ligne 0] {
+                        {iface} {
+                            # on tombe sur la config d'une autre interface. On a términé
+                            set stop 1
+                        }
+                        {address} {set address [lindex $ligne 1]}
+                        {netmask} {set netmask [lindex $ligne 1]}
+                        {gateway} {set gateway [lindex $ligne 1]}
+                    }
+                }
+            }
+        }
+    }
+    close $f
+    return [list $mode $address $netmask $gateway $etat]
+    
+}
+
+
+
+# recherche d'interfaces virtuelles pour l'interface en paramètre
+################################################################################
+proc get_virtual_interfaces_vlan {interf} {
+    
+    set ret {}
+    set f [open /etc/network/interfaces r]
+    set exp "iface.*$interf\.(\[0-9\]+)"
+    # recherche de l'interface
+    while {![eof $f]} {
+        gets $f ligne
+        if {[regexp $exp $ligne res vlan]} {
+            lappend ret $vlan
+        }
+     }
+     return $ret
+     
 }
 
 
@@ -163,37 +186,28 @@ proc lire_interface {interface} {
 ################################################################################
 proc lire_ifconfig {interf} {
   
-  # recherche de l'ip
-  set a [catch {set res [exec /sbin/ifconfig $interf]}]
-  if {$a != {0}} {return {{} {} {}}}
-  set n [lsearch $res "addr:*"]
-  if {$n == {-1}} {
-    set n [lsearch $res "adr:*"]
-  }
+    set ret {}
+    set err [catch {set ip_inf [exec /sbin/ip address show $interf]}]
+    if {$err == {0}} {
+        set exp {inet ([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/([0-9]{1,2}).*}
+        if {[regexp $exp $ip_inf res ip netmask]} { 
+            set ret [list $ip $netmask]
+        }
+    }
   
-  if {$n == {-1}} {
-    # pas d'ip configurée
-    return {{} {} {}}
-  }
-  
-  set ip [lindex $res $n]
-  set ip [split $ip {:}]
-  set ip [lindex $ip 1]
-  
-  # recherche du masque
-  set n [lsearch $res "Mas*"]
-  set netmask [lindex $res $n]
-  set netmask [split $netmask {:}]
-  set netmask [lindex $netmask 1]
-  
-  # recherche de la passerelle
-  set a [catch {set res [eval exec /sbin/route -n | grep "^0.0.0.0.*$interf"]}]
-  if {$a != {0}} {return "$ip $netmask {}"}
-  set gateway [lindex $res 1]
-  return "$ip $netmask $gateway"
+    # recherche de la passerelle
+    set err [catch {set route_inf [exec /sbin/ip route]}]
+    if {$err == {0}} {
+        #set exp {default via.*([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}).*$interf}
+        set exp "(\[0-9\]{1,3}\.\[0-9\]{1,3}\.\[0-9\]{1,3}\.\[0-9\]{1,3}).*$interf"
+        if {[regexp $exp $route_inf res gateway]} { 
+            lappend ret $gateway
+        }
+    }
+    
+    return $ret
   
 }
-
 
 #Fonction qui calcule le masque décimal pointé à partir du CIDR
 ################################################################################
@@ -224,25 +238,25 @@ proc calcul_mask_cidr2dec {cidr} {
 #Fonction qui calcule l'ip de réseau à partir de l'IP+masque
 ################################################################################
 proc calcul_reseau {ip mask} {
-	
-	  # Convertir l'adresse IP et le masque en listes d'octets
-	  set ipBytes [split $ip "."]
-	  set maskBytes [split $mask "."]
+    
+      # Convertir l'adresse IP et le masque en listes d'octets
+      set ipBytes [split $ip "."]
+      set maskBytes [split $mask "."]
   
-	  # Initialiser une liste pour stocker les octets de l'adresse réseau
-	  set networkBytes {}
+      # Initialiser une liste pour stocker les octets de l'adresse réseau
+      set networkBytes {}
   
-	  # Calculer chaque octet de l'adresse réseau
-	  for {set i 0} {$i < 4} {incr i} {
-		  set ipByte [lindex $ipBytes $i]
-		  set maskByte [lindex $maskBytes $i]
-		  set networkByte [expr {$ipByte & $maskByte}]
-		  lappend networkBytes $networkByte
-	  }
+      # Calculer chaque octet de l'adresse réseau
+      for {set i 0} {$i < 4} {incr i} {
+          set ipByte [lindex $ipBytes $i]
+          set maskByte [lindex $maskBytes $i]
+          set networkByte [expr {$ipByte & $maskByte}]
+          lappend networkBytes $networkByte
+      }
   
-	  # Joindre les octets pour former l'adresse réseau
-	  return [join $networkBytes "."]
-	
+      # Joindre les octets pour former l'adresse réseau
+      return [join $networkBytes "."]
+    
 }
 
 # Ecriture DNS dans resolv.conf

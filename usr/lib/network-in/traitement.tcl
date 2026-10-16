@@ -629,6 +629,8 @@ proc boucle_scan_objet {id} {
         		maj_infos_connexion $id_liaison
         	}
           }
+          # Lecture des interfaces virtuelles éventuelles
+			
         }
       	#récupération de la liste des winid de la machine
       	set ::tmp($id,win_id) [lire_fichier_echange $id window_id]
