@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions gestion réseau ordinateur et routeur
 ####################################################################
-# Version 20261013
+# Version 20261019
 
 # Ecriture du nom dans /etc/hostname
 ################################################################################
@@ -24,16 +24,24 @@ proc changer_nom_machine {nom} {
 }
 
 
-# Changement de la configuration IP des interfaces
+# Changement de la configuration IP d'une interface
 # Enregistrement de la nouvelle config dans /etc/network/interfaces
 ################################################################################
-proc changer_ip_machine {} {
+proc changer_ip_machine {interface config} {
     
     # arret des interfaces
     catch {exec systemctl stop networking.service}
+    # chargement de la liste de toutes les interfaces
     set l_interf [get_interfaces_list]
+    foreach interf $l_interf {
+    if { ! [regexp {.*\..*} $interf res]} {
+        foreach vlan [get_virtual_interfaces_vlan $interf] {
+            lappend l_interf $interf.$vlan
+        }
+    }
+    }
     # mise à jour du fichier interfaces
-    set f [open /etc/network/interfaces w]
+    set f [open /etc/network/interfaces.new w]
     puts $f "#Automatic configuration by Network-In interface"
     puts $f ""
     # config de l'interface loopback
@@ -43,15 +51,15 @@ proc changer_ip_machine {} {
     # config des interfaces physiques
     foreach interf $l_interf {
         catch {exec ip a flush $interf}
-        write_interf_conf $f $interf
-        foreach vlan [get_virtual_interfaces_vlan $interf] {
-            catch {exec ip a flush $interf.$vlan}
-            puts $interf.$vlan
-            #write_interf_conf $f $interf.$vlan
+        if {$interface == $interf} {
+            set conf $config
+        } else {
+            set conf [lire_interface $interf]
         }
+        write_interf_block $f $interf $conf
     }
     close $f
-    
+    file rename -force /etc/network/interfaces.new /etc/network/interfaces
     # redémarrage des interfaces réseau
     catch {exec systemctl start networking.service &}
     
@@ -60,10 +68,8 @@ proc changer_ip_machine {} {
 
 # Enregistrement du bloc concernant l'interface dans /etc/network/interfaces
 ################################################################################
-proc write_interf_conf {f interface} {
+proc write_interf_block {f interface conf} {
     
-    set conf [lire_interface $interface]
-    puts $conf
     set address [lindex $conf 1]
     set mode [lindex $conf 0]
     set etat  [lindex $conf 4]

@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de configuration réseau
 ####################################################################
-# Version 20250509
+# Version 20261019
 # Ce module a besoin des libs réseau
 source [file join $::rep lib_reseau.tcl]
 
@@ -256,6 +256,7 @@ proc fenetre_config_ip {interf} {
     set ::tmp(etat) [lindex $::tmp(interf) 4]
 
     if {$::tmp(mode) == {static}} {
+        # conf statique, on lit les infos du fichier interfaces
         set ::tmp(ip) [lindex $::tmp(interf) 1]
         set ::tmp(netmask) [lindex $::tmp(interf) 2]
         set ::tmp(gateway) [lindex $::tmp(interf) 3]
@@ -264,6 +265,7 @@ proc fenetre_config_ip {interf} {
         set ::tmp(sauve_gateway) $::tmp(gateway)
         set ::tmp(sauve_etat) $::tmp(etat)
     } else  {
+        # conf DHCP, on lit les infos avec ip a
         set res [lire_ifconfig $interf]
         set ::tmp(ip) [lindex $res 0]
         set ::tmp(netmask) [lindex $res 1]
@@ -346,15 +348,21 @@ proc fenetre_config_ip {interf} {
     pack .cfgcip.f0.2 -side left
 
     # Gestion interfaces virtuelles
+    labelframe .cfgcip.f3 -text [::msgcat::mc "Virtual interface management"]
+    pack .cfgcip.f3 -fill both -expand 1
     if {[regexp {.+\.[0-9]+} $interf res]} {
         #Interface virtuelle
-        button .cfgcip.bvirt -text [::msgcat::mc "Delete this virtual interface"] -command "fenetre_del_virtual_interface $interf"
-        pack .cfgcip.bvirt -fill x
+        button .cfgcip.f3.bvirt -text [::msgcat::mc "Delete this virtual interface"] -command "fenetre_del_virtual_interface $interf"
+        pack .cfgcip.f3.bvirt -fill x
     } else {
-        label .cfgcip.lvirt -text "[get_virtual_interfaces_vlan $interf]"
-        pack .cfgcip.lvirt
-        button .cfgcip.bvirt -text [::msgcat::mc "Add a virtual interface"] -command "fenetre_add_virtual_interface $interf"
-        pack .cfgcip.bvirt -fill x
+        set ltext "[::msgcat::mc "Virtual interfaces list : "]"
+        foreach vlan [get_virtual_interfaces_vlan $interf] {
+            lappend ltext "$interf.$vlan"
+        }
+        label .cfgcip.f3.lvirt -text $ltext
+        pack .cfgcip.f3.lvirt
+        button .cfgcip.f3.bvirt -text [::msgcat::mc "Add a new virtual interface"] -command "fenetre_add_virtual_interface $interf"
+        pack .cfgcip.f3.bvirt -fill x
     }
     
     # boutons
@@ -458,8 +466,8 @@ proc ch_ip {interf} {
             }
         }
     }
-    set ::tmp($interf) [list $::tmp(mode) $::tmp(ip) $::tmp(netmask) $::tmp(gateway) $::tmp(etat)]
-    changer_ip_machine
+    set conf [list $::tmp(mode) $::tmp(ip) $::tmp(netmask) $::tmp(gateway) $::tmp(etat)]
+    changer_ip_machine $interf $conf 
     destroy .cfgcip
     if {[winfo exists .cfgci]} {
         wm deiconify .cfgci
