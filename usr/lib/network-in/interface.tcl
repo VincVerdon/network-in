@@ -1634,12 +1634,13 @@ proc dialogue_confirm_arreter_tout {} {
 		set ret 1
 	} else {
 		set reponse [tk_messageBox -type yesno -default no -parent .main -icon warning -title [::msgcat::mc "Warning"] \
-		 -message [::msgcat::mc "This action causes to stop every equipment. Proceed ?"]]
-	  if {$reponse == "yes"} {
-		  set ret 1
-	  }
+		-message [::msgcat::mc "This action causes to stop every equipment. Proceed ?"]]
+		if {$reponse == "yes"} {
+			set ret 1
+		}
 	}
 	return $ret
+	
 }
 
 

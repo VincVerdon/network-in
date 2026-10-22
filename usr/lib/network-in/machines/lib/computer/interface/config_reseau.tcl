@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de configuration réseau
 ####################################################################
-# Version 20261019
+# Version 20261021
 # Ce module a besoin des libs réseau
 source [file join $::rep lib_reseau.tcl]
 
@@ -187,25 +187,20 @@ proc fenetre_config_client_dns {} {
 proc config_interfaces {} {
 
     # lecture de toutes les interfaces
-    set liste [get_interfaces_list]
+    set liste [get_all_interfaces_list]
     
     # si on a une seule interface, on cherche si elle possède des interfaces virtuelles
     if {[llength $liste] == {1}} {
-        set interf [lindex $liste 0]
-        if {[get_virtual_interfaces_vlan $interf] == {}} {
             fenetre_config_ip $interf
-        } else {
-            fenetre_choix_interface
-        }
-    } else  {
-        fenetre_choix_interface
+    } else {
+        fenetre_choix_interface $liste
     }
     
 }
 
 
 ################################################################################
-proc fenetre_choix_interface {} {
+proc fenetre_choix_interface {l_interf} {
     
     if [winfo exists .cfgci] {
         raise .cfgci
@@ -223,16 +218,10 @@ proc fenetre_choix_interface {} {
     labelframe .cfgci.f1 -text [::msgcat::mc "Ethernet interfaces"]
     pack .cfgci.f1 -fill both -expand 1
     set i 0
-    foreach interf [get_interfaces_list] {
+    foreach interf $l_interf {
         incr i
         button .cfgci.f1.$i -text $interf -command "fenetre_config_ip $interf"
         pack .cfgci.f1.$i -fill x
-        # On cherche si des interfaces virtuelles existent pour cette interface physique
-        set ::tmp($interf,liste_vlan) [get_virtual_interfaces_vlan $interf]
-        foreach vlan $::tmp($interf,liste_vlan) {
-            button .cfgci.f1.$i-$vlan -text "$interf.$vlan" -command "fenetre_config_ip $interf.$vlan"
-            pack .cfgci.f1.$i-$vlan -fill x
-        }
     }
 
     button .cfgci.v -compound left -text [::msgcat::mc "Close"] -image im_annuler -command {destroy .cfgci}
@@ -352,7 +341,7 @@ proc fenetre_config_ip {interf} {
     pack .cfgcip.f3 -fill both -expand 1
     if {[regexp {.+\.[0-9]+} $interf res]} {
         #Interface virtuelle
-        button .cfgcip.f3.bvirt -text [::msgcat::mc "Delete this virtual interface"] -command "fenetre_del_virtual_interface $interf"
+        button .cfgcip.f3.bvirt -text [::msgcat::mc "Delete this virtual interface"] -command "del_virtual_interface $interf"
         pack .cfgcip.f3.bvirt -fill x
     } else {
         set ltext "[::msgcat::mc "Virtual interfaces list : "]"
@@ -376,6 +365,7 @@ proc fenetre_config_ip {interf} {
     }
     pack .cfgcip.fb.a -side right
     button .cfgcip.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -command "ch_ip $interf"
+    pack .cfgcip.fb.v -side right
     focus .cfgcip.fb.a
     
     # prise en compte du mode
@@ -384,7 +374,7 @@ proc fenetre_config_ip {interf} {
         .cfgcip.f.e1 configure -state normal
         .cfgcip.f.e2 configure -state normal
         .cfgcip.f.e3 configure -state normal
-        pack .cfgcip.fb.v -side right
+        
     } else  {
         .cfgcip.f.e1 configure -state readonly
         .cfgcip.f.e2 configure -state readonly
@@ -423,7 +413,6 @@ proc fenetre_add_virtual_interface {interf} {
     pack .cfgvirt.f.l -side left
     entry .cfgvirt.f.e -background white
     pack .cfgvirt.f.e -fill x -side left -expand 1
-    #.cfgvirt.f.e insert end [lire_nom_machine]
     
     # boutons
     frame .cfgvirt.fb
@@ -437,6 +426,22 @@ proc fenetre_add_virtual_interface {interf} {
 }
 
 
+# Fenetre confirmation et suppression interface virtuelle
+################################################################################
+proc del_virtual_interface {interf} {
+    
+    set reponse [tk_messageBox -type yesno -default no -parent .cfgcip -icon question -title [::msgcat::mc "Delete interface ?"] \
+        -message "[::msgcat::mc "Confirm virtual interface deletion : "] $interf"]
+    if {$reponse == "yes"} {
+        changer_ip_machine $interf delete
+        destroy .cfgci
+        destroy .cfgcip
+        fenetre_choix_interface [get_all_interfaces_list]
+    }
+    
+}
+
+
 # Ajout interface virtuelle
 ################################################################################
 proc add_virtual_interface {interf} {
@@ -445,10 +450,15 @@ proc add_virtual_interface {interf} {
     if {$vlan == {}} {
         tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "You must choose a VLAN number"]
         raise .cfgvirt
+    } elseif {[lsearch [get_virtual_interfaces_vlan $interf] $vlan] != -1} {
+        tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "VLAN number exists"]
+        raise .cfgvirt
     } else  {
         destroy .cfgvirt
-        lappend ::tmp($interf,liste_vlan) $vlan
-        fenetre_config_ip "$interf.$vlan"
+        # enregistrement dans fichier interfaces
+        changer_ip_machine $interf.$vlan [list dhcp 0 {} {} {}]
+        destroy .cfgci
+        fenetre_choix_interface [get_all_interfaces_list]
     }
     
 }

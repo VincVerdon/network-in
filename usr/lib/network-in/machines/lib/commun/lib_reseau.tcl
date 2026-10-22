@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Fonctions gestion réseau ordinateur et routeur
 ####################################################################
-# Version 20261019
+# Version 20261021
 
 # Ecriture du nom dans /etc/hostname
 ################################################################################
@@ -32,14 +32,7 @@ proc changer_ip_machine {interface config} {
     # arret des interfaces
     catch {exec systemctl stop networking.service}
     # chargement de la liste de toutes les interfaces
-    set l_interf [get_interfaces_list]
-    foreach interf $l_interf {
-    if { ! [regexp {.*\..*} $interf res]} {
-        foreach vlan [get_virtual_interfaces_vlan $interf] {
-            lappend l_interf $interf.$vlan
-        }
-    }
-    }
+    set l_interf [get_all_interfaces_list]
     # mise à jour du fichier interfaces
     set f [open /etc/network/interfaces.new w]
     puts $f "#Automatic configuration by Network-In interface"
@@ -48,7 +41,7 @@ proc changer_ip_machine {interface config} {
     puts $f "#Interface lo"
     puts $f "auto lo"
     puts $f "iface lo inet loopback"
-    # config des interfaces physiques
+    # config des interfaces déjà existantes
     foreach interf $l_interf {
         catch {exec ip a flush $interf}
         if {$interface == $interf} {
@@ -56,7 +49,14 @@ proc changer_ip_machine {interface config} {
         } else {
             set conf [lire_interface $interf]
         }
-        write_interf_block $f $interf $conf
+        # si l'interface est marquée pour suppression, on ne l'enregistre pas
+        if {!($interf == $interface && $config == {delete})} {
+            write_interf_block $f $interf $conf
+        }
+    }
+    # config de l'interface si elle est nouvelle
+    if {[lsearch $l_interf $interface] == -1} {
+        write_interf_block $f $interface $config
     }
     close $f
     file rename -force /etc/network/interfaces.new /etc/network/interfaces
@@ -110,11 +110,24 @@ proc get_interfaces_list {} {
     foreach {type nb} $l_int {
         for  {set i 0} {$i < $nb} {incr i} {
             lappend liste $type$i
-            # initialisation liste des vlan interfaces virtuelles
-            set ::tmp($type$i,vlan) [get_virtual_interfaces_vlan $type$i]
         }
     }
     return $liste
+    
+}
+
+# Lit le fichier d'échange des interfaces et retourne la liste
+# Retourne également les interfaces virtuelles (lliste des vlans dans ::tmp(ethX,vlan)
+################################################################################
+proc get_all_interfaces_list {} {
+
+    set l_interf [get_interfaces_list]
+    foreach interf $l_interf {
+        foreach vlan [get_virtual_interfaces_vlan $interf] {
+            lappend l_interf $interf.$vlan
+        }
+    }
+    return $l_interf
     
 }
 
@@ -168,8 +181,8 @@ proc lire_interface {interface} {
 }
 
 
-
 # recherche d'interfaces virtuelles pour l'interface en paramètre
+# retourne la liste des vlan correspondants
 ################################################################################
 proc get_virtual_interfaces_vlan {interf} {
     
