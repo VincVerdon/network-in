@@ -8,6 +8,7 @@ About  "A propos"
 "Active interface"  "Activer l'interface"
 "Actual VM ID"  "ID de VM actuel"
 Add  Ajouter
+"Add a new virtual interface"  "Ajouter une nouvelle interface"
 "Add network card" "Ajouter une carte réseau"
 "Add records"  "Ajout d'enregistrements"
 "Add routes"  "Ajout de routes"
@@ -39,6 +40,7 @@ Configuration  Configuration
 "Configuration method" "Méthode de configuration"
 "Configuration options"  "Options de configuration"
 Confirm  Valider
+"Confirm virtual interface deletion"  "Confirmez la suppression de l'interface virtuelle"
 "Connected interface"  "Interface connectée"
 "Connected to simulator" "Connecté au simulateur"
 Console  Console
@@ -51,7 +53,9 @@ dce  DCE
 "Delete capture"  "Supprimer la capture"
 "Delete capture point"  "Supprimer le point de capture"
 "Delete info labels"  "Effacer les étiquettes d'infos"
+"Delete interface ?"  "Supprimer l'interface ?"
 "Delete network card" "Supprimer une carte réseau"
+"Delete this virtual interface"  "Supprimer cette interface virtuelle"
 "Desk computer"  "Ordinateur de bureau"
 "DHCP : automatic DNS configuration"  "Configuration DHCP : DNS obtenu automatiquement"
 "DHCP configuration"  "Configuration DHCP"
@@ -73,6 +77,7 @@ Duplicate  Dupliquer
 Dynamic  Dynamique
 Edit  Edition
 Editor Editeur
+"Enter VLAN ID for the virtual interface to"  "Saisissez l'ID de vlan pour l'interface virtuelle de"
 "Equipment Category"  "Catégorie d'équipement"
 "Equipment version"  "Version de ce matériel"
 err1  "Impossible. Network-In! est déjà démarré !"
@@ -241,6 +246,11 @@ unnamed  sansnom
 version   version
 virtualbox  "Machine virtuelle externe Virtualbox"
 "Virtualbox VM" "VM Virtualbox"
+"Virtual interface"  "Interface virtuelle"
+"VLAN ID between 1 and 4094"  "ID de VLAN compris entre 1 and 4094"
+"VLAN ID exists"  "L'ID de VLAN existe déjà"
+"VLAN ID" "ID de VLAN"
+"Virtual interface management" "Gestion des interfaces virtuelles"
 "VMs list"  "Liste des VM"
 "Vbox ID"  "ID VirtualBox"
 "Vbox name"  "Nom VirtualBox"
@@ -252,6 +262,7 @@ Warning  Attention
 "Wifi interfaces"  "Interfaces Wifi"
 "Write file denied"  "Ecriture du fichier interdite"
 "You can't create more than one gateway"  "Vous ne pouvez pas créer plus d'une passerelle"
+"You must choose a VLAN ID"  "Vous devez choisir un ID de VLAN"
 "You must first stop this equipment" "Vous devez tout d'abord arrêter ce matériel"
 "You must choose a name"  "Vous devez choisir un nom"
 "You must choose  an IP address and a mask"  "Vous devez choisir une adresse IP et un masque"

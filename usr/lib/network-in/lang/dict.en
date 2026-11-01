@@ -8,6 +8,7 @@ About  About
 "Active interface" "Active interface"
 "Actual VM ID"  "Actual VM ID"
 Add  Add
+"Add a new virtual interface"  "Add a new virtual interface"
 "Add network card"  "Add network card"
 "Add or change comment"  "Add or change a comment"
 "Add records"  "Add records"
@@ -52,6 +53,8 @@ dce  DCE
 "Delete capture point"  "Delete capture point"
 "Delete info labels"  "Delete info labels"
 "Delete network card"  "Delete network card"
+"Delete this virtual interface"  "Delete this virtual interface"
+"Delete interface ?"  "Delete interface ?"
 "Desk computer"  "Desk computer" 
 "DHCP : automatic DNS configuration"  "DHCP : automatic DNS configuration"
 "DHCP configuration"  "DHCP configuration"
@@ -73,6 +76,7 @@ Duplicate  Duplicate
 Dynamic  Dynamic
 Edit  Edit
 Editor  Editor
+"Enter VLAN ID for the virtual interface to"  "Enter VLAN ID for the virtual interface to"
 "Equipment Category"  "Equipment Category"
 "Equipment version"  "Equipment version"
 err1  "Impossible. Network-In! is already started !"
@@ -239,7 +243,12 @@ unnamed  unnamed
 version   version
 virtualbox "Virtualbox VM"
 "Virtualbox VM" "Virtualbox VM"
+"Virtual interface"  "Virtual interface"
+"Virtual interface management"  "Virtual interface management"
+"VLAN ID"  "VLAN ID"
 "VMs list"  "VMs list"
+"VLAN ID between 1 and 4094"  "VLAN ID between 1 and 4094"
+"VLAN ID exists"  "VLAN ID exists"
 "Vbox ID"  "VirtualBox ID"
 "Vbox name"  "VirtualBox name"
 "VM selection" "VM selection"
@@ -253,6 +262,7 @@ Warning  Warning
 "You must first stop this equipment"  "You must first stop this equipment"
 "You must choose a name"  "You must choose a name"
 "You must choose  an IP address and a mask"  "You must choose  an IP address and a mask"
+"You must choose a VLAN ID"  "You must choose a VLAN ID"
 "2 interfaces router"  "2 interfaces router"
 "4 interfaces router"  "4 interfaces router"
 "4 ports hub"  "4 ports hub"

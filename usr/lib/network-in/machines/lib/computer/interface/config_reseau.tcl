@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface de configuration réseau
 ####################################################################
-# Version 20261021
+# Version 20261101
 # Ce module a besoin des libs réseau
 source [file join $::rep lib_reseau.tcl]
 
@@ -111,17 +111,8 @@ proc fenetre_config_client_dns {} {
         raise .cfgdns
         return
     }
-
-    # lecture de la config ip pour savoir si on est en dhcp (alors DNS en lecture seule)
-    #set ip [lire_interfaces]
-    #if {[string first dhcp [array get ::tmp eth*]]  != {-1} || [string first dhcp [array get ::tmp wlan*]]  != {-1}} {
-    #    set mode dhcp
-    #} else  {
-    #    set mode static
-    #}
-    # lecture de la config DNS
+    
     set resolv [lire_dns_machine]
-
     set ::tmp(domaine) [lindex $resolv 0]
     set ::tmp(dns1) [lindex $resolv 1]
     set ::tmp(dns2) [lindex $resolv 2]
@@ -134,11 +125,6 @@ proc fenetre_config_client_dns {} {
 
     label .cfgdns.ico -image im_config
     pack .cfgdns.ico
-
-    #if {$mode == {dhcp}} {
-    #    label .cfgdns.l -text [::msgcat::mc "DHCP : automatic DNS configuration"]
-    #    pack .cfgdns.l
-    #}
 
     # zone de saisie
     labelframe .cfgdns.f
@@ -159,23 +145,15 @@ proc fenetre_config_client_dns {} {
     grid .cfgdns.f.e2 -row 2 -column 1 -sticky w
     grid .cfgdns.f.l3 -row 3 -column 0 -sticky e
     grid .cfgdns.f.e3 -row 3 -column 1 -sticky w
-    if {$mode == {dhcp}} {
-        .cfgdns.f.e configure -state readonly
-        .cfgdns.f.e1 configure -state readonly
-        .cfgdns.f.e2 configure -state readonly
-        .cfgdns.f.e3 configure -state readonly
-    }
-
+    
     # boutons
     frame .cfgdns.fb
     pack .cfgdns.fb
-    if {$mode == {static}} {
-        button .cfgdns.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command {
-            changer_dns_machine $::tmp(domaine) $::tmp(dns1) $::tmp(dns2) $::tmp(dns3)
-            destroy .cfgdns
-        }
-        pack .cfgdns.fb.v -side left
+    button .cfgdns.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command {
+        changer_dns_machine $::tmp(domaine) $::tmp(dns1) $::tmp(dns2) $::tmp(dns3)
+        destroy .cfgdns
     }
+    pack .cfgdns.fb.v -side left
     button .cfgdns.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .cfgdns}
     pack .cfgdns.fb.a -side left
     focus .cfgdns.fb.a
@@ -191,7 +169,7 @@ proc config_interfaces {} {
     
     # si on a une seule interface, on cherche si elle possède des interfaces virtuelles
     if {[llength $liste] == {1}} {
-            fenetre_config_ip $interf
+        fenetre_config_ip [lindex $liste 0]
     } else {
         fenetre_choix_interface $liste
     }
@@ -403,13 +381,13 @@ proc fenetre_add_virtual_interface {interf} {
     label .cfgvirt.ico -image im_config
     pack .cfgvirt.ico
 
-    label .cfgvirt.l -text "[::msgcat::mc "Virtual interface add to "] $interf. Enter VLAN number"
+    label .cfgvirt.l -text "[::msgcat::mc "Enter VLAN ID for the virtual interface to"] $interf."
     pack .cfgvirt.l
     
     # zone de saisie
     labelframe .cfgvirt.f
     pack .cfgvirt.f -fill both -expand 1
-    label .cfgvirt.f.l -text "[::msgcat::mc "VLAN number"] :"
+    label .cfgvirt.f.l -text "[::msgcat::mc "VLAN ID"] :"
     pack .cfgvirt.f.l -side left
     entry .cfgvirt.f.e -background white
     pack .cfgvirt.f.e -fill x -side left -expand 1
@@ -431,7 +409,7 @@ proc fenetre_add_virtual_interface {interf} {
 proc del_virtual_interface {interf} {
     
     set reponse [tk_messageBox -type yesno -default no -parent .cfgcip -icon question -title [::msgcat::mc "Delete interface ?"] \
-        -message "[::msgcat::mc "Confirm virtual interface deletion : "] $interf"]
+        -message "[::msgcat::mc "Confirm virtual interface deletion"] $interf"]
     if {$reponse == "yes"} {
         changer_ip_machine $interf delete
         destroy .cfgci
@@ -448,10 +426,13 @@ proc add_virtual_interface {interf} {
 
     set vlan [.cfgvirt.f.e get]
     if {$vlan == {}} {
-        tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "You must choose a VLAN number"]
+        tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "You must choose a VLAN ID"]
         raise .cfgvirt
     } elseif {[lsearch [get_virtual_interfaces_vlan $interf] $vlan] != -1} {
-        tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "VLAN number exists"]
+        tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "VLAN ID exists"]
+        raise .cfgvirt
+    } elseif {$vlan <1 || $vlan > 4094} {
+        tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "VLAN ID between 1 and 4094"]
         raise .cfgvirt
     } else  {
         destroy .cfgvirt
