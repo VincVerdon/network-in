@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface routeur
 ####################################################################
-# Version 20261101
+# Version 20261109
 set version(equipment) {2.2.0}
 
 # Création de l'interface de configuration principale
@@ -43,6 +43,9 @@ proc fenetre_principale {} {
 
     button .f.f1.2 -text [::msgcat::mc "Static routing"] -command {fenetre_config_routage_statique}
     pack .f.f1.2 -fill x
+
+    button .f.f1.5 -text [::msgcat::mc "DHCP relay"] -command {fenetre_config_dhrelay}
+    pack .f.f1.5 -fill x
 
     #zone d'informations
     labelframe .f.f2 -text [::msgcat::mc "Information"]
@@ -258,74 +261,6 @@ proc fenetre_choix_interface {l_interf} {
     pack .cfgci.v
     focus .cfgci.v
   
-}
-
-
-# Fenetre de config de l'adresse
-################################################################################
-proc fenetre_config_ip_anc {interf} {
-
-    if [winfo exists .cfgcip] {
-        raise .cfgcip
-        return
-    }
-    
-    set ::tmp(interface) $interf
-    set ::tmp(mode) [lindex $::tmp($interf) 0]
-    set ::tmp(ip) [lindex $::tmp($interf) 1]
-    set ::tmp(netmask) [lindex $::tmp($interf) 2]
-    set ::tmp(gateway) [lindex $::tmp($interf) 3]
-    set ::tmp(etat) [lindex $::tmp($interf) 4]
-    set ::tmp(sauve_ip) $::tmp(ip)
-    set ::tmp(sauve_netmask) $::tmp(netmask)
-    set ::tmp(sauve_gateway) $::tmp(gateway)
-    
-    toplevel .cfgcip
-    wm title .cfgcip [::msgcat::mc "IP configuration"]
-    wm transient .cfgcip .
-    positionne_fenetre .cfgcip .cfgci
-    wm withdraw .cfgci
-    
-    label .cfgcip.ico -image im_config
-    pack .cfgcip.ico
-
-    # Activation de l'interface
-    labelframe .cfgcip.f2 -text [::msgcat::mc "Generalities"]
-    pack .cfgcip.f2 -fill both -expand 1
-    label .cfgcip.f2.l -text [::msgcat::mc "Type : ethernet"]
-    label .cfgcip.f2.l1 -text "[::msgcat::mc "Name"] : $interf"
-    checkbutton .cfgcip.f2.c -text [::msgcat::mc "Active interface"] -variable ::tmp(etat)
-    grid .cfgcip.f2.l1 -row 1 -column 0 -sticky w
-    grid .cfgcip.f2.l -row 1 -column 1 -sticky e
-    grid .cfgcip.f2.c -row 3 -column 0 -sticky w
-
-    # zone de saisie
-    labelframe .cfgcip.f -text [::msgcat::mc "Parameters"]
-    pack .cfgcip.f -fill both -expand 1
-    label .cfgcip.f.l1 -text "[::msgcat::mc "IP address"] : "
-    entry .cfgcip.f.e1 -background white -width 16 -textvariable ::tmp(ip)
-    label .cfgcip.f.l2 -text "[::msgcat::mc "Network mask"] : "
-    entry .cfgcip.f.e2 -background white -width 16 -textvariable ::tmp(netmask)
-    # label .cfgcip.f.l3 -text {Adresse de passerelle :}
-    # entry .cfgcip.f.e3 -background white -width 16 -textvariable ::tmp(gateway)
-    grid .cfgcip.f.l1 -row 1 -column 0 -sticky e
-    grid .cfgcip.f.e1 -row 1 -column 1 -sticky w
-    grid .cfgcip.f.l2 -row 2 -column 0 -sticky e
-    grid .cfgcip.f.e2 -row 2 -column 1 -sticky w
-    # grid .cfgcip.f.l3 -row 3 -column 0 -sticky e
-    # grid .cfgcip.f.e3 -row 3 -column 1 -sticky w
-
-    # boutons
-    frame .cfgcip.fb
-    pack .cfgcip.fb
-    button .cfgcip.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {
-        destroy .cfgcip
-        wm deiconify .cfgci
-        } -relief flat
-    pack .cfgcip.fb.a -side right
-    button .cfgcip.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command "ch_ip $interf"
-    pack .cfgcip.fb.v -side right
-    
 }
 
 
@@ -689,3 +624,63 @@ proc add_virtual_interface {interf} {
     }
     
 }
+
+# Fenetre d'activation du relai DHCP
+################################################################################
+proc fenetre_config_dhrelay {} {
+
+    if [winfo exists .cfgrelay] {
+        raise .cfgrelay
+        return
+    }
+
+    # réinitialisation/récupération de la config
+    array unset ::conf_dhrelay
+    set ::conf_dhrelay(dhrelay) 0
+    set res [lire_param dhrelay]
+
+    if {$res != {}} {
+        array set ::conf_dhrelay $res
+    }
+    
+    toplevel .cfgrelay
+    wm title .cfgrelay  [::msgcat::mc "DHCP relay configuration"]
+    wm transient .cfgrelay .
+    positionne_fenetre .cfgrelay
+    
+    label .cfgrelay.ico -image im_config
+    pack .cfgrelay.ico
+    
+    # zone de saisie
+    labelframe .cfgrelay.f
+    pack .cfgrelay.f -fill both -expand 1
+    radiobutton .cfgrelay.f.1 -text [::msgcat::mc "On"]  -variable ::conf_dhrelay(dhrelay) -value 1
+    pack .cfgrelay.f.1 -side left
+    radiobutton .cfgrelay.f.2 -text [::msgcat::mc "Off"] -variable ::conf_dhrelay(dhrelay) -value 0
+    pack .cfgrelay.f.2 -side left
+    label .cfgrelay.f.l -text "[::msgcat::mc "Server IP"] :"
+    pack .cfgrelay.f.l -side left
+    entry .cfgrelay.f.e -background white -textvariable ::conf_dhrelay(server)
+    pack .cfgrelay.f.e -fill x -side left -expand 1
+    #.cfgrelay.f.e insert end [lire_nom_machine]
+    
+    # boutons
+    frame .cfgrelay.fb
+    pack .cfgrelay.fb
+    button .cfgrelay.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command {
+        #set ::conf_dhrelay(ip) [.cfgrelay.f.e get]
+        #if {$::tmp(nom) == {}} {
+         #   tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "You must choose an IP"]
+        #} else  {
+            applique_config_dhrelay
+            destroy .cfgrelay
+        #}
+    }
+    pack .cfgrelay.fb.v -side left
+    button .cfgrelay.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .cfgrelay} -relief flat
+    pack .cfgrelay.fb.a -side left
+    
+}
+
+
+

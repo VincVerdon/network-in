@@ -4,20 +4,20 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Outils config routeur
 ####################################################################
-# Version 20250625
+# Version 20261109
 source [file join $::rep lib_reseau.tcl]
 
 # Enregistre et crée les scripts de routage statique
 ################################################################################
 proc write_static_routes {} {
-	
-	
-	# Suppression des routes actuelles
+    
+    
+    # Suppression des routes actuelles
     routage_off
-	
+    
     # sauvegarde des données
-	ecrire_param_routage static $::conf(static)
-	
+    ecrire_param_routage static $::conf(static)
+    
   # creation du script de config de routage
   set f [open $::rep_conf/routage_on.sh w]
   puts $f "#!/bin/sh"
@@ -49,16 +49,16 @@ proc write_static_routes {} {
   }
   close $f
   file attributes $::rep_conf/routage_off.sh -permissions 0700
-	
-	routage_on
+    
+    routage_on
 }
 
 
 # Activation des règles de routage statique
 ################################################################################
 proc routage_on {} {
-	
-	catch {exec $::rep_conf/routage_on.sh}
+    
+    catch {exec $::rep_conf/routage_on.sh}
     
 }
 
@@ -66,8 +66,8 @@ proc routage_on {} {
 # Activation des règles de routage statique
 ################################################################################
 proc routage_off {} {
-	
-	catch {exec $::rep_conf/routage_off.sh}
+    
+    catch {exec $::rep_conf/routage_off.sh}
     
 }
 
@@ -91,3 +91,69 @@ proc ecrire_param_routage {type don} {
   close $f
 }
 
+
+# Désactivation ou activation d'un service (systemd)
+################################################################################
+proc maj_service {daemon etat} {
+    
+    if {$etat} {
+      # installation
+      exec /bin/systemctl enable $daemon &
+      # le service doit tourner
+      exec /bin/systemctl restart $daemon &
+    } else  {
+      # désinstallation
+      exec /bin/systemctl disable $daemon &
+      # le service doit être arrêté
+      exec /bin/systemctl stop $daemon &
+    }
+    
+}
+
+
+# Ecriture des paramètres saisis pour un service
+################################################################################
+proc ecrire_param {service don} {
+    set fic $::rep_conf/$service
+    set f [open $fic w]
+    puts $f $don
+    close $f
+}
+
+
+# Lecture des paramètres saisis pour un service
+################################################################################
+proc lire_param {service} {
+    
+    set fic $::rep_conf/$service
+    if {![file exists $fic]} {return {}}
+    set f [open $fic r]
+    set res [read $f]
+    close $f
+    return [string trim $res]
+    
+}
+
+
+# Prise en compte de la config du relai DHCP
+################################################################################
+proc applique_config_dhrelay {} {
+
+    # sauvegarde des données
+    ecrire_param dhrelay [array get ::conf_dhrelay]
+    
+    # ecriture du fichier de config du relai
+    set f [open /etc/default/isc-dhcp-relay w]
+    puts $f "// Automatic configuration by Network-In interface"
+    puts $f ""
+    puts $f "SERVERS=\"$::conf_dhrelay(server)\""
+    puts $f "INTERFACES=\"\""
+    puts $f "OPTIONS=\"[get_all_interfaces_list]\""
+    close $f
+
+    # redémarrage du service
+    maj_service isc-dhcp-relay $::conf_dhrelay(dhrelay)
+
+    array unset ::conf_relay
+
+}
