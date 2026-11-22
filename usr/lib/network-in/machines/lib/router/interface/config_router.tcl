@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Outils config routeur
 ####################################################################
-# Version 20261109
+# Version 20261122
 source [file join $::rep lib_reseau.tcl]
 
 # Enregistre et crée les scripts de routage statique
@@ -147,8 +147,8 @@ proc applique_config_dhrelay {} {
     puts $f "// Automatic configuration by Network-In interface"
     puts $f ""
     puts $f "SERVERS=\"$::conf_dhrelay(server)\""
-    puts $f "INTERFACES=\"\""
-    puts $f "OPTIONS=\"[get_all_interfaces_list]\""
+    puts $f "INTERFACES=\"[get_all_interfaces_list]\""
+    puts $f "OPTIONS=\"\""
     close $f
 
     # redémarrage du service

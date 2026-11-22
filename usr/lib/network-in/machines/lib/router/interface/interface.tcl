@@ -4,7 +4,7 @@
 #placé sous licence GNU GPL (consulter le fichier joint intitulé "licence.txt"
 # Interface routeur
 ####################################################################
-# Version 20261109
+# Version 20261121
 set version(equipment) {2.2.0}
 
 # Création de l'interface de configuration principale
@@ -668,13 +668,12 @@ proc fenetre_config_dhrelay {} {
     frame .cfgrelay.fb
     pack .cfgrelay.fb
     button .cfgrelay.fb.v -compound left -text [::msgcat::mc "Confirm"] -image im_valider -relief flat -command {
-        #set ::conf_dhrelay(ip) [.cfgrelay.f.e get]
-        #if {$::tmp(nom) == {}} {
-         #   tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "You must choose an IP"]
-        #} else  {
+        if {$::conf_dhrelay(server) == {}} {
+            tk_messageBox -title [::msgcat::mc "Error"] -icon error -message [::msgcat::mc "You must choose an IP"]
+        } else  {
             applique_config_dhrelay
             destroy .cfgrelay
-        #}
+        }
     }
     pack .cfgrelay.fb.v -side left
     button .cfgrelay.fb.a -compound left -text [::msgcat::mc "Abort"] -image im_annuler -command {destroy .cfgrelay} -relief flat
